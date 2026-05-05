@@ -5,4 +5,5 @@ namespace Vanguard_Engine.Services;
 public interface IAuthService
 {
     Task<AuthResponseDto?> LoginAsync(LoginDto dto);
+    Task<LoginResponseDto> RegisterAsync(RegisterDto dto);
 }

@@ -15,7 +15,7 @@ namespace Vanguard_Engine.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToPage("/Account/Login");
         }
 
         public IActionResult Privacy()

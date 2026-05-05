@@ -21,7 +21,8 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
     {
-        var user = await _unitOfWork.Users.GetByEmailAsync(dto.Email);
+        var email = dto.Email.Trim().ToLowerInvariant();
+        var user = await _unitOfWork.Users.GetByEmailAsync(email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
             return null;
@@ -33,6 +34,31 @@ public class AuthService : IAuthService
 
         var token = GenerateJwtToken(user);
         return new AuthResponseDto(token, user.Username);
+    }
+
+    public async Task<LoginResponseDto> RegisterAsync(RegisterDto dto)
+    {
+        var email = dto.Email.Trim().ToLowerInvariant();
+        var existingUser = await _unitOfWork.Users.GetByEmailAsync(email);
+        if (existingUser != null)
+        {
+            return new LoginResponseDto(false, "Email is already registered");
+        }
+
+        var user = new User
+        {
+            Username = dto.Username.Trim(),
+            Email = email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Address = dto.Address,
+            RoleId = dto.RoleId,
+            LastLogin = DateTime.UtcNow
+        };
+
+        await _unitOfWork.Users.AddAsync(user);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new LoginResponseDto(true, "Registration successful");
     }
 
     private string GenerateJwtToken(User user)

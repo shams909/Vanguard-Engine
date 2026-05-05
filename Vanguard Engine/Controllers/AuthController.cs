@@ -26,4 +26,11 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterDto dto)
+    {
+        var response = await _authService.RegisterAsync(dto);
+        return response.Success ? Ok(response) : BadRequest(response);
+    }
 }

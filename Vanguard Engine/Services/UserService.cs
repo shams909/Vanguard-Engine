@@ -30,8 +30,8 @@ public class UserService : IUserService
     {
         var user = new User
         {
-            Username = dto.Username,
-            Email = dto.Email,
+            Username = dto.Username.Trim(),
+            Email = dto.Email.Trim().ToLowerInvariant(),
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Address = dto.Address,
             RoleId = dto.RoleId,
@@ -52,8 +52,8 @@ public class UserService : IUserService
             return false;
         }
 
-        user.Username = dto.Username;
-        user.Email = dto.Email;
+        user.Email = dto.Email.Trim().ToLowerInvariant();
+        user.Username = dto.Username.Trim();
         user.Address = dto.Address;
         user.RoleId = dto.RoleId;
         user.LastLogin = dto.LastLogin;
