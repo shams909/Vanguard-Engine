@@ -11,5 +11,5 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     }
 
     public Task<User?> GetByEmailAsync(string email) =>
-        DbSet.FirstOrDefaultAsync(u => u.Email == email);
+        DbSet.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email);
 }
