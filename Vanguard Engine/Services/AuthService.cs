@@ -1,9 +1,6 @@
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Vanguard_Engine.DTOs.Auth;
+using Microsoft.AspNetCore.Identity;
 using Vanguard_Engine.Entities;
+using Vanguard_Engine.Models;
 using Vanguard_Engine.UnitOfWork;
 
 namespace Vanguard_Engine.Services;
@@ -11,80 +8,65 @@ namespace Vanguard_Engine.Services;
 public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IConfiguration _configuration;
+    private readonly PasswordHasher<User> _passwordHasher;
 
-    public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
+    public AuthService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        _configuration = configuration;
+        _passwordHasher = new PasswordHasher<User>();
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    public async Task<User?> LoginAsync(LoginViewModel model)
     {
-        var email = dto.Email.Trim().ToLowerInvariant();
-        var user = await _unitOfWork.Users.GetByEmailAsync(email);
-        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-        {
-            return null;
-        }
+        var user = await _unitOfWork.Users.GetByEmailAsync(model.Email);
+        if (user == null) return null;
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+        if (result == PasswordVerificationResult.Failed) return null;
 
         user.LastLogin = DateTime.UtcNow;
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync();
 
-        var token = GenerateJwtToken(user);
-        return new AuthResponseDto(token, user.Username);
+        return user;
     }
 
-    public async Task<LoginResponseDto> RegisterAsync(RegisterDto dto)
+    public async Task<bool> RegisterAsync(RegisterViewModel model)
     {
-        var email = dto.Email.Trim().ToLowerInvariant();
-        var existingUser = await _unitOfWork.Users.GetByEmailAsync(email);
-        if (existingUser != null)
+        var existingUser = await _unitOfWork.Users.GetByEmailAsync(model.Email);
+        if (existingUser != null) return false;
+
+        var roleName = model.UserRole == "Client" ? "Client" : "Guard";
+        var role = await _unitOfWork.Roles.GetByNameAsync(roleName);
+        
+        if (role == null)
         {
-            return new LoginResponseDto(false, "Email is already registered");
+            // Fallback or create role if it doesn't exist (though it should be seeded)
+            role = new Role { RoleName = roleName };
+            await _unitOfWork.Roles.AddAsync(role);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         var user = new User
         {
-            Username = dto.Username.Trim(),
-            Email = email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Address = dto.Address,
-            RoleId = dto.RoleId,
+            Username = model.Username,
+            Email = model.Email,
+            Address = model.Address,
+            RoleId = role.Id,
             LastLogin = DateTime.UtcNow
         };
+
+        user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
 
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
 
-        return new LoginResponseDto(true, "Registration successful");
+        return true;
     }
 
-    private string GenerateJwtToken(User user)
+    public Task LogoutAsync()
     {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var key = Encoding.ASCII.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key is missing"));
-
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role?.RoleName ?? "User")
-        };
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddDays(7),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-            Issuer = jwtSettings["Issuer"],
-            Audience = jwtSettings["Audience"]
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        // Cookie clearing is handled in the controller
+        return Task.CompletedTask;
     }
 }

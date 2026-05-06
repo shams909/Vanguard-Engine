@@ -1,4 +1,4 @@
-using BCrypt.Net;
+using Microsoft.AspNetCore.Identity;
 using Vanguard_Engine.DTOs.Users;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.UnitOfWork;
@@ -8,10 +8,12 @@ namespace Vanguard_Engine.Services;
 public class UserService : IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly PasswordHasher<User> _passwordHasher;
 
     public UserService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
+        _passwordHasher = new PasswordHasher<User>();
     }
 
     public async Task<List<UserDto>> GetAllAsync(int pageNumber, int pageSize)
@@ -32,11 +34,12 @@ public class UserService : IUserService
         {
             Username = dto.Username.Trim(),
             Email = dto.Email.Trim().ToLowerInvariant(),
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Address = dto.Address,
             RoleId = dto.RoleId,
             LastLogin = dto.LastLogin
         };
+
+        user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
 
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
@@ -60,9 +63,23 @@ public class UserService : IUserService
 
         if (!string.IsNullOrWhiteSpace(dto.Password))
         {
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
         }
 
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateRoleAsync(int userId, int newRoleId)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user is null) return false;
+
+        var role = await _unitOfWork.Roles.GetByIdAsync(newRoleId);
+        if (role is null) return false;
+
+        user.RoleId = newRoleId;
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync();
         return true;

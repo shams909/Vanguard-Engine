@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Vanguard_Engine.Models;
@@ -15,9 +16,10 @@ namespace Vanguard_Engine.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToPage("/Account/Login");
+            return View();
         }
 
+        [Authorize]
         public IActionResult Privacy()
         {
             return View();

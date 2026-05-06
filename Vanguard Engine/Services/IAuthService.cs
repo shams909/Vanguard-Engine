@@ -1,9 +1,11 @@
-using Vanguard_Engine.DTOs.Auth;
+using Vanguard_Engine.Entities;
+using Vanguard_Engine.Models;
 
 namespace Vanguard_Engine.Services;
 
 public interface IAuthService
 {
-    Task<AuthResponseDto?> LoginAsync(LoginDto dto);
-    Task<LoginResponseDto> RegisterAsync(RegisterDto dto);
+    Task<bool> RegisterAsync(RegisterViewModel model);
+    Task<User?> LoginAsync(LoginViewModel model);
+    Task LogoutAsync();
 }

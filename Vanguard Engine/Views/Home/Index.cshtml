@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -7,23 +7,48 @@
     <p class="lead">Security Guard Management System</p>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Roles</h5>
-                <p class="card-text">Manage role definitions and permissions.</p>
-                <a class="btn btn-primary" asp-page="/Roles/Index">Go to Roles</a>
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+{
+    <div class="row mt-5">
+        <div class="col-md-6 mb-4">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-4 text-primary mb-3"><i class="bi bi-shield-lock"></i></div>
+                    <h5 class="card-title h4">Roles</h5>
+                    <p class="card-text text-muted">Manage system role definitions, permissions, and access levels.</p>
+                    <a class="btn btn-primary btn-lg mt-2" asp-controller="Roles" asp-action="Index">
+                        <i class="bi bi-gear-fill"></i> Go to Roles
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card border-primary shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-4 text-primary mb-3"><i class="bi bi-people"></i></div>
+                    <h5 class="card-title h4">Users</h5>
+                    <p class="card-text text-muted">View, edit, and manage all system users and their assignments.</p>
+                    <a class="btn btn-primary btn-lg mt-2" asp-controller="Users" asp-action="Index">
+                        <i class="bi bi-person-fill-gear"></i> Go to Users
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Users</h5>
-                <p class="card-text">Manage system users and assignments.</p>
-                <a class="btn btn-primary" asp-page="/Users/Index">Go to Users</a>
-            </div>
-        </div>
+}
+else if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="mt-5 text-center p-5 bg-light rounded-3 shadow-sm">
+        <h2 class="mb-3 text-secondary">Welcome back, @User.Identity.Name!</h2>
+        <p class="lead">You are logged in as a <strong>@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "User")</strong>.</p>
+        <hr class="my-4">
+        <p>Use the navigation bar above to explore the features available to you.</p>
     </div>
-</div>
+}
+else
+{
+    <div class="mt-5 text-center p-5 border border-dashed rounded-3">
+        <h2 class="text-muted">Welcome to Vanguard Engine</h2>
+        <p class="lead">Please <a asp-controller="Auth" asp-action="Login" class="text-primary fw-bold">Login</a> or <a asp-controller="Auth" asp-action="Register" class="text-primary fw-bold">Register</a> to access the management features.</p>
+    </div>
+}

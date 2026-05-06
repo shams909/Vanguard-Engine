@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Vanguard_Engine.DTOs.Roles;
@@ -6,6 +7,7 @@ using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Pages.Users;
 
+[Authorize(Roles = "Admin")]
 public class CreateModel : PageModel
 {
     private readonly IUserService _userService;

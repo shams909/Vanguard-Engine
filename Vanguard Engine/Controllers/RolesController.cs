@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vanguard_Engine.DTOs.Roles;
 using Vanguard_Engine.Services;
@@ -6,6 +7,7 @@ namespace Vanguard_Engine.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin")]
 public class RolesController : ControllerBase
 {
     private readonly IRoleService _roleService;

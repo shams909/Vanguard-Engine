@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Vanguard_Engine.DTOs.Roles;
 using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Pages.Roles;
 
+[Authorize(Roles = "Admin")]
 public class IndexModel : PageModel
 {
     private readonly IRoleService _roleService;
