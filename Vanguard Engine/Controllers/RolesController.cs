@@ -24,8 +24,8 @@ public class RolesController : ControllerBase
         return Ok(roles);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<RoleDto>> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<RoleDto>> GetById(string id)
     {
         var role = await _roleService.GetByIdAsync(id);
         return role is null ? NotFound() : Ok(role);
@@ -38,15 +38,15 @@ public class RolesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, UpdateRoleDto dto)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, UpdateRoleDto dto)
     {
         var updated = await _roleService.UpdateAsync(id, dto);
         return updated ? NoContent() : NotFound();
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _roleService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();

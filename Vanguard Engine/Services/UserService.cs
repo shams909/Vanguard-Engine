@@ -22,7 +22,7 @@ public class UserService : IUserService
         return users.Select(MapToDto).ToList();
     }
 
-    public async Task<UserDto?> GetByIdAsync(int id)
+    public async Task<UserDto?> GetByIdAsync(string id)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
         return user is null ? null : MapToDto(user);
@@ -47,7 +47,7 @@ public class UserService : IUserService
         return MapToDto(user);
     }
 
-    public async Task<bool> UpdateAsync(int id, UpdateUserDto dto)
+    public async Task<bool> UpdateAsync(string id, UpdateUserDto dto)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
         if (user is null)
@@ -71,7 +71,7 @@ public class UserService : IUserService
         return true;
     }
 
-    public async Task<bool> UpdateRoleAsync(int userId, int newRoleId)
+    public async Task<bool> UpdateRoleAsync(string userId, string newRoleId)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user is null) return false;
@@ -85,7 +85,7 @@ public class UserService : IUserService
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(string id)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
         if (user is null)

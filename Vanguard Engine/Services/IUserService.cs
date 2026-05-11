@@ -5,9 +5,9 @@ namespace Vanguard_Engine.Services;
 public interface IUserService
 {
     Task<List<UserDto>> GetAllAsync(int pageNumber, int pageSize);
-    Task<UserDto?> GetByIdAsync(int id);
+    Task<UserDto?> GetByIdAsync(string id);
     Task<UserDto> CreateAsync(CreateUserDto dto);
-    Task<bool> UpdateAsync(int id, UpdateUserDto dto);
-    Task<bool> UpdateRoleAsync(int userId, int newRoleId);
-    Task<bool> DeleteAsync(int id);
+    Task<bool> UpdateAsync(string id, UpdateUserDto dto);
+    Task<bool> UpdateRoleAsync(string userId, string newRoleId);
+    Task<bool> DeleteAsync(string id);
 }

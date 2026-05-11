@@ -19,7 +19,7 @@ public class RoleService : IRoleService
         return roles.Select(MapToDto).ToList();
     }
 
-    public async Task<RoleDto?> GetByIdAsync(int id)
+    public async Task<RoleDto?> GetByIdAsync(string id)
     {
         var role = await _unitOfWork.Roles.GetByIdAsync(id);
         return role is null ? null : MapToDto(role);
@@ -39,7 +39,7 @@ public class RoleService : IRoleService
         return MapToDto(role);
     }
 
-    public async Task<bool> UpdateAsync(int id, UpdateRoleDto dto)
+    public async Task<bool> UpdateAsync(string id, UpdateRoleDto dto)
     {
         var role = await _unitOfWork.Roles.GetByIdAsync(id);
         if (role is null)
@@ -55,7 +55,7 @@ public class RoleService : IRoleService
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(string id)
     {
         var role = await _unitOfWork.Roles.GetByIdAsync(id);
         if (role is null)

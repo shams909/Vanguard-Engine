@@ -20,7 +20,7 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public CreateUserDto User { get; set; } = new(string.Empty, string.Empty, string.Empty, null, 0, DateTime.UtcNow);
+    public CreateUserDto CreateUser { get; set; } = new(string.Empty, string.Empty, string.Empty, null, null, DateTime.UtcNow);
 
     public List<RoleDto> Roles { get; private set; } = new();
 
@@ -37,7 +37,7 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        await _userService.CreateAsync(User);
+        await _userService.CreateAsync(CreateUser);
         return RedirectToPage("/Users/Index");
     }
 }

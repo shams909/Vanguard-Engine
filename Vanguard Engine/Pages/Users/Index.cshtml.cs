@@ -21,18 +21,19 @@ public class IndexModel : PageModel
 
     public List<UserDto> Users { get; private set; } = new();
     public List<RoleDto> Roles { get; private set; } = new();
-    public int PageNumber { get; private set; }
-    public int PageSize { get; private set; }
+    [BindProperty(SupportsGet = true)]
+    public int PageNumber { get; set; } = 1;
 
-    public async Task OnGetAsync(int pageNumber = 1, int pageSize = 10)
+    [BindProperty(SupportsGet = true)]
+    public int PageSize { get; set; } = 10;
+
+    public async Task OnGetAsync()
     {
-        PageNumber = pageNumber;
-        PageSize = pageSize;
-        Users = await _userService.GetAllAsync(pageNumber, pageSize);
+        Users = await _userService.GetAllAsync(PageNumber, PageSize);
         Roles = await _roleService.GetAllAsync(1, 100);
     }
 
-    public async Task<IActionResult> OnPostUpdateRoleAsync(int userId, int newRoleId)
+    public async Task<IActionResult> OnPostUpdateRoleAsync(string userId, string newRoleId)
     {
         var result = await _userService.UpdateRoleAsync(userId, newRoleId);
         if (!result)

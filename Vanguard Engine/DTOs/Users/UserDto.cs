@@ -1,3 +1,3 @@
 namespace Vanguard_Engine.DTOs.Users;
 
-public record UserDto(int Id, string Username, string Email, string? Address, int RoleId, DateTime LastLogin);
+public record UserDto(string Id, string Username, string Email, string? Address, string? RoleId, DateTime LastLogin);

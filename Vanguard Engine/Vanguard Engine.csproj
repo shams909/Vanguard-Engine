@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Appwrite" Version="0.13.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
@@ -16,6 +17,17 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="AppwriteProvisioner\**" />
+    <Compile Remove="AppwriteSetupTool\**" />
+    <Content Remove="AppwriteProvisioner\**" />
+    <Content Remove="AppwriteSetupTool\**" />
+    <EmbeddedResource Remove="AppwriteProvisioner\**" />
+    <EmbeddedResource Remove="AppwriteSetupTool\**" />
+    <None Remove="AppwriteProvisioner\**" />
+    <None Remove="AppwriteSetupTool\**" />
   </ItemGroup>
 
 </Project>

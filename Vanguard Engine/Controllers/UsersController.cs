@@ -24,8 +24,8 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<UserDto>> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserDto>> GetById(string id)
     {
         var user = await _userService.GetByIdAsync(id);
         return user is null ? NotFound() : Ok(user);
@@ -38,15 +38,15 @@ public class UsersController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, UpdateUserDto dto)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, UpdateUserDto dto)
     {
         var updated = await _userService.UpdateAsync(id, dto);
         return updated ? NoContent() : NotFound();
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _userService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
