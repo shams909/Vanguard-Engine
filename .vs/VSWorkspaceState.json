@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Migrations",
+    "\\Models",
+    "\\Pages",
+    "\\Properties",
+    "\\Repositories",
+    "\\Services",
+    "\\UnitOfWork",
+    "\\Views",
+    "\\wwwroot"
+  ],
+  "SelectedNode": "\\Repositories\\GenericRepository.cs",
+  "PreviewInSolutionExplorer": false
+}
