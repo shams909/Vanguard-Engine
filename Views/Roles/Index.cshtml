@@ -1,5 +1,4 @@
-@page
-@model Vanguard_Engine.Pages.Roles.IndexModel
+@model Vanguard_Engine.Models.RolesIndexViewModel
 @{
     ViewData["Title"] = "Roles";
 }
@@ -7,7 +6,7 @@
 <h2>Roles</h2>
 
 <div class="mb-3">
-    <a class="btn btn-primary" asp-page="/Roles/Create">Add Role</a>
+    <a class="btn btn-primary" asp-action="Create">Add Role</a>
 </div>
 
 <table class="table table-striped">
@@ -33,13 +32,13 @@
 <nav>
     <ul class="pagination">
         <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
-            <a class="page-link" asp-page="/Roles/Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">Previous</a>
+            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">Previous</a>
         </li>
         <li class="page-item">
             <span class="page-link">Page @Model.PageNumber</span>
         </li>
         <li class="page-item">
-            <a class="page-link" asp-page="/Roles/Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next</a>
+            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next</a>
         </li>
     </ul>
 </nav>

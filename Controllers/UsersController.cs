@@ -1,54 +1,66 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vanguard_Engine.DTOs.Users;
+using Vanguard_Engine.Models;
 using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
-public class UsersController : ControllerBase
+public class UsersController : Controller
 {
     private readonly IUserService _userService;
+    private readonly IRoleService _roleService;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, IRoleService roleService)
     {
         _userService = userService;
+        _roleService = roleService;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<UserDto>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10)
     {
-        var users = await _userService.GetAllAsync(pageNumber, pageSize);
-        return Ok(users);
-    }
+        var model = new UsersIndexViewModel
+        {
+            Users = await _userService.GetAllAsync(pageNumber, pageSize),
+            Roles = await _roleService.GetAllAsync(1, 100),
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetById(string id)
-    {
-        var user = await _userService.GetByIdAsync(id);
-        return user is null ? NotFound() : Ok(user);
+        return View(model);
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserDto>> Create(CreateUserDto dto)
+    public async Task<IActionResult> UpdateRole(string userId, string newRoleId, int pageNumber = 1, int pageSize = 10)
     {
-        var user = await _userService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+        var result = await _userService.UpdateRoleAsync(userId, newRoleId);
+        TempData[result ? "Success" : "Error"] = result ? "User role updated successfully." : "Failed to update user role.";
+
+        return RedirectToAction(nameof(Index), new { pageNumber, pageSize });
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, UpdateUserDto dto)
+    [HttpGet]
+    public async Task<IActionResult> Create()
     {
-        var updated = await _userService.UpdateAsync(id, dto);
-        return updated ? NoContent() : NotFound();
+        var model = new UsersCreateViewModel
+        {
+            Roles = await _roleService.GetAllAsync(1, 100)
+        };
+
+        return View(model);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpPost]
+    public async Task<IActionResult> Create(UsersCreateViewModel model)
     {
-        var deleted = await _userService.DeleteAsync(id);
-        return deleted ? NoContent() : NotFound();
+        if (!ModelState.IsValid)
+        {
+            model.Roles = await _roleService.GetAllAsync(1, 100);
+            return View(model);
+        }
+
+        await _userService.CreateAsync(model.CreateUser);
+        return RedirectToAction(nameof(Index));
     }
 }

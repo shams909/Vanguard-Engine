@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Vanguard_Engine.DTOs.Roles;
+using Vanguard_Engine.Models;
 using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
-public class RolesController : ControllerBase
+public class RolesController : Controller
 {
     private readonly IRoleService _roleService;
 
@@ -18,37 +16,33 @@ public class RolesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<RoleDto>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10)
     {
-        var roles = await _roleService.GetAllAsync(pageNumber, pageSize);
-        return Ok(roles);
+        var model = new RolesIndexViewModel
+        {
+            Roles = await _roleService.GetAllAsync(pageNumber, pageSize),
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        return View(model);
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<RoleDto>> GetById(string id)
+    [HttpGet]
+    public IActionResult Create()
     {
-        var role = await _roleService.GetByIdAsync(id);
-        return role is null ? NotFound() : Ok(role);
+        return View(new RolesCreateViewModel());
     }
 
     [HttpPost]
-    public async Task<ActionResult<RoleDto>> Create(CreateRoleDto dto)
+    public async Task<IActionResult> Create(RolesCreateViewModel model)
     {
-        var role = await _roleService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
-    }
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, UpdateRoleDto dto)
-    {
-        var updated = await _roleService.UpdateAsync(id, dto);
-        return updated ? NoContent() : NotFound();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var deleted = await _roleService.DeleteAsync(id);
-        return deleted ? NoContent() : NotFound();
+        await _roleService.CreateAsync(model.Role);
+        return RedirectToAction(nameof(Index));
     }
 }
