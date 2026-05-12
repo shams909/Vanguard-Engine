@@ -1,63 +1,115 @@
 @model Vanguard_Engine.Models.GuardApplyViewModel
 @{
-    ViewData["Title"] = "Apply as Guard";
+    ViewData["Title"] = "Guard Application";
+    Layout = "~/Views/Shared/_DarkLayout.cshtml";
 }
 
-<div class="min-h-screen py-10">
-    <div class="max-w-2xl mx-auto">
-        <div class="rounded-3xl p-8 shadow-2xl border border-white border-opacity-20 backdrop-blur-xl"
-             style="background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(31,38,135,0.25);">
+<div class="page-hero">
+    <div class="hero-icon">🛡️</div>
+    <h1 class="hero-title">Guard Application</h1>
+    <p class="hero-sub">Complete all sections accurately. Your application will be reviewed by our recruitment team.</p>
+</div>
 
-            <div class="text-center mb-8">
-                <div class="text-5xl mb-3">🛡️</div>
-                <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Guard Application</h1>
-                <p class="text-gray-500">Join the Vanguard security force.</p>
+<div class="dk-card" style="max-width:760px; margin:0 auto;">
+
+    <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error"></div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="dk-alert dk-alert-error">@TempData["ErrorMessage"]</div>
+    }
+
+    <form asp-action="Apply" method="post" class="app-form">
+
+        <!-- SECTION: Personal Info -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <span class="section-icon">👤</span>
+                <span>Personal Information</span>
             </div>
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-xl mb-6">
-                    @TempData["ErrorMessage"]
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label asp-for="FullName" class="dk-label">Full Legal Name <span class="req">*</span></label>
+                    <input asp-for="FullName" class="dk-input" placeholder="e.g. Mohammad Rahman" />
+                    <span asp-validation-for="FullName" class="field-err"></span>
                 </div>
-            }
-
-            <div asp-validation-summary="ModelOnly" class="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6"></div>
-
-            <form asp-action="Apply" method="post" class="space-y-6">
-                <div>
-                    <label asp-for="Experience" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Your Experience <span class="text-red-500">*</span>
-                    </label>
-                    <textarea asp-for="Experience" rows="5"
-                              class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-none text-gray-800 text-sm"
-                              style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);"
-                              placeholder="Describe your security or combat experience, years worked, employers, etc..."></textarea>
-                    <span asp-validation-for="Experience" class="text-red-500 text-xs mt-1 block"></span>
+                <div class="form-group">
+                    <label asp-for="Phone" class="dk-label">Phone Number <span class="req">*</span></label>
+                    <input asp-for="Phone" class="dk-input" placeholder="+8801XXXXXXXXX" />
+                    <span asp-validation-for="Phone" class="field-err"></span>
                 </div>
-
-                <div>
-                    <label asp-for="Skills" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Your Skills <span class="text-red-500">*</span>
-                    </label>
-                    <textarea asp-for="Skills" rows="5"
-                              class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-none text-gray-800 text-sm"
-                              style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);"
-                              placeholder="List your skills — firearms, surveillance, hand-to-hand, first aid, etc..."></textarea>
-                    <span asp-validation-for="Skills" class="text-red-500 text-xs mt-1 block"></span>
+                <div class="form-group">
+                    <label asp-for="NationalId" class="dk-label">National ID (NID) <span class="req">*</span></label>
+                    <input asp-for="NationalId" class="dk-input" placeholder="Enter your NID number" />
+                    <span asp-validation-for="NationalId" class="field-err"></span>
                 </div>
-
-                <button type="submit"
-                        class="w-full py-3 px-6 rounded-2xl text-white font-bold text-sm tracking-wide transition-all duration-300 hover:opacity-90 active:scale-95 shadow-lg"
-                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    🚀 Submit Application
-                </button>
-
-                <div class="text-center">
-                    <a asp-action="MyApplications" class="text-indigo-600 text-sm hover:underline">← View My Applications</a>
+                <div class="form-group">
+                    <label asp-for="PreferredLocation" class="dk-label">Preferred Deployment Location <span class="req">*</span></label>
+                    <input asp-for="PreferredLocation" class="dk-input" placeholder="e.g. Dhaka, Chittagong" />
+                    <span asp-validation-for="PreferredLocation" class="field-err"></span>
                 </div>
-            </form>
+            </div>
+            <div class="form-group" style="margin-top:12px;">
+                <label asp-for="Address" class="dk-label">Current Address <span class="req">*</span></label>
+                <input asp-for="Address" class="dk-input" placeholder="House No, Road, Area, District" />
+                <span asp-validation-for="Address" class="field-err"></span>
+            </div>
         </div>
-    </div>
+
+        <!-- SECTION: Experience -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <span class="section-icon">💼</span>
+                <span>Professional Background</span>
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label asp-for="YearsOfExperience" class="dk-label">Years of Security Experience <span class="req">*</span></label>
+                    <input asp-for="YearsOfExperience" class="dk-input" type="number" min="0" max="50" placeholder="0" />
+                    <span asp-validation-for="YearsOfExperience" class="field-err"></span>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:12px; margin-top:28px;">
+                    <label class="dk-toggle">
+                        <input asp-for="ArmedLicense" type="checkbox" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div>
+                        <div class="dk-label" style="margin:0;">Armed Guard License</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Check if you hold a valid firearms license</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Experience" class="dk-label">Work Experience Details <span class="req">*</span></label>
+                <textarea asp-for="Experience" class="dk-input dk-textarea" rows="5"
+                          placeholder="Describe your previous employers, roles, responsibilities, and notable achievements in security work..."></textarea>
+                <span asp-validation-for="Experience" class="field-err"></span>
+            </div>
+        </div>
+
+        <!-- SECTION: Skills -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <span class="section-icon">⚡</span>
+                <span>Skills & Certifications</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Skills" class="dk-label">Skills & Certifications <span class="req">*</span></label>
+                <textarea asp-for="Skills" class="dk-input dk-textarea" rows="5"
+                          placeholder="List your skills, training, and certifications — e.g. Surveillance, Crowd Control, First Aid, Firearms Training, CCTV Operation, Fire Safety..."></textarea>
+                <span asp-validation-for="Skills" class="field-err"></span>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="display:flex; gap:12px; justify-content:flex-end; padding-top:8px;">
+            <a asp-action="MyApplications" class="dk-btn dk-btn-ghost">Cancel</a>
+            <button type="submit" class="dk-btn dk-btn-primary">
+                🚀 Submit Application
+            </button>
+        </div>
+
+    </form>
 </div>
 
 @section Scripts {

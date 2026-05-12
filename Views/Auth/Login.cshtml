@@ -1,49 +1,63 @@
 @model Vanguard_Engine.Models.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Sign In";
 }
 
-<div style="min-height: calc(100vh - 200px); display:flex; align-items:center; justify-content:center; padding: 20px;">
-    <div class="glass-card">
+<div style="min-height:calc(100vh - 140px); display:flex; align-items:center; justify-content:center; padding:32px 20px;">
+    <div style="width:100%; max-width:420px;">
 
-        <div style="text-align:center; margin-bottom:28px;">
-            <div style="font-size:3rem;">🔐</div>
-            <h1 style="font-size:1.6rem; font-weight:800; color:#1e293b; margin:8px 0 4px;">Welcome back</h1>
-            <p style="color:#64748b; font-size:0.875rem; margin:0;">Sign in to your Vanguard account</p>
+        <!-- Logo -->
+        <div style="text-align:center; margin-bottom:32px;">
+            <div style="width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 16px; box-shadow:0 8px 24px rgba(99,102,241,0.35);">
+                ⚔️
+            </div>
+            <h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 6px; letter-spacing:-0.5px;">Sign in to Vanguard</h1>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin:0;">Enter your credentials to access your account</p>
         </div>
 
-        <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+        <!-- Card -->
+        <div class="dk-card dk-card-pad">
 
-        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" style="display:flex; flex-direction:column; gap:16px;">
+            <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error"></div>
 
-            <div>
-                <label asp-for="Email" class="vg-label">Email address</label>
-                <input asp-for="Email" class="vg-input" type="email" placeholder="you@example.com" autocomplete="email" />
-                <span asp-validation-for="Email" class="field-validation-error"></span>
-            </div>
+            <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post"
+                  style="display:flex; flex-direction:column; gap:16px;">
 
-            <div>
-                <label asp-for="Password" class="vg-label">Password</label>
-                <input asp-for="Password" class="vg-input" type="password" placeholder="••••••••" autocomplete="current-password" />
-                <span asp-validation-for="Password" class="field-validation-error"></span>
-            </div>
+                <div>
+                    <label asp-for="Email" class="dk-label">Email address</label>
+                    <input asp-for="Email" class="dk-input" type="email"
+                           placeholder="you@example.com" autocomplete="email"
+                           style="margin-top:6px;" />
+                    <span asp-validation-for="Email" class="field-err"></span>
+                </div>
 
-            <div style="display:flex; align-items:center; gap:8px;">
-                <input asp-for="RememberMe" type="checkbox"
-                       style="width:16px; height:16px; accent-color:#6366f1; cursor:pointer;" />
-                <label asp-for="RememberMe" style="font-size:0.875rem; color:#475569; cursor:pointer;">Remember me</label>
-            </div>
+                <div>
+                    <label asp-for="Password" class="dk-label">Password</label>
+                    <input asp-for="Password" class="dk-input" type="password"
+                           placeholder="••••••••" autocomplete="current-password"
+                           style="margin-top:6px;" />
+                    <span asp-validation-for="Password" class="field-err"></span>
+                </div>
 
-            <button type="submit" class="vg-btn-primary"
-                    style="width:100%; padding:12px; font-size:0.95rem; border-radius:14px; margin-top:4px;">
-                Sign In →
-            </button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <label class="dk-toggle">
+                        <input asp-for="RememberMe" type="checkbox" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span style="font-size:0.85rem; color:var(--text-sub); cursor:pointer;">Remember me for 60 minutes</span>
+                </div>
 
-        </form>
+                <button type="submit" class="dk-btn dk-btn-primary"
+                        style="width:100%; justify-content:center; padding:12px; font-size:0.9rem; border-radius:14px; margin-top:4px;">
+                    Sign In →
+                </button>
 
-        <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:#64748b;">
+            </form>
+        </div>
+
+        <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-muted);">
             Don't have an account?
-            <a asp-action="Register" style="color:#6366f1; font-weight:600; text-decoration:none;">Register here</a>
+            <a asp-action="Register" style="color:var(--accent); font-weight:600; text-decoration:none;">Create one free</a>
         </p>
 
     </div>

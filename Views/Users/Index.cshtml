@@ -1,125 +1,113 @@
 @model Vanguard_Engine.Models.UsersIndexViewModel
 @{
     ViewData["Title"] = "Users Management";
+    Layout = "~/Views/Shared/_DarkLayout.cshtml";
 }
 
-<div class="container-fluid px-4">
-    <h1 class="mt-4">Users Management</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
-        <li class="breadcrumb-item active">Users</li>
-    </ol>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div>
-                <i class="bi bi-people-fill me-1"></i>
-                Registered Users
-            </div>
-            <a class="btn btn-primary btn-sm" asp-action="Create">
-                <i class="bi bi-person-plus-fill me-1"></i> Add New User
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Id</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Current Role</th>
-                            <th>Change Role</th>
-                            <th>Last Login</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var user in Model.Users)
-                        {
-                            <tr>
-                                <td>@user.Id</td>
-                                <td class="fw-bold">@user.Username</td>
-                                <td>@user.Email</td>
-                                <td>
-                                    @{
-                                        var currentRole = Model.Roles.FirstOrDefault(r => r.Id == user.RoleId)?.RoleName ?? "Unknown";
-                                        var badgeClass = currentRole switch
-                                        {
-                                            "Admin" => "bg-danger",
-                                            "Guard" => "bg-success",
-                                            "Client" => "bg-info text-dark",
-                                            _ => "bg-secondary"
-                                        };
-                                    }
-                                    <span class="badge @badgeClass">@currentRole</span>
-                                </td>
-                                <td>
-                                    <form asp-action="UpdateRole" method="post" class="d-flex gap-2">
-                                        <input type="hidden" name="userId" value="@user.Id" />
-                                        <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
-                                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                                        <select name="newRoleId" class="form-select form-select-sm" style="min-width: 120px;">
-                                            @foreach (var role in Model.Roles)
-                                            {
-                                                if (role.Id == user.RoleId)
-                                                {
-                                                    <option value="@role.Id" selected>@role.RoleName</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@role.Id">@role.RoleName</option>
-                                                }
-                                            }
-                                        </select>
-                                        <button type="submit" class="btn btn-outline-primary btn-sm" onclick="return confirm('Are you sure you want to change the role for user @user.Username?')">
-                                            Update
-                                        </button>
-                                    </form>
-                                </td>
-                                <td class="small text-muted">@user.LastLogin.ToString("MMM dd, yyyy HH:mm")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <nav class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">
-                            <i class="bi bi-chevron-left"></i> Previous
-                        </a>
-                    </li>
-                    <li class="page-item active">
-                        <span class="page-link">Page @Model.PageNumber</span>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">
-                            Next <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+<div class="page-header">
+    <div>
+        <h1 class="page-header-title">👥 Users Management</h1>
+        <p class="page-header-sub">View all registered users and manage their roles</p>
     </div>
+    <a asp-action="Create" class="dk-btn dk-btn-primary">+ Add User</a>
 </div>
 
-@section Scripts {
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+@if (TempData["Success"] != null)
+{
+    <div class="dk-alert dk-alert-success">✅ @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="dk-alert dk-alert-error">❌ @TempData["Error"]</div>
+}
+
+<div class="dk-card">
+    @if (Model.Users.Any())
+    {
+        <table class="dk-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Current Role</th>
+                    <th>Last Login</th>
+                    <th>Change Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int i = ((Model.PageNumber - 1) * Model.PageSize) + 1; }
+                @foreach (var user in Model.Users)
+                {
+                    var roleName = Model.Roles.FirstOrDefault(r => r.Id == user.RoleId)?.RoleName ?? "Unknown";
+                    var badgeCls = roleName switch {
+                        "Admin" => "badge-admin",
+                        "Guard" => "badge-guard",
+                        _ => "badge-client"
+                    };
+                    <tr>
+                        <td><span class="mono">@i</span></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#6366f1,#a855f7); display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; color:#fff; flex-shrink:0;">
+                                    @user.Username.Substring(0, 1).ToUpper()
+                                </div>
+                                <span style="font-weight:600; color:var(--text);">@user.Username</span>
+                            </div>
+                        </td>
+                        <td style="color:var(--text-sub); font-size:0.83rem;">@user.Email</td>
+                        <td><span class="badge @badgeCls">@roleName</span></td>
+                        <td style="color:var(--text-muted); font-size:0.78rem; white-space:nowrap;">
+                            @user.LastLogin.ToString("MMM dd, yyyy HH:mm")
+                        </td>
+                        <td>
+                            <form asp-action="UpdateRole" method="post" style="display:flex; gap:8px; align-items:center;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                                <select name="newRoleId" class="dk-input" style="padding:7px 10px; font-size:0.8rem; width:auto; min-width:130px;">
+                                    @foreach (var role in Model.Roles)
+                                    {
+                                        if (role.Id == user.RoleId)
+                                        {
+                                            <option value="@role.Id" selected>@role.RoleName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@role.Id">@role.RoleName</option>
+                                        }
+                                    }
+                                </select>
+                                <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm"
+                                        onclick="return confirm('Update role for @user.Username?');">
+                                    Update
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <div class="empty-title">No users found</div>
+        </div>
+    }
+</div>
+
+@if (Model.Users.Any())
+{
+    <ul class="pagination">
+        <li class="@(Model.PageNumber <= 1 ? "disabled" : "")">
+            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">← Prev</a>
+        </li>
+        <li class="active"><span>Page @Model.PageNumber</span></li>
+        <li>
+            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next →</a>
+        </li>
+    </ul>
 }

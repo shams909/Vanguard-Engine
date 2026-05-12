@@ -2,9 +2,14 @@
     ViewData["Title"] = "Access Denied";
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-1 text-danger">403</h1>
-    <h2 class="mb-4">Access Denied</h2>
-    <p class="lead">You do not have permission to access this resource.</p>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return Home</a>
+<div style="min-height:calc(100vh - 200px); display:flex; align-items:center; justify-content:center; text-align:center; padding:40px 20px;">
+    <div>
+        <div style="font-size:4rem; margin-bottom:16px;">🚫</div>
+        <h1 style="font-size:2rem; font-weight:800; color:var(--red); margin:0 0 12px;">Access Denied</h1>
+        <p style="color:var(--text-muted); max-width:380px; margin:0 auto 28px; line-height:1.6;">
+            You do not have permission to access this page.
+            Please contact your administrator if you believe this is an error.
+        </p>
+        <a href="/" class="dk-btn dk-btn-ghost">← Back to Home</a>
+    </div>
 </div>

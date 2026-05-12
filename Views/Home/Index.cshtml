@@ -1,38 +1,41 @@
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Home";
-    var userRole = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+    var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "";
+    var isAuth = User.Identity?.IsAuthenticated == true;
 }
 
-@if (User.Identity?.IsAuthenticated == true)
+@if (isAuth)
 {
-    <!-- Dashboard -->
-    <div style="text-align:center; padding: 40px 0 32px;">
-        <h1 style="font-size:2.2rem; font-weight:800; color:#1e293b; margin:0 0 8px;">
-            Welcome back, @User.Identity.Name! 👋
+    <!-- Authenticated Dashboard -->
+    <div style="padding: 48px 0 32px; text-align:center;">
+        <div style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:12px;">Welcome back</div>
+        <h1 style="font-size:2.4rem; font-weight:900; color:var(--text); letter-spacing:-1px; margin:0 0 10px;">
+            @User.Identity!.Name
         </h1>
-        <p style="color:#64748b; font-size:1rem; margin:0;">
-            Logged in as <span style="font-weight:700; color:#6366f1;">@userRole</span>
-        </p>
+        <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(99,102,241,0.12); color:var(--accent); border:1px solid rgba(99,102,241,0.25); border-radius:100px; padding:5px 14px; font-size:0.8rem; font-weight:700;">
+            @userRole
+        </span>
     </div>
 
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px; margin-top:8px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
 
         @if (userRole == "Guard")
         {
             <a asp-controller="Guard" asp-action="Apply" style="text-decoration:none;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:24px; padding:28px; color:white; box-shadow:0 8px 32px rgba(102,126,234,0.3); transition:transform 0.2s; cursor:pointer;"
-                     onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="font-size:2.5rem; margin-bottom:12px;">🛡️</div>
-                    <h3 style="margin:0 0 8px; font-size:1.1rem; font-weight:700;">Apply as Guard</h3>
-                    <p style="margin:0; font-size:0.875rem; opacity:0.85;">Submit a new guard application to join the force.</p>
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.12)); border-color:rgba(99,102,241,0.3);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">🛡️</div>
+                    <div class="home-card-title">Apply as Guard</div>
+                    <div class="home-card-sub">Submit your guard application to join the force.</div>
+                    <div class="home-card-arrow">→</div>
                 </div>
             </a>
             <a asp-controller="Guard" asp-action="MyApplications" style="text-decoration:none;">
-                <div style="background: rgba(255,255,255,0.7); border:1px solid rgba(148,163,184,0.3); border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(15,23,42,0.08); transition:transform 0.2s; cursor:pointer; backdrop-filter:blur(10px);"
-                     onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="font-size:2.5rem; margin-bottom:12px;">📋</div>
-                    <h3 style="margin:0 0 8px; font-size:1.1rem; font-weight:700; color:#1e293b;">My Applications</h3>
-                    <p style="margin:0; font-size:0.875rem; color:#64748b;">Track the status of your submitted applications.</p>
+                <div class="home-card">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);">📋</div>
+                    <div class="home-card-title">My Applications</div>
+                    <div class="home-card-sub">Track the status of your submitted applications.</div>
+                    <div class="home-card-arrow">→</div>
                 </div>
             </a>
         }
@@ -40,11 +43,11 @@
         @if (userRole == "Admin" || userRole == "Recruiter" || userRole == "Client")
         {
             <a asp-controller="Guard" asp-action="Applications" style="text-decoration:none;">
-                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius:24px; padding:28px; color:white; box-shadow:0 8px 32px rgba(16,185,129,0.3); transition:transform 0.2s; cursor:pointer;"
-                     onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="font-size:2.5rem; margin-bottom:12px;">👁️</div>
-                    <h3 style="margin:0 0 8px; font-size:1.1rem; font-weight:700;">Guard Applications</h3>
-                    <p style="margin:0; font-size:0.875rem; opacity:0.85;">Review, approve, or reject all guard applications.</p>
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(16,185,129,0.08)); border-color:rgba(52,211,153,0.3);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#10b981,#059669);">👁️</div>
+                    <div class="home-card-title">Guard Applications</div>
+                    <div class="home-card-sub">Review, approve, or reject all applications.</div>
+                    <div class="home-card-arrow">→</div>
                 </div>
             </a>
         }
@@ -52,44 +55,99 @@
         @if (userRole == "Admin")
         {
             <a asp-controller="Users" asp-action="Index" style="text-decoration:none;">
-                <div style="background: rgba(255,255,255,0.7); border:1px solid rgba(148,163,184,0.3); border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(15,23,42,0.08); transition:transform 0.2s; cursor:pointer; backdrop-filter:blur(10px);"
-                     onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="font-size:2.5rem; margin-bottom:12px;">👥</div>
-                    <h3 style="margin:0 0 8px; font-size:1.1rem; font-weight:700; color:#1e293b;">Users</h3>
-                    <p style="margin:0; font-size:0.875rem; color:#64748b;">Manage all system users and role assignments.</p>
+                <div class="home-card">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">👥</div>
+                    <div class="home-card-title">Users</div>
+                    <div class="home-card-sub">Manage all system users and role assignments.</div>
+                    <div class="home-card-arrow">→</div>
                 </div>
             </a>
             <a asp-controller="Roles" asp-action="Index" style="text-decoration:none;">
-                <div style="background: rgba(255,255,255,0.7); border:1px solid rgba(148,163,184,0.3); border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(15,23,42,0.08); transition:transform 0.2s; cursor:pointer; backdrop-filter:blur(10px);"
-                     onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="font-size:2.5rem; margin-bottom:12px;">🔑</div>
-                    <h3 style="margin:0 0 8px; font-size:1.1rem; font-weight:700; color:#1e293b;">Roles</h3>
-                    <p style="margin:0; font-size:0.875rem; color:#64748b;">Configure system roles and permissions.</p>
+                <div class="home-card">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f87171,#ef4444);">🔑</div>
+                    <div class="home-card-title">Roles</div>
+                    <div class="home-card-sub">Configure system access roles and permissions.</div>
+                    <div class="home-card-arrow">→</div>
                 </div>
             </a>
         }
+
     </div>
 }
 else
 {
-    <!-- Landing -->
-    <div style="text-align:center; padding: 80px 0 40px;">
-        <div style="font-size:5rem; margin-bottom:16px;">⚔️</div>
-        <h1 style="font-size:3rem; font-weight:900; color:#1e293b; margin:0 0 16px; letter-spacing:-1px;">
+    <!-- Guest Landing Page -->
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 200px); text-align:center; padding:40px 20px;">
+
+        <!-- Logo mark -->
+        <div style="width:80px; height:80px; border-radius:28px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin-bottom:28px; box-shadow:0 16px 48px rgba(99,102,241,0.35);">
+            ⚔️
+        </div>
+
+        <h1 style="font-size:3.5rem; font-weight:900; color:var(--text); letter-spacing:-2px; margin:0 0 16px; line-height:1.1;">
             Vanguard Engine
         </h1>
-        <p style="color:#64748b; font-size:1.15rem; max-width:500px; margin:0 auto 40px; line-height:1.6;">
-            The complete security guard recruitment and management platform.
+        <p style="color:var(--text-muted); font-size:1.1rem; max-width:440px; margin:0 auto 40px; line-height:1.7;">
+            The next-generation security guard recruitment and workforce management platform.
         </p>
-        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
-            <a asp-controller="Auth" asp-action="Register" class="vg-btn-primary"
-               style="padding:14px 32px; font-size:1rem; border-radius:16px;">
-                Get Started →
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+            <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-primary"
+               style="padding:14px 32px; font-size:0.95rem; border-radius:14px;">
+                Get Started Free →
             </a>
-            <a asp-controller="Auth" asp-action="Login"
-               style="padding:14px 32px; font-size:1rem; border-radius:16px; background:rgba(255,255,255,0.7); color:#374151; font-weight:600; text-decoration:none; border:1.5px solid rgba(148,163,184,0.4); backdrop-filter:blur(10px);">
+            <a asp-controller="Auth" asp-action="Login" class="dk-btn dk-btn-ghost"
+               style="padding:14px 28px; font-size:0.95rem; border-radius:14px;">
                 Sign In
             </a>
         </div>
+
+        <!-- Feature pills -->
+        <div style="display:flex; gap:10px; margin-top:48px; flex-wrap:wrap; justify-content:center;">
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">🛡️ Guard Recruitment</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">👁️ Application Review</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">🔑 Role Management</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">⚡ Real-time Status</span>
+        </div>
     </div>
 }
+
+<style>
+    .home-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 24px;
+        backdrop-filter: blur(20px);
+        transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+    .home-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+        border-color: var(--border-strong);
+    }
+    .home-card-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .home-card-title {
+        font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 4px;
+    }
+    .home-card-sub {
+        font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; flex: 1;
+    }
+    .home-card-arrow {
+        font-size: 1.1rem; color: var(--text-muted); align-self: flex-end;
+        transition: transform 0.15s, color 0.15s;
+    }
+    .home-card:hover .home-card-arrow { transform: translateX(4px); color: var(--accent); }
+</style>

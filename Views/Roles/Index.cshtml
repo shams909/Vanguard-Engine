@@ -1,44 +1,73 @@
 @model Vanguard_Engine.Models.RolesIndexViewModel
 @{
     ViewData["Title"] = "Roles";
+    Layout = "~/Views/Shared/_DarkLayout.cshtml";
 }
 
-<h2>Roles</h2>
-
-<div class="mb-3">
-    <a class="btn btn-primary" asp-action="Create">Add Role</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-header-title">🔑 Role Management</h1>
+        <p class="page-header-sub">Define and manage system access roles</p>
+    </div>
+    <a asp-action="Create" class="dk-btn dk-btn-primary">+ Create Role</a>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Role Name</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var role in Model.Roles)
-    {
-        <tr>
-            <td>@role.Id</td>
-            <td>@role.RoleName</td>
-            <td>@role.Description</td>
-        </tr>
-    }
-    </tbody>
-</table>
+<div class="dk-card">
+    <table class="dk-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Role Name</th>
+                <th>Description</th>
+                <th>ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int i = 1; }
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td><span class="mono">@i</span></td>
+                    <td>
+                        @{
+                            var badgeCls = role.RoleName switch
+                            {
+                                "Admin" => "badge-admin",
+                                "Guard" => "badge-guard",
+                                _ => "badge-client"
+                            };
+                        }
+                        <span class="badge @badgeCls">@role.RoleName</span>
+                    </td>
+                    <td style="color:var(--text-sub);">@(role.Description ?? "—")</td>
+                    <td><span class="mono">@role.Id</span></td>
+                </tr>
+                i++;
+            }
+            @if (!Model.Roles.Any())
+            {
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <div class="empty-icon">🔑</div>
+                            <div class="empty-title">No roles defined</div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-<nav>
+@if (Model.Roles.Any())
+{
     <ul class="pagination">
-        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">Previous</a>
+        <li class="@(Model.PageNumber <= 1 ? "disabled" : "")">
+            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">← Prev</a>
         </li>
-        <li class="page-item">
-            <span class="page-link">Page @Model.PageNumber</span>
-        </li>
-        <li class="page-item">
-            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next</a>
+        <li class="active"><span>Page @Model.PageNumber</span></li>
+        <li>
+            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next →</a>
         </li>
     </ul>
-</nav>
+}

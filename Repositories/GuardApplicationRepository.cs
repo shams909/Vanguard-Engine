@@ -17,9 +17,13 @@ public class GuardApplicationRepository : AppwriteRepository<GuardApplication>, 
         var result = await _databases.ListDocuments(
             databaseId: _databaseId,
             collectionId: _collectionId,
-            queries: new List<string> { Query.Equal("userId", userId) }
+            queries: new List<string>
+            {
+                Query.Equal("userId", userId),
+                Query.OrderDesc("$createdAt"),
+                Query.Limit(1)
+            }
         );
-
         return result.Documents.Count > 0 ? MapToEntity(result.Documents[0]) : null;
     }
 
@@ -30,21 +34,13 @@ public class GuardApplicationRepository : AppwriteRepository<GuardApplication>, 
             collectionId: _collectionId,
             queries: new List<string> { Query.OrderDesc("$createdAt"), Query.Limit(100) }
         );
-
         return result.Documents.Select(d => MapToEntity(d)!).ToList();
     }
 
     public async Task UpdateAsync(GuardApplication application)
     {
-        var data = new Dictionary<string, object>
-        {
-            { "userId", application.UserId },
-            { "experience", application.Experience },
-            { "skills", application.Skills },
-            { "status", application.Status }
-        };
-
-        await _databases.UpdateDocument(_databaseId, _collectionId, application.Id, data);
+        await _databases.UpdateDocument(_databaseId, _collectionId, application.Id,
+            BuildData(application));
     }
 
     public async Task UpdateStatusAsync(string id, string status)
@@ -62,17 +58,23 @@ public class GuardApplicationRepository : AppwriteRepository<GuardApplication>, 
         await _databases.DeleteDocument(_databaseId, _collectionId, id);
     }
 
-    // Override AddAsync to ensure we only send lowercase Appwrite-mapped fields
     public override async Task AddAsync(GuardApplication entity)
     {
-        var data = new Dictionary<string, object>
-        {
-            { "userId", entity.UserId },
-            { "experience", entity.Experience },
-            { "skills", entity.Skills },
-            { "status", entity.Status }
-        };
-
-        await _databases.CreateDocument(_databaseId, _collectionId, ID.Unique(), data);
+        await _databases.CreateDocument(_databaseId, _collectionId, ID.Unique(), BuildData(entity));
     }
+
+    private static Dictionary<string, object> BuildData(GuardApplication e) => new()
+    {
+        { "userId", e.UserId },
+        { "fullName", e.FullName },
+        { "phone", e.Phone },
+        { "nationalId", e.NationalId },
+        { "address", e.Address },
+        { "yearsOfExperience", e.YearsOfExperience },
+        { "experience", e.Experience },
+        { "skills", e.Skills },
+        { "preferredLocation", e.PreferredLocation },
+        { "armedLicense", e.ArmedLicense },
+        { "status", e.Status }
+    };
 }

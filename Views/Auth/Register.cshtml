@@ -3,74 +3,120 @@
     ViewData["Title"] = "Create Account";
 }
 
-<div style="min-height: calc(100vh - 200px); display:flex; align-items:center; justify-content:center; padding: 40px 20px;">
-    <div class="glass-card" style="max-width:520px;">
+<div style="min-height:calc(100vh - 140px); display:flex; align-items:center; justify-content:center; padding:40px 20px;">
+    <div style="width:100%; max-width:540px;">
 
-        <div style="text-align:center; margin-bottom:28px;">
-            <div style="font-size:3rem;">🛡️</div>
-            <h1 style="font-size:1.6rem; font-weight:800; color:#1e293b; margin:8px 0 4px;">Join Vanguard</h1>
-            <p style="color:#64748b; font-size:0.875rem; margin:0;">Create your account to get started</p>
+        <!-- Logo -->
+        <div style="text-align:center; margin-bottom:32px;">
+            <div style="width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 16px; box-shadow:0 8px 24px rgba(99,102,241,0.35);">
+                ⚔️
+            </div>
+            <h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 6px; letter-spacing:-0.5px;">Join Vanguard Engine</h1>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin:0;">Create your account — it only takes a minute</p>
         </div>
 
-        <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+        <!-- Card -->
+        <div class="dk-card">
+            <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="margin:24px 24px 0;"></div>
 
-        <form asp-action="Register" method="post" style="display:flex; flex-direction:column; gap:16px;">
+            <form asp-action="Register" method="post" class="app-form">
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div>
-                    <label asp-for="Username" class="vg-label">Username</label>
-                    <input asp-for="Username" class="vg-input" placeholder="johndoe" autocomplete="username" />
-                    <span asp-validation-for="Username" class="field-validation-error"></span>
+                <div class="form-section">
+                    <div class="form-section-header"><span class="section-icon">👤</span> Your Details</div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label asp-for="Username" class="dk-label">Username <span class="req">*</span></label>
+                            <input asp-for="Username" class="dk-input" placeholder="johndoe" autocomplete="username" />
+                            <span asp-validation-for="Username" class="field-err"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email" class="dk-label">Email <span class="req">*</span></label>
+                            <input asp-for="Email" class="dk-input" type="email" placeholder="you@example.com" autocomplete="email" />
+                            <span asp-validation-for="Email" class="field-err"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Password" class="dk-label">Password <span class="req">*</span></label>
+                            <input asp-for="Password" class="dk-input" type="password" placeholder="••••••••" autocomplete="new-password" />
+                            <span asp-validation-for="Password" class="field-err"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ConfirmPassword" class="dk-label">Confirm Password <span class="req">*</span></label>
+                            <input asp-for="ConfirmPassword" class="dk-input" type="password" placeholder="••••••••" autocomplete="new-password" />
+                            <span asp-validation-for="ConfirmPassword" class="field-err"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label asp-for="Address" class="dk-label">Address</label>
+                        <input asp-for="Address" class="dk-input" placeholder="House, Road, Area, City" autocomplete="street-address" />
+                        <span asp-validation-for="Address" class="field-err"></span>
+                    </div>
                 </div>
-                <div>
-                    <label asp-for="Email" class="vg-label">Email</label>
-                    <input asp-for="Email" class="vg-input" type="email" placeholder="you@example.com" autocomplete="email" />
-                    <span asp-validation-for="Email" class="field-validation-error"></span>
+
+                <div class="form-section">
+                    <div class="form-section-header"><span class="section-icon">🎯</span> I want to...</div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+
+                        <label style="display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:14px; border:1.5px solid var(--border); cursor:pointer; transition:all 0.15s; background:var(--surface);"
+                               id="opt-guard"
+                               onmouseover="this.style.borderColor='rgba(99,102,241,0.5)'" onmouseout="syncStyles()">
+                            <input type="radio" asp-for="UserRole" value="Guard" id="radio-guard"
+                                   style="accent-color:#6366f1; width:18px; height:18px;"
+                                   onchange="selectRole(this)" />
+                            <div>
+                                <div style="font-weight:700; color:var(--text); font-size:0.9rem;">🛡️ Apply as a Security Guard</div>
+                                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">Submit applications and track your recruitment status</div>
+                            </div>
+                        </label>
+
+                        <label style="display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:14px; border:1.5px solid var(--border); cursor:pointer; transition:all 0.15s; background:var(--surface);"
+                               id="opt-client"
+                               onmouseover="this.style.borderColor='rgba(99,102,241,0.5)'" onmouseout="syncStyles()">
+                            <input type="radio" asp-for="UserRole" value="Client" id="radio-client"
+                                   style="accent-color:#6366f1; width:18px; height:18px;"
+                                   onchange="selectRole(this)" />
+                            <div>
+                                <div style="font-weight:700; color:var(--text); font-size:0.9rem;">👔 Recruit Security Guards</div>
+                                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">Browse, review, and hire qualified security personnel</div>
+                            </div>
+                        </label>
+                        <span asp-validation-for="UserRole" class="field-err"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <label asp-for="Address" class="vg-label">Address</label>
-                <input asp-for="Address" class="vg-input" placeholder="Your address" autocomplete="street-address" />
-                <span asp-validation-for="Address" class="field-validation-error"></span>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div>
-                    <label asp-for="Password" class="vg-label">Password</label>
-                    <input asp-for="Password" class="vg-input" type="password" placeholder="••••••••" autocomplete="new-password" />
-                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                <div class="form-section" style="border-bottom:none;">
+                    <button type="submit" class="dk-btn dk-btn-primary"
+                            style="width:100%; justify-content:center; padding:13px; font-size:0.95rem; border-radius:14px;">
+                        Create Account →
+                    </button>
                 </div>
-                <div>
-                    <label asp-for="ConfirmPassword" class="vg-label">Confirm Password</label>
-                    <input asp-for="ConfirmPassword" class="vg-input" type="password" placeholder="••••••••" autocomplete="new-password" />
-                    <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
-                </div>
-            </div>
 
-            <div>
-                <label asp-for="UserRole" class="vg-label">I want to...</label>
-                <select asp-for="UserRole" class="vg-input" style="cursor:pointer; appearance:auto;">
-                    <option value="Guard">🛡️ Apply as a Security Guard</option>
-                    <option value="Client">👔 Recruit Security Guards</option>
-                </select>
-                <span asp-validation-for="UserRole" class="field-validation-error"></span>
-            </div>
+            </form>
+        </div>
 
-            <button type="submit" class="vg-btn-primary"
-                    style="width:100%; padding:12px; font-size:0.95rem; border-radius:14px; margin-top:4px;">
-                Create Account →
-            </button>
-
-        </form>
-
-        <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:#64748b;">
+        <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-muted);">
             Already have an account?
-            <a asp-action="Login" style="color:#6366f1; font-weight:600; text-decoration:none;">Sign in</a>
+            <a asp-action="Login" style="color:var(--accent); font-weight:600; text-decoration:none;">Sign in instead</a>
         </p>
 
     </div>
 </div>
+
+<script>
+    function selectRole(radio) {
+        syncStyles();
+    }
+    function syncStyles() {
+        var g = document.getElementById('radio-guard');
+        var c = document.getElementById('radio-client');
+        var og = document.getElementById('opt-guard');
+        var oc = document.getElementById('opt-client');
+        og.style.borderColor = g.checked ? 'rgba(99,102,241,0.6)' : 'var(--border)';
+        og.style.background = g.checked ? 'rgba(99,102,241,0.08)' : 'var(--surface)';
+        oc.style.borderColor = c.checked ? 'rgba(99,102,241,0.6)' : 'var(--border)';
+        oc.style.background = c.checked ? 'rgba(99,102,241,0.08)' : 'var(--surface)';
+    }
+    document.addEventListener('DOMContentLoaded', syncStyles);
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

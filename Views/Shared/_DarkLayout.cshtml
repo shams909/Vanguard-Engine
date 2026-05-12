@@ -1,0 +1,368 @@
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Vanguard Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --bg2: #111115;
+            --surface: rgba(255,255,255,0.055);
+            --surface-hover: rgba(255,255,255,0.09);
+            --border: rgba(255,255,255,0.1);
+            --border-strong: rgba(255,255,255,0.18);
+            --text: #f1f5f9;
+            --text-muted: #71717a;
+            --text-sub: #a1a1aa;
+            --accent: #818cf8;
+            --accent2: #6366f1;
+            --green: #34d399;
+            --yellow: #fbbf24;
+            --red: #f87171;
+            --glass: rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.12);
+            --radius: 20px;
+            --radius-sm: 12px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { font-size: 16px; scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 20% -20%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 110%, rgba(129,140,248,0.08) 0%, transparent 50%);
+        }
+
+        /* ─── NAVBAR ─── */
+        .dk-nav {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(9,9,11,0.82);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border);
+        }
+        .dk-nav-inner {
+            max-width: 1400px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px; height: 62px; gap: 16px;
+        }
+        .dk-brand {
+            font-size: 1.1rem; font-weight: 800; color: var(--text);
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+            letter-spacing: -0.3px; flex-shrink: 0;
+        }
+        .dk-brand:hover { color: var(--accent); }
+        .dk-nav-links {
+            display: flex; align-items: center; gap: 2px;
+            list-style: none; flex-wrap: wrap;
+        }
+        .dk-nav-links a {
+            display: block; padding: 7px 13px; border-radius: 10px;
+            font-size: 0.83rem; font-weight: 500; color: var(--text-sub);
+            text-decoration: none; transition: all 0.15s; white-space: nowrap;
+        }
+        .dk-nav-links a:hover { background: var(--surface-hover); color: var(--text); }
+        .dk-nav-links a.active { background: rgba(129,140,248,0.15); color: var(--accent); }
+        .dk-nav-right {
+            display: flex; align-items: center; gap: 8px;
+            list-style: none; flex-shrink: 0;
+        }
+        .user-chip {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 5px 12px 5px 8px; border-radius: 100px;
+        }
+        .user-avatar {
+            width: 26px; height: 26px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent2), #a855f7);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: #fff;
+        }
+        .user-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+        .role-pill {
+            font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+            border-radius: 100px; background: rgba(129,140,248,0.2);
+            color: var(--accent); border: 1px solid rgba(129,140,248,0.3);
+        }
+        .btn-logout {
+            background: none; border: 1px solid var(--border); color: var(--text-muted);
+            font-size: 0.8rem; font-weight: 600; padding: 6px 14px;
+            border-radius: 10px; cursor: pointer; transition: all 0.15s;
+            font-family: inherit;
+        }
+        .btn-logout:hover { background: rgba(248,113,113,0.1); border-color: var(--red); color: var(--red); }
+
+        /* ─── MAIN ─── */
+        .dk-main { max-width: 1400px; margin: 0 auto; padding: 36px 28px 80px; }
+
+        /* ─── CARDS ─── */
+        .dk-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+        .dk-card-pad { padding: 28px; }
+
+        /* ─── HERO ─── */
+        .page-hero { text-align: center; padding: 40px 0 32px; }
+        .hero-icon { font-size: 3.5rem; margin-bottom: 12px; }
+        .hero-title { font-size: 2rem; font-weight: 900; color: var(--text); letter-spacing: -0.5px; margin-bottom: 8px; }
+        .hero-sub { color: var(--text-muted); font-size: 0.9rem; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+        /* ─── TABLE ─── */
+        .dk-table { width: 100%; border-collapse: collapse; }
+        .dk-table thead tr { border-bottom: 1px solid var(--border); }
+        .dk-table th {
+            padding: 14px 16px; text-align: left;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--text-muted);
+        }
+        .dk-table tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.1s;
+        }
+        .dk-table tbody tr:hover { background: var(--surface); }
+        .dk-table tbody tr:last-child { border-bottom: none; }
+        .dk-table td { padding: 14px 16px; font-size: 0.875rem; vertical-align: middle; }
+
+        /* ─── BADGES ─── */
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 100px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .badge-pending { background: rgba(251,191,36,0.12); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+        .badge-approved { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.25); }
+        .badge-rejected { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
+        .badge-admin { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+        .badge-guard { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+        .badge-client { background: rgba(129,140,248,0.12); color: var(--accent); border: 1px solid rgba(129,140,248,0.2); }
+
+        /* ─── BUTTONS ─── */
+        .dk-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 9px 18px; border-radius: 12px;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: all 0.15s; border: none; text-decoration: none;
+            font-family: inherit;
+        }
+        .dk-btn:active { transform: scale(0.97); }
+        .dk-btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+        }
+        .dk-btn-primary:hover { opacity: 0.88; box-shadow: 0 6px 20px rgba(99,102,241,0.45); color: #fff; }
+        .dk-btn-success {
+            background: rgba(52,211,153,0.12); color: var(--green);
+            border: 1px solid rgba(52,211,153,0.3);
+        }
+        .dk-btn-success:hover { background: rgba(52,211,153,0.22); color: var(--green); }
+        .dk-btn-danger {
+            background: rgba(248,113,113,0.1); color: var(--red);
+            border: 1px solid rgba(248,113,113,0.25);
+        }
+        .dk-btn-danger:hover { background: rgba(248,113,113,0.2); color: var(--red); }
+        .dk-btn-ghost {
+            background: var(--surface); color: var(--text-sub);
+            border: 1px solid var(--border);
+        }
+        .dk-btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+        .dk-btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 9px; }
+
+        /* ─── FORM ─── */
+        .app-form { display: flex; flex-direction: column; gap: 0; }
+        .form-section {
+            padding: 24px 28px; border-bottom: 1px solid var(--border);
+        }
+        .form-section:last-child { border-bottom: none; }
+        .form-section-header {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.9rem; font-weight: 700; color: var(--text);
+            margin-bottom: 20px;
+        }
+        .section-icon { font-size: 1.1rem; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .dk-label { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+        .req { color: var(--red); }
+        .dk-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 11px 14px;
+            font-size: 0.875rem; color: var(--text);
+            transition: all 0.15s; outline: none;
+            font-family: inherit; width: 100%;
+        }
+        .dk-input::placeholder { color: var(--text-muted); }
+        .dk-input:focus {
+            border-color: var(--accent2);
+            background: rgba(99,102,241,0.06);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        .dk-textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+        select.dk-input { appearance: auto; cursor: pointer; }
+        .field-err { font-size: 0.75rem; color: var(--red); margin-top: 2px; }
+
+        /* ─── TOGGLE ─── */
+        .dk-toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; cursor: pointer; }
+        .dk-toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0;
+            background: var(--border); border-radius: 100px; transition: 0.2s;
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: #fff; left: 3px; top: 3px; transition: 0.2s;
+        }
+        .dk-toggle input:checked + .toggle-slider { background: var(--accent2); }
+        .dk-toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        /* ─── ALERTS ─── */
+        .dk-alert {
+            padding: 13px 16px; border-radius: var(--radius-sm);
+            font-size: 0.875rem; font-weight: 500; margin-bottom: 20px;
+        }
+        .dk-alert-success { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+        .dk-alert-error { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+
+        /* ─── STAT CARDS ─── */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stat-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: var(--radius); padding: 20px 18px;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        .stat-value { font-size: 2rem; font-weight: 800; }
+        .stat-pending .stat-value { color: var(--yellow); }
+        .stat-approved .stat-value { color: var(--green); }
+        .stat-rejected .stat-value { color: var(--red); }
+        .stat-total .stat-value { color: var(--accent); }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+        }
+        .page-header-title { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+        .page-header-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ─── EMPTY STATE ─── */
+        .empty-state { text-align: center; padding: 64px 24px; }
+        .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .empty-sub { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* ─── FOOTER ─── */
+        .dk-footer {
+            border-top: 1px solid var(--border); padding: 20px 28px;
+            text-align: center; font-size: 0.78rem; color: var(--text-muted);
+        }
+        .dk-footer a { color: var(--accent); text-decoration: none; }
+
+        /* ─── PAGINATION ─── */
+        .pagination { display: flex; gap: 8px; justify-content: center; padding-top: 20px; list-style: none; }
+        .pagination a, .pagination span {
+            display: inline-block; padding: 7px 14px; border-radius: 9px;
+            font-size: 0.82rem; font-weight: 600; text-decoration: none;
+            border: 1px solid var(--border); color: var(--text-sub);
+            background: var(--surface); transition: all 0.15s;
+        }
+        .pagination a:hover { background: var(--surface-hover); color: var(--text); }
+        .pagination .active span { background: rgba(99,102,241,0.2); color: var(--accent); border-color: rgba(99,102,241,0.3); }
+        .pagination .disabled a { opacity: 0.35; pointer-events: none; }
+
+        /* ─── MONO TEXT ─── */
+        .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); }
+
+        /* ─── MEDIA ─── */
+        @@media (max-width: 640px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .dk-nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+@{
+    var currentRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "";
+    var isAuth = User.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? "";
+    var initials = userName.Length > 0 ? userName.Substring(0, 1).ToUpper() : "?";
+}
+<nav class="dk-nav">
+    <div class="dk-nav-inner">
+        <a href="/" class="dk-brand"><span>⚔️</span> Vanguard</a>
+
+        <ul class="dk-nav-links">
+            <li><a href="/">Home</a></li>
+            @if (isAuth)
+            {
+                @if (currentRole == "Guard")
+                {
+                    <li><a asp-controller="Guard" asp-action="Apply" class="active">🛡️ Apply</a></li>
+                    <li><a asp-controller="Guard" asp-action="MyApplications">📋 My Applications</a></li>
+                }
+                @if (currentRole == "Admin" || currentRole == "Recruiter" || currentRole == "Client")
+                {
+                    <li><a asp-controller="Guard" asp-action="Applications">👁️ Guard Applications</a></li>
+                }
+                @if (currentRole == "Admin")
+                {
+                    <li><a asp-controller="Users" asp-action="Index">👥 Users</a></li>
+                    <li><a asp-controller="Roles" asp-action="Index">🔑 Roles</a></li>
+                }
+            }
+        </ul>
+
+        <ul class="dk-nav-right">
+            @if (isAuth)
+            {
+                <li>
+                    <div class="user-chip">
+                        <div class="user-avatar">@initials</div>
+                        <span class="user-name">@userName</span>
+                        <span class="role-pill">@currentRole</span>
+                    </div>
+                </li>
+                <li>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" style="margin:0;">
+                        <button type="submit" class="btn-logout">Sign out</button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li><a href="/Auth/Login" class="dk-btn dk-btn-ghost" style="font-size:0.82rem; padding:6px 14px;">Login</a></li>
+                <li><a href="/Auth/Register" class="dk-btn dk-btn-primary" style="font-size:0.82rem; padding:6px 14px;">Register</a></li>
+            }
+        </ul>
+    </div>
+</nav>
+
+<main class="dk-main">
+    @RenderBody()
+</main>
+
+<footer class="dk-footer">
+    &copy; 2026 Vanguard Engine &mdash; <a href="/Home/Privacy">Privacy Policy</a>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

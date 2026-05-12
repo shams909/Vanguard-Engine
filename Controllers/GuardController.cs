@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Vanguard_Engine.Entities;
 using Vanguard_Engine.Models;
 using Vanguard_Engine.Services;
 
@@ -16,10 +17,10 @@ public class GuardController : Controller
         _guardApplicationService = guardApplicationService;
     }
 
-    private string GetUserId()
-    {
-        return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-    }
+    private string GetUserId() =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+    // ── USER: APPLY ──────────────────────────────
 
     [HttpGet]
     public IActionResult Apply()
@@ -33,84 +34,91 @@ public class GuardController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var userId = GetUserId();
-        var success = await _guardApplicationService.ApplyAsync(userId, model.Experience, model.Skills);
+        var application = new GuardApplication
+        {
+            FullName = model.FullName.Trim(),
+            Phone = model.Phone.Trim(),
+            NationalId = model.NationalId.Trim(),
+            Address = model.Address.Trim(),
+            YearsOfExperience = model.YearsOfExperience,
+            Experience = model.Experience.Trim(),
+            Skills = model.Skills.Trim(),
+            PreferredLocation = model.PreferredLocation.Trim(),
+            ArmedLicense = model.ArmedLicense
+        };
+
+        var (success, error) = await _guardApplicationService.ApplyAsync(GetUserId(), application);
 
         if (success)
         {
-            TempData["SuccessMessage"] = "Your application has been submitted successfully.";
+            TempData["SuccessMessage"] = "Your application has been submitted successfully. Our team will review it shortly.";
             return RedirectToAction(nameof(MyApplications));
         }
 
-        ModelState.AddModelError(string.Empty, "You already have an active application or an error occurred.");
+        ModelState.AddModelError(string.Empty, error);
         return View(model);
     }
+
+    // ── USER: MY APPLICATIONS ────────────────────
 
     [HttpGet]
     public async Task<IActionResult> MyApplications()
     {
-        var userId = GetUserId();
-        var applications = await _guardApplicationService.GetMyApplicationsAsync(userId);
+        var applications = await _guardApplicationService.GetMyApplicationsAsync(GetUserId());
         return View(applications);
     }
+
+    // ── USER: DELETE ─────────────────────────────
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string id)
     {
-        var success = await _guardApplicationService.DeleteAsync(id);
-        if (success)
-        {
-            TempData["SuccessMessage"] = "Application deleted successfully.";
-        }
-        else
-        {
-            TempData["ErrorMessage"] = "Could not delete the application. It might not be in Pending status.";
-        }
+        var (success, error) = await _guardApplicationService.DeleteAsync(id, GetUserId());
+
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] =
+            success ? "Application withdrawn successfully." : error;
+
         return RedirectToAction(nameof(MyApplications));
     }
 
-    // --- ADMIN / RECRUITER ACTIONS ---
+    // ── ADMIN / RECRUITER: ALL APPLICATIONS ──────
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Recruiter")]
+    [Authorize(Roles = "Admin,Recruiter,Client")]
     public async Task<IActionResult> Applications()
     {
         var applications = await _guardApplicationService.GetAllApplicationsAsync();
         return View(applications);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,Recruiter")]
-    public async Task<IActionResult> Approve(string id)
-    {
-        var success = await _guardApplicationService.ApproveAsync(id);
-        if (success)
-        {
-            TempData["SuccessMessage"] = "Application approved.";
-        }
-        else
-        {
-            TempData["ErrorMessage"] = "Could not approve the application.";
-        }
-        return RedirectToAction(nameof(Applications));
-    }
+    // ── ADMIN / RECRUITER: APPROVE ───────────────
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,Recruiter")]
+    [Authorize(Roles = "Admin,Recruiter,Client")]
+    public async Task<IActionResult> Approve(string id)
+    {
+        var (success, error) = await _guardApplicationService.ApproveAsync(id);
+
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] =
+            success ? "Application approved successfully." : error;
+
+        return RedirectToAction(nameof(Applications));
+    }
+
+    // ── ADMIN / RECRUITER: REJECT ─────────────────
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Recruiter,Client")]
     public async Task<IActionResult> Reject(string id)
     {
-        var success = await _guardApplicationService.RejectAsync(id);
-        if (success)
-        {
-            TempData["SuccessMessage"] = "Application rejected.";
-        }
-        else
-        {
-            TempData["ErrorMessage"] = "Could not reject the application.";
-        }
+        var (success, error) = await _guardApplicationService.RejectAsync(id);
+
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] =
+            success ? "Application rejected." : error;
+
         return RedirectToAction(nameof(Applications));
     }
 }
