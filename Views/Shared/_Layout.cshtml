@@ -1,80 +1,105 @@
+@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Vanguard_Engine</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - Vanguard Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Vanguard_Engine.styles.css" asp-append-version="true" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Vanguard_Engine</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+@{
+    var currentRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? "";
+}
+
+    <!-- ── NAVBAR ── -->
+    <nav class="vg-nav">
+        <div class="vg-nav-inner">
+
+            <a href="/" class="vg-brand">
+                <span style="font-size:1.4rem;">⚔️</span> Vanguard
+            </a>
+
+            <ul class="vg-nav-links">
+                <li><a href="/">Home</a></li>
+
+                @if (isAuthenticated)
+                {
+                    @if (currentRole == "Guard")
+                    {
+                        <li>
+                            <a asp-controller="Guard" asp-action="Apply"
+                               style="background: rgba(79,70,229,0.1); color: #4f46e5; font-weight: 600;">
+                                🛡️ Apply as Guard
+                            </a>
                         </li>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Roles" asp-action="Index">Roles</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
-                            </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <li>
+                            <a asp-controller="Guard" asp-action="MyApplications">📋 My Applications</a>
                         </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">Hello, @User.Identity.Name!</span>
-                            </li>
-                            <li class="nav-item">
-                                <form class="form-inline" asp-controller="Auth" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Register</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+                    }
+                    @if (currentRole == "Admin" || currentRole == "Recruiter" || currentRole == "Client")
+                    {
+                        <li>
+                            <a asp-controller="Guard" asp-action="Applications"
+                               style="background: rgba(16,185,129,0.1); color: #059669; font-weight: 600;">
+                                👁️ Guard Applications
+                            </a>
+                        </li>
+                    }
+                    @if (currentRole == "Admin")
+                    {
+                        <li><a asp-controller="Roles" asp-action="Index">🔑 Roles</a></li>
+                        <li><a asp-controller="Users" asp-action="Index">👥 Users</a></li>
+                    }
+                }
+            </ul>
+
+            <ul class="vg-nav-right">
+                @if (isAuthenticated)
+                {
+                    <li>
+                        <span class="vg-user-chip">
+                            @userName
+                            <span class="vg-role-badge">@currentRole</span>
+                        </span>
+                    </li>
+                    <li>
+                        <form asp-controller="Auth" asp-action="Logout" method="post" style="margin:0;">
+                            <button type="submit" class="vg-btn-logout">Logout</button>
+                        </form>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <a href="/Auth/Login"
+                           style="color:#475569; text-decoration:none; font-size:0.875rem; font-weight:500; padding:6px 14px; border-radius:10px; transition:all 0.2s; display:inline-block;">
+                            Login
+                        </a>
+                    </li>
+                    <li><a href="/Auth/Register" class="vg-btn-primary">Register</a></li>
+                }
+            </ul>
+
+        </div>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <div class="vg-main">
+        @RenderBody()
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Vanguard_Engine - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <!-- ── FOOTER ── -->
+    <footer class="vg-footer">
+        &copy; 2026 Vanguard Engine &mdash; <a href="/Home/Privacy">Privacy</a>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

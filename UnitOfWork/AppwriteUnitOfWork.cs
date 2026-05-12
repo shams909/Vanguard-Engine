@@ -7,11 +7,13 @@ public class AppwriteUnitOfWork : IUnitOfWork
 {
     public IRoleRepository Roles { get; }
     public IUserRepository Users { get; }
+    public IGuardApplicationRepository GuardApplications { get; }
 
     public AppwriteUnitOfWork(IAppwriteService appwriteService)
     {
         Roles = new AppwriteRoleRepository(appwriteService);
         Users = new AppwriteUserRepository(appwriteService);
+        GuardApplications = new GuardApplicationRepository(appwriteService);
     }
 
     public Task<int> SaveChangesAsync()

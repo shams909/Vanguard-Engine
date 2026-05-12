@@ -1,39 +1,51 @@
 @model Vanguard_Engine.Models.LoginViewModel
-
 @{
     ViewData["Title"] = "Login";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card shadow-lg border-0 rounded-lg mt-5">
-            <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
-            <div class="card-body">
-                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-floating mb-3">
-                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
-                        <label asp-for="Email"></label>
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input asp-for="Password" class="form-control" placeholder="Password" />
-                        <label asp-for="Password"></label>
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" asp-for="RememberMe" />
-                        <label class="form-check-label" asp-for="RememberMe">Remember me</label>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center py-3">
-                <div class="small"><a asp-action="Register">Need an account? Sign up!</a></div>
-            </div>
+<div style="min-height: calc(100vh - 200px); display:flex; align-items:center; justify-content:center; padding: 20px;">
+    <div class="glass-card">
+
+        <div style="text-align:center; margin-bottom:28px;">
+            <div style="font-size:3rem;">🔐</div>
+            <h1 style="font-size:1.6rem; font-weight:800; color:#1e293b; margin:8px 0 4px;">Welcome back</h1>
+            <p style="color:#64748b; font-size:0.875rem; margin:0;">Sign in to your Vanguard account</p>
         </div>
+
+        <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+
+        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" style="display:flex; flex-direction:column; gap:16px;">
+
+            <div>
+                <label asp-for="Email" class="vg-label">Email address</label>
+                <input asp-for="Email" class="vg-input" type="email" placeholder="you@example.com" autocomplete="email" />
+                <span asp-validation-for="Email" class="field-validation-error"></span>
+            </div>
+
+            <div>
+                <label asp-for="Password" class="vg-label">Password</label>
+                <input asp-for="Password" class="vg-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="field-validation-error"></span>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+                <input asp-for="RememberMe" type="checkbox"
+                       style="width:16px; height:16px; accent-color:#6366f1; cursor:pointer;" />
+                <label asp-for="RememberMe" style="font-size:0.875rem; color:#475569; cursor:pointer;">Remember me</label>
+            </div>
+
+            <button type="submit" class="vg-btn-primary"
+                    style="width:100%; padding:12px; font-size:0.95rem; border-radius:14px; margin-top:4px;">
+                Sign In →
+            </button>
+
+        </form>
+
+        <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:#64748b;">
+            Don't have an account?
+            <a asp-action="Register" style="color:#6366f1; font-weight:600; text-decoration:none;">Register here</a>
+        </p>
+
     </div>
 </div>
 

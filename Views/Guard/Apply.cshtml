@@ -1,0 +1,65 @@
+@model Vanguard_Engine.Models.GuardApplyViewModel
+@{
+    ViewData["Title"] = "Apply as Guard";
+}
+
+<div class="min-h-screen py-10">
+    <div class="max-w-2xl mx-auto">
+        <div class="rounded-3xl p-8 shadow-2xl border border-white border-opacity-20 backdrop-blur-xl"
+             style="background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(31,38,135,0.25);">
+
+            <div class="text-center mb-8">
+                <div class="text-5xl mb-3">🛡️</div>
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Guard Application</h1>
+                <p class="text-gray-500">Join the Vanguard security force.</p>
+            </div>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-xl mb-6">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <div asp-validation-summary="ModelOnly" class="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6"></div>
+
+            <form asp-action="Apply" method="post" class="space-y-6">
+                <div>
+                    <label asp-for="Experience" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Your Experience <span class="text-red-500">*</span>
+                    </label>
+                    <textarea asp-for="Experience" rows="5"
+                              class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-none text-gray-800 text-sm"
+                              style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);"
+                              placeholder="Describe your security or combat experience, years worked, employers, etc..."></textarea>
+                    <span asp-validation-for="Experience" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Skills" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Your Skills <span class="text-red-500">*</span>
+                    </label>
+                    <textarea asp-for="Skills" rows="5"
+                              class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-none text-gray-800 text-sm"
+                              style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);"
+                              placeholder="List your skills — firearms, surveillance, hand-to-hand, first aid, etc..."></textarea>
+                    <span asp-validation-for="Skills" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <button type="submit"
+                        class="w-full py-3 px-6 rounded-2xl text-white font-bold text-sm tracking-wide transition-all duration-300 hover:opacity-90 active:scale-95 shadow-lg"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    🚀 Submit Application
+                </button>
+
+                <div class="text-center">
+                    <a asp-action="MyApplications" class="text-indigo-600 text-sm hover:underline">← View My Applications</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
