@@ -30,4 +30,8 @@
     <None Remove="AppwriteSetupTool\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Vanguard Engine.slnx" />
+  </ItemGroup>
+
 </Project>
