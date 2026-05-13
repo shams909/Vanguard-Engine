@@ -3,61 +3,62 @@
     ViewData["Title"] = "Vanguard Careers";
 }
 
-<div style="padding: 40px 0; text-align:center;">
-    <div style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:#6366f1; margin-bottom:12px;">Deployment Opportunities</div>
-    <h1 style="font-size:2.8rem; font-weight:900; color:#1e293b; letter-spacing:-2px; margin:0 0 16px;">
-        Join the Elite Force
-    </h1>
-    <p style="color:#64748b; font-size:1.1rem; max-width:600px; margin:0 auto; line-height:1.6;">
-        Explore active recruitment notices and apply to join Vanguard's security operations.
-    </p>
+<div class="page-hero">
+    <div class="hero-icon"><i data-lucide="briefcase" style="width:56px; height:56px; margin:0 auto; color:var(--accent);"></i></div>
+    <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--accent); margin-bottom:12px;">Deployment Opportunities</div>
+    <h1 class="hero-title">Join the Elite Force</h1>
+    <p class="hero-sub">Explore active recruitment notices and apply to join Vanguard's security operations worldwide.</p>
 </div>
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:24px; margin-top:40px;">
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:24px; margin-top:10px;">
     @if (!Model.Any())
     {
-        <div style="grid-column: 1 / -1; text-align: center; padding: 100px 0; background: rgba(255,255,255,0.4); border: 2px dashed rgba(148,163,184,0.3); border-radius: 24px;">
-            <div style="font-size: 4rem; margin-bottom: 20px;">🛡️</div>
-            <h3 style="color: #475569; font-weight: 700;">No active recruitment notices found.</h3>
-            <p style="color: #94a3b8;">Please check back later for new deployment opportunities.</p>
+        <div style="grid-column: 1 / -1;" class="dk-card">
+            <div class="empty-state">
+                <div class="empty-icon"><i data-lucide="shield-off" style="width:56px; height:56px; color:var(--text-muted);"></i></div>
+                <h3 class="empty-title">No active recruitment notices found.</h3>
+                <p class="empty-sub">Please check back later for new deployment opportunities.</p>
+            </div>
         </div>
     }
     else
     {
         @foreach (var notice in Model)
         {
-            <div class="home-card" style="padding: 32px; min-height: auto; cursor: default;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-                    <div style="font-family: monospace; font-size: 0.75rem; font-weight: 700; color: #6366f1; background: rgba(99,102,241,0.08); padding: 4px 10px; border-radius: 8px;">
-                        #@notice.ReferenceCode
+            <div class="dk-card" style="display:flex; flex-direction:column; transition: transform 0.2s, box-shadow 0.2s;">
+                <div style="padding: 24px; flex: 1; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <span class="mono" style="background: rgba(180, 83, 9, 0.08); padding: 4px 10px; border-radius: 8px; color: var(--accent); font-weight: 700; border: 1px solid rgba(180, 83, 9, 0.15);">
+                            #@notice.ReferenceCode
+                        </span>
+                        @if (notice.Priority == "High")
+                        {
+                            <span class="badge badge-rejected" style="font-size: 0.65rem;">URGENT</span>
+                        }
                     </div>
-                    @if (notice.Priority == "High")
-                    {
-                        <span style="font-size: 0.65rem; font-weight: 800; color: #ef4444; background: #fee2e2; padding: 2px 8px; border-radius: 6px;">URGENT</span>
-                    }
-                </div>
 
-                <h3 style="font-size: 1.35rem; font-weight: 800; color: #1e293b; margin: 0 0 8px; letter-spacing: -0.5px;">
-                    @notice.Title
-                </h3>
-                
-                <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <span style="font-size: 0.75rem; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px;">
-                        📍 @notice.Location
-                    </span>
-                    <span style="font-size: 0.75rem; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px;">
-                        💼 @notice.JobType
-                    </span>
-                </div>
+                    <h3 style="font-size: 1.4rem; font-weight: 900; color: var(--text); margin: 0 0 12px; letter-spacing: -0.5px; line-height: 1.2;">
+                        @notice.Title
+                    </h3>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-sub); background: var(--surface); padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="map-pin" style="width:12px; height:12px;"></i> @notice.Location
+                        </span>
+                        <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-sub); background: var(--surface); padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="clock" style="width:12px; height:12px;"></i> @notice.JobType
+                        </span>
+                    </div>
 
-                <p style="font-size: 0.9rem; color: #475569; line-height: 1.6; margin-bottom: 24px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                    @notice.Description
-                </p>
+                    <p style="font-size: 0.925rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                        @notice.Description
+                    </p>
 
-                <div style="margin-top: auto;">
-                    <a asp-action="Details" asp-route-id="@notice.Id" class="vg-btn-primary" style="display: block; text-align: center; padding: 12px; border-radius: 12px; font-size: 0.9rem;">
-                        View Requirements
-                    </a>
+                    <div style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px;">
+                        <a asp-action="Details" asp-route-id="@notice.Id" class="dk-btn dk-btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+                            View Full Requirements <i data-lucide="arrow-right" style="width:16px; height:16px; margin-left:4px;"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         }

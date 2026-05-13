@@ -3,101 +3,101 @@
     ViewData["Title"] = "Post New Requirement";
 }
 
-<div class="page-header">
-    <div>
-        <h1 class="page-header-title">Post Recruitment Notice</h1>
-        <p class="page-header-sub">Enter the details for the new guard requirement. This will be visible to all prospective candidates.</p>
-    </div>
-</div>
-
-<div class="dk-card" style="max-width: 800px; margin-bottom: 40px;">
-    <form asp-action="Create" method="post" class="app-form">
-        <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="list-style: none; margin: 24px 28px 0;"></div>
-
-        <div class="form-section">
-            <div class="form-section-header"><i data-lucide="file-text" class="section-icon" style="width:20px; height:20px;"></i> General Information</div>
-            
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label asp-for="Title" class="dk-label">Requirement Title <span class="req">*</span></label>
-                <input asp-for="Title" class="dk-input" placeholder="e.g. Senior Security Supervisor" />
-                <span asp-validation-for="Title" class="field-err"></span>
-            </div>
-
-            <div class="form-grid-2">
-                <div class="form-group">
-                    <label asp-for="JobType" class="dk-label">Job Category <span class="req">*</span></label>
-                    <select asp-for="JobType" class="dk-input">
-                        <option value="Full-time">Full-time</option>
-                        <option value="Contract">Contract</option>
-                        <option value="Urgent Dispatch">Urgent Dispatch</option>
-                        <option value="VIP Escort">VIP Escort</option>
-                    </select>
-                    <span asp-validation-for="JobType" class="field-err"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Priority" class="dk-label">Deployment Priority <span class="req">*</span></label>
-                    <select asp-for="Priority" class="dk-input">
-                        <option value="Normal">Normal</option>
-                        <option value="High">High (Immediate)</option>
-                        <option value="Low">Low</option>
-                    </select>
-                    <span asp-validation-for="Priority" class="field-err"></span>
-                </div>
-            </div>
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header" style="justify-content: center; text-align: center; margin-bottom: 32px;">
+        <div>
+            <h1 class="page-header-title">Post New Requirement</h1>
+            <p class="page-header-sub">Create a new hiring notice for guard deployment.</p>
         </div>
+    </div>
 
-        <div class="form-section">
-            <div class="form-section-header"><i data-lucide="map-pin" class="section-icon" style="width:20px; height:20px;"></i> Location & Schedule</div>
-            
-            <div class="form-grid-2" style="margin-bottom: 16px;">
-                <div class="form-group">
-                    <label asp-for="Location" class="dk-label">Operation Location <span class="req">*</span></label>
-                    <input asp-for="Location" class="dk-input" placeholder="e.g. Dhaka HQ" />
-                    <span asp-validation-for="Location" class="field-err"></span>
+    <div class="dk-card">
+        <form asp-action="Create" method="post" class="app-form">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error"></div>
+
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="file-text"></i></span>
+                    <span>Notice Information</span>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label asp-for="Title" class="dk-label">Position Title <span class="req">*</span></label>
+                    <input asp-for="Title" class="dk-input" placeholder="e.g. Senior Security Supervisor (Bank Deployment)" />
+                    <span asp-validation-for="Title" class="field-err"></span>
                 </div>
 
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label asp-for="JobType" class="dk-label">Employment Type <span class="req">*</span></label>
+                        <select asp-for="JobType" class="dk-input">
+                            <option value="Permanent">Permanent</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Temporary">Temporary</option>
+                            <option value="Urgent">Urgent Deployment</option>
+                        </select>
+                        <span asp-validation-for="JobType" class="field-err"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Priority" class="dk-label">Priority Level <span class="req">*</span></label>
+                        <select asp-for="Priority" class="dk-input">
+                            <option value="Normal">Normal</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High (Urgent)</option>
+                        </select>
+                        <span asp-validation-for="Priority" class="field-err"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="map-pin"></i></span>
+                    <span>Deployment Details</span>
+                </div>
+                <div class="form-grid-2" style="margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Location" class="dk-label">Deployment Location <span class="req">*</span></label>
+                        <input asp-for="Location" class="dk-input" placeholder="e.g. Dhaka (Motijheel Branch)" />
+                        <span asp-validation-for="Location" class="field-err"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SalaryRange" class="dk-label">Salary Range (Optional)</label>
+                        <input asp-for="SalaryRange" class="dk-input" placeholder="e.g. 15,000 - 20,000 BDT" />
+                        <span asp-validation-for="SalaryRange" class="field-err"></span>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label asp-for="ExpiryDate" class="dk-label">Notice Expiry Date <span class="req">*</span></label>
+                    <label asp-for="ExpiryDate" class="dk-label">Application Expiry Date (Optional)</label>
                     <input asp-for="ExpiryDate" class="dk-input" type="date" />
                     <span asp-validation-for="ExpiryDate" class="field-err"></span>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="SalaryRange" class="dk-label">Salary/Compensation Range</label>
-                <input asp-for="SalaryRange" class="dk-input" placeholder="e.g. 40,000 - 60,000 BDT" />
-                <span asp-validation-for="SalaryRange" class="field-err"></span>
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="align-left"></i></span>
+                    <span>Description & Requirements</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label asp-for="Description" class="dk-label">Job Description <span class="req">*</span></label>
+                    <textarea asp-for="Description" class="dk-input dk-textarea" rows="6" placeholder="Provide a detailed description of the security deployment, responsibilities, and working conditions..."></textarea>
+                    <span asp-validation-for="Description" class="field-err"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Requirements" class="dk-label">Mandatory Requirements <span class="req">*</span></label>
+                    <textarea asp-for="Requirements" class="dk-input dk-textarea" rows="6" placeholder="List the mandatory qualifications, physical attributes, or certifications required (e.g. Height 5'8'', Army background preferred)..."></textarea>
+                    <span asp-validation-for="Requirements" class="field-err"></span>
+                </div>
             </div>
-        </div>
 
-        <div class="form-section">
-            <div class="form-section-header"><i data-lucide="clipboard-list" class="section-icon" style="width:20px; height:20px;"></i> Details & Requirements</div>
-            
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label asp-for="Description" class="dk-label">Detailed Description <span class="req">*</span></label>
-                <textarea asp-for="Description" class="dk-input dk-textarea" placeholder="Outline the main responsibilities..."></textarea>
-                <span asp-validation-for="Description" class="field-err"></span>
+            <div class="form-section" style="background: rgba(180, 83, 9, 0.02); display: flex; gap: 12px; justify-content: flex-end;">
+                <a asp-action="Manage" class="dk-btn dk-btn-ghost">Discard</a>
+                <button type="submit" class="dk-btn dk-btn-primary">
+                    <i data-lucide="send" style="width:18px; height:18px;"></i> Publish Notice
+                </button>
             </div>
-
-            <div class="form-group">
-                <label asp-for="Requirements" class="dk-label">Mandatory Qualifications <span class="req">*</span></label>
-                <textarea asp-for="Requirements" class="dk-input dk-textarea" placeholder="List required skills, licenses, and experience..."></textarea>
-                <span asp-validation-for="Requirements" class="field-err"></span>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 24px 28px; background: rgba(255,255,255,0.2);">
-            <a asp-action="Manage" class="dk-btn dk-btn-ghost">
-                Cancel
-            </a>
-            <button type="submit" class="dk-btn dk-btn-primary">
-                <i data-lucide="send" style="width:16px; height:16px;"></i> Publish Requirement
-            </button>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

@@ -6,11 +6,11 @@
         <div class="app-name">@Model.FullName</div>
         <div class="app-sub">@Model.Phone · @Model.NationalId</div>
     </div>
-    <div class="app-pill">📍 @Model.PreferredLocation</div>
-    <div class="app-pill">⏱️ @Model.YearsOfExperience yr</div>
+    <div class="app-pill"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i> @Model.PreferredLocation</div>
+    <div class="app-pill"><i data-lucide="history" style="width:12px; height:12px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i> @Model.YearsOfExperience yr</div>
     @if (Model.ArmedLicense)
     {
-        <div class="app-pill" style="color:var(--accent); border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.08);">🔫 Armed</div>
+        <div class="app-pill" style="color:var(--accent); border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.08);"><i data-lucide="shield-alert" style="width:12px; height:12px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i> Armed</div>
     }
     <div class="app-pill" style="color:var(--text-muted); font-size:0.7rem;">@Model.CreatedAt.ToString("MMM dd, yyyy")</div>
 </div>

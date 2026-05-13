@@ -46,4 +46,6 @@ public class GuardApplyViewModel
 
     [Display(Name = "Armed Guard License")]
     public bool ArmedLicense { get; set; }
+
+    public string? JobId { get; set; }
 }

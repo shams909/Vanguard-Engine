@@ -5,86 +5,99 @@
 
 <div style="max-width: 900px; margin: 0 auto;">
     <div style="margin-bottom: 24px;">
-        <a asp-action="Index" style="text-decoration: none; color: #64748b; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-            ← Back to Careers
+        <a asp-action="Index" class="dk-btn dk-btn-ghost dk-btn-sm">
+            <i data-lucide="arrow-left" style="width:14px; height:14px;"></i> Back to Careers
         </a>
     </div>
 
-    <div class="glass-card" style="max-width: 100%; padding: 48px; border-radius: 32px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; gap: 24px; flex-wrap: wrap;">
-            <div>
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <span style="font-family: monospace; font-weight: 700; color: #6366f1; background: rgba(99,102,241,0.08); padding: 4px 12px; border-radius: 8px; font-size: 0.9rem;">
-                        #@Model.ReferenceCode
-                    </span>
-                    @if (Model.Priority == "High")
-                    {
-                        <span style="font-size: 0.75rem; font-weight: 800; color: #ef4444; background: #fee2e2; padding: 4px 12px; border-radius: 8px;">URGENT DEPLOYMENT</span>
-                    }
+    <div class="dk-card">
+        <div class="dk-card-pad" style="padding: 48px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; gap: 24px; flex-wrap: wrap;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span class="mono" style="background: rgba(180, 83, 9, 0.08); padding: 5px 12px; border-radius: 8px; color: var(--accent); font-weight: 700; border: 1px solid rgba(180, 83, 9, 0.15);">
+                            #@Model.ReferenceCode
+                        </span>
+                        @if (Model.Priority == "High")
+                        {
+                            <span class="badge badge-rejected">URGENT DEPLOYMENT</span>
+                        }
+                    </div>
+                    <h1 style="font-size: 2.8rem; font-weight: 900; color: var(--text); letter-spacing: -1.5px; margin: 0; line-height: 1.1;">
+                        @Model.Title
+                    </h1>
                 </div>
-                <h1 style="font-size: 2.5rem; font-weight: 900; color: #1e293b; letter-spacing: -1.5px; margin: 0;">
-                    @Model.Title
-                </h1>
+                @if (Model.Status == "Open")
+                {
+                    <span class="badge badge-approved" style="padding: 8px 16px;">ACTIVE NOTICE</span>
+                }
             </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 48px; padding: 24px; background: rgba(255, 255, 255, 0.3); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em;">Location</div>
+                    <div style="font-weight: 700; color: var(--text); font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="map-pin" style="width:16px; height:16px; color: var(--accent);"></i> @Model.Location
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em;">Job Type</div>
+                    <div style="font-weight: 700; color: var(--text); font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="briefcase" style="width:16px; height:16px; color: var(--accent);"></i> @Model.JobType
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em;">Compensation</div>
+                    <div style="font-weight: 700; color: var(--text); font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="banknote" style="width:16px; height:16px; color: var(--accent);"></i> @(string.IsNullOrWhiteSpace(Model.SalaryRange) ? "Negotiable" : Model.SalaryRange)
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em;">Posted Date</div>
+                    <div style="font-weight: 700; color: var(--text); font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="calendar" style="width:16px; height:16px; color: var(--accent);"></i> @Model.CreatedAt.ToString("MMM dd, yyyy")
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="info" style="width:20px; height:20px; color:var(--accent);"></i> Job Description
+                </h3>
+                <div style="font-size: 1.05rem; color: var(--text-sub); line-height: 1.8; white-space: pre-line;">
+                    @Model.Description
+                </div>
+            </div>
+
+            <div style="margin-bottom: 48px; padding: 32px; background: rgba(180, 83, 9, 0.03); border-radius: var(--radius-sm); border: 1px solid rgba(180, 83, 9, 0.1);">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="check-circle-2" style="width:20px; height:20px; color:var(--green);"></i> Mandatory Requirements
+                </h3>
+                <div style="font-size: 1rem; color: var(--text-sub); line-height: 1.8; white-space: pre-line;">
+                    @Model.Requirements
+                </div>
+            </div>
+
             @if (Model.Status == "Open")
             {
-                <span style="font-size: 0.8rem; font-weight: 700; padding: 8px 16px; border-radius: 100px; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">ACTIVE NOTICE</span>
+                <div style="text-align: center; border-top: 1px solid var(--border); padding-top: 40px;">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (!User.IsInRole("Admin") && !User.IsInRole("Recruiter"))
+                        {
+                            <a asp-controller="Guard" asp-action="Apply" asp-route-jobId="@Model.Id" class="dk-btn dk-btn-primary" style="padding: 18px 80px; font-size: 1.1rem; border-radius: 18px;">
+                                Apply for the Post <i data-lucide="send" style="width:20px; height:20px; margin-left:8px;"></i>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="dk-alert" style="background: rgba(180, 83, 9, 0.05); border: 1px solid rgba(180, 83, 9, 0.15); color: var(--accent); padding: 24px; border-radius: 20px; font-weight: 600;">
+                            Interested in this deployment? Please <a asp-controller="Auth" asp-action="Login" style="color: var(--accent2); text-decoration: underline;">Sign In</a> or <a asp-controller="Auth" asp-action="Register" style="color: var(--accent2); text-decoration: underline;">Create Account</a> to submit your application.
+                        </div>
+                    }
+                </div>
             }
         </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 48px; padding: 24px; background: rgba(241, 245, 249, 0.4); border-radius: 20px; border: 1px solid rgba(148, 163, 184, 0.1);">
-            <div>
-                <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Location</div>
-                <div style="font-weight: 700; color: #334155;">📍 @Model.Location</div>
-            </div>
-            <div>
-                <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Job Type</div>
-                <div style="font-weight: 700; color: #334155;">💼 @Model.JobType</div>
-            </div>
-            <div>
-                <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Salary Range</div>
-                <div style="font-weight: 700; color: #334155;">💰 @(string.IsNullOrWhiteSpace(Model.SalaryRange) ? "Negotiable" : Model.SalaryRange)</div>
-            </div>
-            <div>
-                <div style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Posted On</div>
-                <div style="font-weight: 700; color: #334155;">📅 @Model.CreatedAt.ToString("MMM dd, yyyy")</div>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 40px;">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                <span style="color: #6366f1;">●</span> Job Description
-            </h3>
-            <div style="font-size: 1.05rem; color: #475569; line-height: 1.7; white-space: pre-line;">
-                @Model.Description
-            </div>
-        </div>
-
-        <div style="margin-bottom: 48px; padding: 32px; background: rgba(99,102,241,0.03); border-radius: 24px; border: 1px solid rgba(99,102,241,0.1);">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                <span style="color: #6366f1;">●</span> Mandatory Requirements
-            </h3>
-            <div style="font-size: 1rem; color: #475569; line-height: 1.7; white-space: pre-line;">
-                @Model.Requirements
-            </div>
-        </div>
-
-        @if (Model.Status == "Open")
-        {
-            <div style="text-align: center;">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <a asp-controller="Guard" asp-action="Apply" class="vg-btn-primary" style="display: inline-block; padding: 16px 64px; font-size: 1.1rem; border-radius: 16px; text-decoration: none; box-shadow: 0 12px 32px rgba(99, 102, 241, 0.3);">
-                        Apply for Deployment
-                    </a>
-                }
-                else
-                {
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 20px; border-radius: 16px; font-weight: 600;">
-                        Please <a asp-controller="Auth" asp-action="Login" style="color: #b45309; text-decoration: underline;">Login</a> or <a asp-controller="Auth" asp-action="Register" style="color: #b45309; text-decoration: underline;">Register</a> to submit an application for this position.
-                    </div>
-                }
-            </div>
-        }
     </div>
 </div>

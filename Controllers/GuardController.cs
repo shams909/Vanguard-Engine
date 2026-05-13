@@ -23,9 +23,9 @@ public class GuardController : Controller
     // ── USER: APPLY ──────────────────────────────
 
     [HttpGet]
-    public IActionResult Apply()
+    public IActionResult Apply(string? jobId = null)
     {
-        return View(new GuardApplyViewModel());
+        return View(new GuardApplyViewModel { JobId = jobId });
     }
 
     [HttpPost]
@@ -44,7 +44,8 @@ public class GuardController : Controller
             Experience = model.Experience.Trim(),
             Skills = model.Skills.Trim(),
             PreferredLocation = model.PreferredLocation.Trim(),
-            ArmedLicense = model.ArmedLicense
+            ArmedLicense = model.ArmedLicense,
+            JobId = model.JobId
         };
 
         var (success, error) = await _guardApplicationService.ApplyAsync(GetUserId(), application);

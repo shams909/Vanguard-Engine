@@ -22,11 +22,12 @@
         <div class="vg-nav-inner">
 
             <a href="/" class="vg-brand">
-                <span style="font-size:1.4rem;">⚔️</span> Vanguard
+                <i data-lucide="shield" style="width:24px; height:24px;"></i> Vanguard
             </a>
 
             <ul class="vg-nav-links">
                 <li><a href="/">Home</a></li>
+                <li><a asp-controller="Recruitment" asp-action="Index"><i data-lucide="megaphone" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers</a></li>
 
                 @if (isAuthenticated)
                 {
@@ -35,11 +36,11 @@
                         <li>
                             <a asp-controller="Guard" asp-action="Apply"
                                style="background: rgba(79,70,229,0.1); color: #4f46e5; font-weight: 600;">
-                                🛡️ Apply as Guard
+                                <i data-lucide="shield-check" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Apply as Guard
                             </a>
                         </li>
                         <li>
-                            <a asp-controller="Guard" asp-action="MyApplications">📋 My Applications</a>
+                            <a asp-controller="Guard" asp-action="MyApplications"><i data-lucide="clipboard-list" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> My Applications</a>
                         </li>
                     }
                     @if (currentRole == "Admin" || currentRole == "Recruiter" || currentRole == "Client")
@@ -47,21 +48,20 @@
                         <li>
                             <a asp-controller="Guard" asp-action="Applications"
                                style="background: rgba(16,185,129,0.1); color: #059669; font-weight: 600;">
-                                👁️ Guard Applications
+                                <i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Guard Applications
                             </a>
                         </li>
                         <li>
                             <a asp-controller="Recruitment" asp-action="Manage"
                                style="background: rgba(245,158,11,0.1); color: #d97706; font-weight: 600;">
-                                📝 Recruitment
+                                <i data-lucide="file-signature" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Recruitment
                             </a>
                         </li>
                     }
-                    <li><a asp-controller="Recruitment" asp-action="Index">📢 Careers</a></li>
                     @if (currentRole == "Admin")
                     {
-                        <li><a asp-controller="Roles" asp-action="Index">🔑 Roles</a></li>
-                        <li><a asp-controller="Users" asp-action="Index">👥 Users</a></li>
+                        <li><a asp-controller="Roles" asp-action="Index"><i data-lucide="key" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Roles</a></li>
+                        <li><a asp-controller="Users" asp-action="Index"><i data-lucide="users" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Users</a></li>
                     }
                 }
             </ul>

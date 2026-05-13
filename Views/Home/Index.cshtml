@@ -38,6 +38,14 @@
                     <div class="home-card-arrow">→</div>
                 </div>
             </a>
+            <a asp-controller="Recruitment" asp-action="Index" style="text-decoration:none;">
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(79,70,229,0.04)); border-color:rgba(99,102,241,0.2);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#818cf8,#4f46e5); color:#fff;"><i data-lucide="search"></i></div>
+                    <div class="home-card-title">Browse Careers</div>
+                    <div class="home-card-sub">Find and apply for new security deployment posts.</div>
+                    <div class="home-card-arrow">→</div>
+                </div>
+            </a>
         }
 
         @if (userRole == "Admin" || userRole == "Recruiter" || userRole == "Client")
@@ -104,6 +112,10 @@ else
                style="padding:14px 32px; font-size:0.95rem; border-radius:14px;">
                 Get Started Free →
             </a>
+            <a asp-controller="Recruitment" asp-action="Index" class="dk-btn dk-btn-ghost"
+               style="padding:14px 28px; font-size:0.95rem; border-radius:14px; background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.2);">
+                <i data-lucide="megaphone" style="width:18px; height:18px; margin-right:8px;"></i> Browse Careers
+            </a>
             <a asp-controller="Auth" asp-action="Login" class="dk-btn dk-btn-ghost"
                style="padding:14px 28px; font-size:0.95rem; border-radius:14px;">
                 Sign In
@@ -112,10 +124,10 @@ else
 
         <!-- Feature pills -->
         <div style="display:flex; gap:10px; margin-top:48px; flex-wrap:wrap; justify-content:center;">
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">🛡️ Guard Recruitment</span>
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">👁️ Application Review</span>
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">🔑 Role Management</span>
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub);">⚡ Real-time Status</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="shield" style="width:12px; height:12px;"></i> Guard Recruitment</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="eye" style="width:12px; height:12px;"></i> Application Review</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="key" style="width:12px; height:12px;"></i> Role Management</span>
+            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="zap" style="width:12px; height:12px;"></i> Real-time Status</span>
         </div>
     </div>
 }
