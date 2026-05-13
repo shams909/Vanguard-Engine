@@ -60,6 +60,20 @@ public class GuardApplicationService : IGuardApplicationService
         return await _unitOfWork.GuardApplications.GetAllAsync();
     }
 
+    public async Task<GuardApplication?> GetApplicationByIdAsync(string id, string userId)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return null;
+        var app = await _unitOfWork.GuardApplications.GetByIdAsync(id);
+        // Only return if it belongs to this user (security check)
+        return (app != null && app.UserId == userId) ? app : null;
+    }
+
+    public async Task<GuardApplication?> GetByIdAsync(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return null;
+        return await _unitOfWork.GuardApplications.GetByIdAsync(id);
+    }
+
     public async Task<(bool Success, string Error)> ApproveAsync(string id)
     {
         if (string.IsNullOrWhiteSpace(id))

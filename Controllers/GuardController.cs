@@ -68,6 +68,16 @@ public class GuardController : Controller
         return View(applications);
     }
 
+    // ── USER: APPLICATION DETAIL ─────────────────
+
+    [HttpGet]
+    public async Task<IActionResult> Details(string id)
+    {
+        var application = await _guardApplicationService.GetApplicationByIdAsync(id, GetUserId());
+        if (application == null) return NotFound();
+        return View(application);
+    }
+
     // ── USER: DELETE ─────────────────────────────
 
     [HttpPost]

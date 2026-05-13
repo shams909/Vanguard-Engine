@@ -6,7 +6,9 @@ public interface IGuardApplicationService
 {
     Task<(bool Success, string Error)> ApplyAsync(string userId, GuardApplication application);
     Task<List<GuardApplication>> GetMyApplicationsAsync(string userId);
+    Task<GuardApplication?> GetApplicationByIdAsync(string id, string userId);
     Task<List<GuardApplication>> GetAllApplicationsAsync();
+    Task<GuardApplication?> GetByIdAsync(string id);
     Task<(bool Success, string Error)> ApproveAsync(string id);
     Task<(bool Success, string Error)> RejectAsync(string id);
     Task<(bool Success, string Error)> DeleteAsync(string id, string userId);

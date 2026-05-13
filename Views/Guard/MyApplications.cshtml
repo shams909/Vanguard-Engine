@@ -1,15 +1,22 @@
 @model IEnumerable<Vanguard_Engine.Entities.GuardApplication>
 @{
     ViewData["Title"] = "My Applications";
-    Layout = "~/Views/Shared/_DarkLayout.cshtml";
+    var list = Model.ToList();
+    var pending = list.Count(a => a.Status == "Pending");
+    var approved = list.Count(a => a.Status == "Approved");
+    var rejected = list.Count(a => a.Status == "Rejected");
 }
 
+<!-- Page header -->
 <div class="page-header">
     <div>
         <h1 class="page-header-title">My Applications</h1>
-        <p class="page-header-sub">Track the status of your guard applications</p>
+        <p class="page-header-sub">Track all your guard applications in one place</p>
     </div>
-    <a asp-action="Apply" class="dk-btn dk-btn-primary">+ New Application</a>
+    @if (!list.Any(a => a.Status == "Pending" || a.Status == "Approved"))
+    {
+        <a asp-action="Apply" class="dk-btn dk-btn-primary">🛡️ New Application</a>
+    }
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -21,107 +28,161 @@
     <div class="dk-alert dk-alert-error">❌ @TempData["ErrorMessage"]</div>
 }
 
-<div class="stat-grid">
+<!-- Stats -->
+<div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
     <div class="stat-card stat-total">
-        <span class="stat-label">Total</span>
-        <span class="stat-value">@Model.Count()</span>
+        <span class="stat-label">Total Submitted</span>
+        <span class="stat-value">@list.Count</span>
     </div>
     <div class="stat-card stat-pending">
-        <span class="stat-label">Pending</span>
-        <span class="stat-value">@Model.Count(a => a.Status == "Pending")</span>
+        <span class="stat-label">Under Review</span>
+        <span class="stat-value">@pending</span>
     </div>
     <div class="stat-card stat-approved">
         <span class="stat-label">Approved</span>
-        <span class="stat-value">@Model.Count(a => a.Status == "Approved")</span>
+        <span class="stat-value">@approved</span>
     </div>
     <div class="stat-card stat-rejected">
         <span class="stat-label">Rejected</span>
-        <span class="stat-value">@Model.Count(a => a.Status == "Rejected")</span>
+        <span class="stat-value">@rejected</span>
     </div>
 </div>
 
-<div class="dk-card">
-    @if (Model.Any())
-    {
-        <table class="dk-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Full Name</th>
-                    <th>Location</th>
-                    <th>Exp.</th>
-                    <th>Armed</th>
-                    <th>Submitted</th>
-                    <th>Status</th>
-                    <th style="text-align:right;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{ int i = 1; }
-                @foreach (var item in Model)
+@if (!list.Any())
+{
+    <!-- Empty state -->
+    <div class="dk-card" style="padding:72px 24px; text-align:center;">
+        <div style="font-size:4rem; margin-bottom:16px;">📋</div>
+        <h2 style="font-size:1.2rem; font-weight:700; color:var(--text); margin:0 0 10px;">No applications yet</h2>
+        <p style="color:var(--text-muted); font-size:0.875rem; max-width:380px; margin:0 auto 28px; line-height:1.6;">
+            You haven't submitted any guard applications. Start your journey by applying today.
+        </p>
+        <a asp-action="Apply" class="dk-btn dk-btn-primary" style="display:inline-flex;">🛡️ Apply as Guard →</a>
+    </div>
+}
+else
+{
+    <!-- Application cards -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        @foreach (var item in list)
+        {
+            var statusColor = item.Status switch {
+                "Approved" => "var(--green)",
+                "Rejected" => "var(--red)",
+                _ => "var(--yellow)"
+            };
+            var statusBg = item.Status switch {
+                "Approved" => "rgba(52,211,153,0.08)",
+                "Rejected" => "rgba(248,113,113,0.08)",
+                _ => "rgba(251,191,36,0.08)"
+            };
+            var statusIcon = item.Status switch {
+                "Approved" => "✅",
+                "Rejected" => "❌",
+                _ => "⏳"
+            };
+            var borderAccent = item.Status switch {
+                "Approved" => "rgba(52,211,153,0.3)",
+                "Rejected" => "rgba(248,113,113,0.3)",
+                _ => "rgba(251,191,36,0.3)"
+            };
+
+            <div class="app-card" style="border-left: 3px solid @borderAccent;">
+
+                <!-- Top row: name + status badge -->
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+                    <div>
+                        <div style="font-size:1.05rem; font-weight:800; color:var(--text); margin-bottom:4px;">
+                            @item.FullName
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--text-muted);">
+                            Submitted @item.CreatedAt.ToString("dddd, dd MMMM yyyy · HH:mm") UTC
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:100px; font-size:0.78rem; font-weight:700; background:@statusBg; color:@statusColor; border:1px solid @borderAccent;">
+                            @statusIcon @item.Status
+                        </span>
+                        @if (item.ArmedLicense)
+                        {
+                            <span style="display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:100px; font-size:0.72rem; font-weight:700; background:rgba(129,140,248,0.12); color:var(--accent); border:1px solid rgba(129,140,248,0.25);">
+                                🔫 Armed
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Info grid -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:20px;">
+                    <div class="info-block">
+                        <span class="info-label">📞 Phone</span>
+                        <span class="info-value">@item.Phone</span>
+                    </div>
+                    <div class="info-block">
+                        <span class="info-label">🪪 National ID</span>
+                        <span class="info-value mono">@item.NationalId</span>
+                    </div>
+                    <div class="info-block">
+                        <span class="info-label">⏱️ Experience</span>
+                        <span class="info-value">@item.YearsOfExperience year@(item.YearsOfExperience == 1 ? "" : "s")</span>
+                    </div>
+                    <div class="info-block">
+                        <span class="info-label">📍 Preferred Location</span>
+                        <span class="info-value">@item.PreferredLocation</span>
+                    </div>
+                </div>
+
+                <!-- Status message -->
+                @if (item.Status == "Pending")
                 {
-                    <tr>
-                        <td><span class="mono">@i</span></td>
-                        <td>
-                            <div style="font-weight:600; color:var(--text);">@item.FullName</div>
-                            <div class="mono" style="margin-top:2px;">@item.Phone</div>
-                        </td>
-                        <td style="color:var(--text-sub);">@item.PreferredLocation</td>
-                        <td>
-                            <span style="font-weight:600; color:var(--text);">@item.YearsOfExperience</span>
-                            <span style="color:var(--text-muted); font-size:0.75rem;"> yr</span>
-                        </td>
-                        <td>
-                            @if (item.ArmedLicense)
-                            {
-                                <span class="badge badge-approved">✓ Yes</span>
-                            }
-                            else
-                            {
-                                <span style="color:var(--text-muted); font-size:0.8rem;">No</span>
-                            }
-                        </td>
-                        <td style="color:var(--text-muted); font-size:0.8rem;">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
-                        <td>
-                            @if (item.Status == "Pending")
-                            {
-                                <span class="badge badge-pending">⏳ Pending</span>
-                            }
-                            else if (item.Status == "Approved")
-                            {
-                                <span class="badge badge-approved">✅ Approved</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-rejected">❌ Rejected</span>
-                            }
-                        </td>
-                        <td style="text-align:right;">
-                            @if (item.Status == "Pending")
-                            {
-                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;"
-                                      onsubmit="return confirm('Withdraw this application? This cannot be undone.');">
-                                    <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">Withdraw</button>
-                                </form>
-                            }
-                            else
-                            {
-                                <span style="color:var(--text-muted); font-size:0.78rem;">—</span>
-                            }
-                        </td>
-                    </tr>
-                    i++;
+                    <div style="background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.15); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.82rem; color:#d97706; line-height:1.5;">
+                        ⏳ <strong>Under Review</strong> — Our recruitment team is currently reviewing your application. We'll update you shortly.
+                    </div>
                 }
-            </tbody>
-        </table>
+                else if (item.Status == "Approved")
+                {
+                    <div style="background:rgba(52,211,153,0.06); border:1px solid rgba(52,211,153,0.15); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.82rem; color:#10b981; line-height:1.5;">
+                        ✅ <strong>Congratulations!</strong> Your application has been approved. Our team will be in touch with next steps.
+                    </div>
+                }
+                else if (item.Status == "Rejected")
+                {
+                    <div style="background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.15); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.82rem; color:#f87171; line-height:1.5;">
+                        ❌ <strong>Not Selected</strong> — Unfortunately your application was not approved this time. You may submit a new application.
+                    </div>
+                }
+
+                <!-- Actions -->
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="dk-btn dk-btn-ghost dk-btn-sm">
+                        👁 View Full Details
+                    </a>
+                    @if (item.Status == "Pending")
+                    {
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;"
+                              onsubmit="return confirm('Are you sure you want to withdraw this application? This cannot be undone.');">
+                            <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">✕ Withdraw</button>
+                        </form>
+                    }
+                </div>
+
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .app-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 24px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: box-shadow 0.2s;
     }
-    else
-    {
-        <div class="empty-state">
-            <div class="empty-icon">📋</div>
-            <div class="empty-title">No applications yet</div>
-            <div class="empty-sub">Submit your first guard application to get started.</div>
-            <a asp-action="Apply" class="dk-btn dk-btn-primary" style="margin-top:20px; display:inline-flex;">Apply Now →</a>
-        </div>
-    }
-</div>
+    .app-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .info-block { display:flex; flex-direction:column; gap:4px; }
+    .info-label { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); }
+    .info-value { font-size:0.875rem; font-weight:600; color:var(--text); }
+</style>
