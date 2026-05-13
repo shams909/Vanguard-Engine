@@ -50,7 +50,14 @@
                                 👁️ Guard Applications
                             </a>
                         </li>
+                        <li>
+                            <a asp-controller="Recruitment" asp-action="Manage"
+                               style="background: rgba(245,158,11,0.1); color: #d97706; font-weight: 600;">
+                                📝 Recruitment
+                            </a>
+                        </li>
                     }
+                    <li><a asp-controller="Recruitment" asp-action="Index">📢 Careers</a></li>
                     @if (currentRole == "Admin")
                     {
                         <li><a asp-controller="Roles" asp-action="Index">🔑 Roles</a></li>

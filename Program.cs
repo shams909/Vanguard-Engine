@@ -25,6 +25,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGuardApplicationService, GuardApplicationService>();
+builder.Services.AddScoped<IHiringService, HiringService>();
 
 // Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

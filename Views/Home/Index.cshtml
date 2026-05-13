@@ -50,6 +50,14 @@
                     <div class="home-card-arrow">→</div>
                 </div>
             </a>
+            <a asp-controller="Recruitment" asp-action="Manage" style="text-decoration:none;">
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.08)); border-color:rgba(245,158,11,0.3);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">📝</div>
+                    <div class="home-card-title">Recruitment</div>
+                    <div class="home-card-sub">Post new job openings and manage hiring notices.</div>
+                    <div class="home-card-arrow">→</div>
+                </div>
+            </a>
         }
 
         @if (userRole == "Admin")

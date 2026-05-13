@@ -15,32 +15,63 @@ Console.WriteLine("Fetching Admin Role ID...");
 
 try 
 {
+    // --- Recruitment Setup ---
+    Console.WriteLine("--- Setting up Recruitment Collection ---");
+    string recruitmentCollId = "hiring_notices";
+    try {
+        await databases.CreateCollection(databaseId, recruitmentCollId, "Recruitment Notices", permissions: new List<string> { "read(\"any\")", "create(\"users\")", "update(\"users\")", "delete(\"users\")" });
+        Console.WriteLine("Collection 'hiring_notices' created.");
+    } catch { Console.WriteLine("Collection 'hiring_notices' exists."); }
+
+    string[,] attributes = {
+        { "title", "255", "true" },
+        { "referenceCode", "100", "true" },
+        { "description", "5000", "true" },
+        { "requirements", "5000", "true" },
+        { "location", "255", "true" },
+        { "jobType", "100", "true" },
+        { "priority", "50", "true" },
+        { "salaryRange", "100", "false" },
+        { "status", "50", "true" },
+        { "postedByUserId", "255", "true" },
+        { "expiryDate", "100", "false" }
+    };
+
+    for (int i = 0; i < attributes.GetLength(0); i++) {
+        try {
+            await databases.CreateStringAttribute(databaseId, recruitmentCollId, attributes[i,0], int.Parse(attributes[i,1]), bool.Parse(attributes[i,2]));
+            Console.WriteLine($"- Attribute '{attributes[i,0]}' added.");
+        } catch { Console.WriteLine($"- Attribute '{attributes[i,0]}' exists."); }
+    }
+
+    // --- Admin Creation ---
+    Console.WriteLine("\nFetching Admin Role ID...");
     var rolesList = await databases.ListDocuments(databaseId, "roles", queries: new List<string> { Query.Equal("roleName", "Admin") });
     if (rolesList.Total > 0)
     {
         string adminRoleId = rolesList.Documents[0].Id;
         Console.WriteLine($"ADMIN_ROLE_ID:{adminRoleId}");
         
-        var hasher = new PasswordHasher<object>();
-        string hashedPassword = hasher.HashPassword(new object(), "AdminMusa@123");
+        try {
+            var hasher = new PasswordHasher<object>();
+            string hashedPassword = hasher.HashPassword(new object(), "AdminMusa@123");
 
-        var newUser = new {
-            username = "musa_admin",
-            email = "musa@vanguard.com",
-            passwordHash = hashedPassword,
-            roleId = adminRoleId,
-            lastLogin = DateTime.UtcNow
-        };
+            var newUser = new {
+                username = "musa_admin",
+                email = "musa@vanguard.com",
+                passwordHash = hashedPassword,
+                roleId = adminRoleId,
+                lastLogin = DateTime.UtcNow
+            };
 
-        await databases.CreateDocument(databaseId, "users", ID.Unique(), newUser);
-        Console.WriteLine("USER_CREATED:musa@vanguard.com / AdminMusa@123");
-    }
-    else
-    {
-        Console.WriteLine("Admin role not found.");
+            await databases.CreateDocument(databaseId, "users", ID.Unique(), newUser);
+            Console.WriteLine("USER_CREATED:musa@vanguard.com / AdminMusa@123");
+        } catch (Exception ex) {
+            Console.WriteLine($"User creation skipped: {ex.Message}");
+        }
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error: {ex.Message}");
+    Console.WriteLine($"Fatal Error: {ex.Message}");
 }

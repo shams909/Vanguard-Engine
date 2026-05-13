@@ -7,5 +7,6 @@ public interface IUnitOfWork
     IRoleRepository Roles { get; }
     IUserRepository Users { get; }
     IGuardApplicationRepository GuardApplications { get; }
+    IHiringNoticeRepository HiringNotices { get; }
     Task<int> SaveChangesAsync();
 }
