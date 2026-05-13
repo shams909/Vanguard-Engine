@@ -27,16 +27,17 @@ public class UsersController : Controller
             PageNumber = pageNumber,
             PageSize = pageSize
         };
-
         return View(model);
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateRole(string userId, string newRoleId, int pageNumber = 1, int pageSize = 10)
     {
         var result = await _userService.UpdateRoleAsync(userId, newRoleId);
-        TempData[result ? "Success" : "Error"] = result ? "User role updated successfully." : "Failed to update user role.";
-
+        TempData[result ? "Success" : "Error"] = result
+            ? "User role updated successfully."
+            : "Failed to update user role.";
         return RedirectToAction(nameof(Index), new { pageNumber, pageSize });
     }
 
@@ -47,11 +48,11 @@ public class UsersController : Controller
         {
             Roles = await _roleService.GetAllAsync(1, 100)
         };
-
         return View(model);
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(UsersCreateViewModel model)
     {
         if (!ModelState.IsValid)
@@ -60,7 +61,8 @@ public class UsersController : Controller
             return View(model);
         }
 
-        await _userService.CreateAsync(model.CreateUser);
+        await _userService.CreateAsync(model.Username, model.Email, model.Password, model.Address, model.RoleId);
+        TempData["Success"] = $"User '{model.Username}' created successfully.";
         return RedirectToAction(nameof(Index));
     }
 }

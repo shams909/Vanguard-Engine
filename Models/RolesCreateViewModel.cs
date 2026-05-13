@@ -1,8 +1,13 @@
-using Vanguard_Engine.DTOs.Roles;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vanguard_Engine.Models;
 
 public class RolesCreateViewModel
 {
-    public CreateRoleDto Role { get; set; } = new(string.Empty, null);
+    [Required(ErrorMessage = "Role name is required")]
+    [StringLength(100, MinimumLength = 2)]
+    public string RoleName { get; set; } = string.Empty;
+
+    [StringLength(500)]
+    public string? Description { get; set; }
 }

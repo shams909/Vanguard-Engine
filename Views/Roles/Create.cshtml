@@ -1,7 +1,6 @@
 @model Vanguard_Engine.Models.RolesCreateViewModel
 @{
     ViewData["Title"] = "Create Role";
-    Layout = "~/Views/Shared/_DarkLayout.cshtml";
 }
 
 <div class="page-hero">
@@ -14,15 +13,17 @@
     <form asp-action="Create" method="post" class="app-form">
         <div class="form-section">
             <div class="form-group">
-                <label class="dk-label">Role Name <span class="req">*</span></label>
-                <input class="dk-input" asp-for="Role.RoleName" placeholder="e.g. Admin, Guard, Recruiter" />
+                <label asp-for="RoleName" class="dk-label">Role Name <span class="req">*</span></label>
+                <input class="dk-input" asp-for="RoleName" placeholder="e.g. Admin, Guard, Recruiter" />
+                <span asp-validation-for="RoleName" class="field-err"></span>
             </div>
         </div>
         <div class="form-section">
             <div class="form-group">
-                <label class="dk-label">Description</label>
-                <textarea class="dk-input dk-textarea" asp-for="Role.Description" rows="3"
+                <label asp-for="Description" class="dk-label">Description</label>
+                <textarea class="dk-input dk-textarea" asp-for="Description" rows="3"
                           placeholder="Describe the access level and responsibilities of this role..."></textarea>
+                <span asp-validation-for="Description" class="field-err"></span>
             </div>
         </div>
         <div class="form-section" style="display:flex; gap:12px; justify-content:flex-end;">
@@ -31,3 +32,7 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

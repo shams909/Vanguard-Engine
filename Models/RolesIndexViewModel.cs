@@ -1,10 +1,10 @@
-using Vanguard_Engine.DTOs.Roles;
+using Vanguard_Engine.Entities;
 
 namespace Vanguard_Engine.Models;
 
 public class RolesIndexViewModel
 {
-    public List<RoleDto> Roles { get; set; } = new();
+    public List<Role> Roles { get; set; } = new();
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10;
 }

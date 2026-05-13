@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Vanguard_Engine.DTOs.Users;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.UnitOfWork;
 
@@ -16,54 +15,47 @@ public class UserService : IUserService
         _passwordHasher = new PasswordHasher<User>();
     }
 
-    public async Task<List<UserDto>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<List<User>> GetAllAsync(int pageNumber, int pageSize)
     {
-        var users = await _unitOfWork.Users.GetPagedAsync(pageNumber, pageSize);
-        return users.Select(MapToDto).ToList();
+        return await _unitOfWork.Users.GetPagedAsync(pageNumber, pageSize);
     }
 
-    public async Task<UserDto?> GetByIdAsync(string id)
+    public async Task<User?> GetByIdAsync(string id)
     {
-        var user = await _unitOfWork.Users.GetByIdAsync(id);
-        return user is null ? null : MapToDto(user);
+        return await _unitOfWork.Users.GetByIdAsync(id);
     }
 
-    public async Task<UserDto> CreateAsync(CreateUserDto dto)
+    public async Task<User> CreateAsync(string username, string email, string password, string? address, string? roleId)
     {
         var user = new User
         {
-            Username = dto.Username.Trim(),
-            Email = dto.Email.Trim().ToLowerInvariant(),
-            Address = dto.Address,
-            RoleId = dto.RoleId,
-            LastLogin = dto.LastLogin
+            Username = username.Trim(),
+            Email = email.Trim().ToLowerInvariant(),
+            Address = address,
+            RoleId = roleId,
+            LastLogin = DateTime.UtcNow
         };
 
-        user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+        user.PasswordHash = _passwordHasher.HashPassword(user, password);
 
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
-
-        return MapToDto(user);
+        return user;
     }
 
-    public async Task<bool> UpdateAsync(string id, UpdateUserDto dto)
+    public async Task<bool> UpdateAsync(string id, string username, string email, string? password, string? address, string? roleId)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
-        if (user is null)
-        {
-            return false;
-        }
+        if (user is null) return false;
 
-        user.Email = dto.Email.Trim().ToLowerInvariant();
-        user.Username = dto.Username.Trim();
-        user.Address = dto.Address;
-        user.RoleId = dto.RoleId;
-        user.LastLogin = dto.LastLogin;
+        user.Email = email.Trim().ToLowerInvariant();
+        user.Username = username.Trim();
+        user.Address = address;
+        user.RoleId = roleId;
 
-        if (!string.IsNullOrWhiteSpace(dto.Password))
+        if (!string.IsNullOrWhiteSpace(password))
         {
-            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+            user.PasswordHash = _passwordHasher.HashPassword(user, password);
         }
 
         _unitOfWork.Users.Update(user);
@@ -88,15 +80,10 @@ public class UserService : IUserService
     public async Task<bool> DeleteAsync(string id)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
-        if (user is null)
-        {
-            return false;
-        }
+        if (user is null) return false;
 
         _unitOfWork.Users.Remove(user);
         await _unitOfWork.SaveChangesAsync();
         return true;
     }
-
-    private static UserDto MapToDto(User user) => new(user.Id, user.Username, user.Email, user.Address, user.RoleId, user.LastLogin);
 }

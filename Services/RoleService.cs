@@ -1,4 +1,3 @@
-using Vanguard_Engine.DTOs.Roles;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.UnitOfWork;
 
@@ -13,42 +12,36 @@ public class RoleService : IRoleService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<List<RoleDto>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<List<Role>> GetAllAsync(int pageNumber, int pageSize)
     {
-        var roles = await _unitOfWork.Roles.GetPagedAsync(pageNumber, pageSize);
-        return roles.Select(MapToDto).ToList();
+        return await _unitOfWork.Roles.GetPagedAsync(pageNumber, pageSize);
     }
 
-    public async Task<RoleDto?> GetByIdAsync(string id)
+    public async Task<Role?> GetByIdAsync(string id)
     {
-        var role = await _unitOfWork.Roles.GetByIdAsync(id);
-        return role is null ? null : MapToDto(role);
+        return await _unitOfWork.Roles.GetByIdAsync(id);
     }
 
-    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
+    public async Task<Role> CreateAsync(string roleName, string? description)
     {
         var role = new Role
         {
-            RoleName = dto.RoleName,
-            Description = dto.Description
+            RoleName = roleName,
+            Description = description
         };
 
         await _unitOfWork.Roles.AddAsync(role);
         await _unitOfWork.SaveChangesAsync();
-
-        return MapToDto(role);
+        return role;
     }
 
-    public async Task<bool> UpdateAsync(string id, UpdateRoleDto dto)
+    public async Task<bool> UpdateAsync(string id, string roleName, string? description)
     {
         var role = await _unitOfWork.Roles.GetByIdAsync(id);
-        if (role is null)
-        {
-            return false;
-        }
+        if (role is null) return false;
 
-        role.RoleName = dto.RoleName;
-        role.Description = dto.Description;
+        role.RoleName = roleName;
+        role.Description = description;
 
         _unitOfWork.Roles.Update(role);
         await _unitOfWork.SaveChangesAsync();
@@ -58,15 +51,10 @@ public class RoleService : IRoleService
     public async Task<bool> DeleteAsync(string id)
     {
         var role = await _unitOfWork.Roles.GetByIdAsync(id);
-        if (role is null)
-        {
-            return false;
-        }
+        if (role is null) return false;
 
         _unitOfWork.Roles.Remove(role);
         await _unitOfWork.SaveChangesAsync();
         return true;
     }
-
-    private static RoleDto MapToDto(Role role) => new(role.Id, role.RoleName, role.Description);
 }

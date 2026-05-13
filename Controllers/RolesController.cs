@@ -24,7 +24,6 @@ public class RolesController : Controller
             PageNumber = pageNumber,
             PageSize = pageSize
         };
-
         return View(model);
     }
 
@@ -35,14 +34,13 @@ public class RolesController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(RolesCreateViewModel model)
     {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
+        if (!ModelState.IsValid) return View(model);
 
-        await _roleService.CreateAsync(model.Role);
+        await _roleService.CreateAsync(model.RoleName, model.Description);
+        TempData["Success"] = $"Role '{model.RoleName}' created successfully.";
         return RedirectToAction(nameof(Index));
     }
 }

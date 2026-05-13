@@ -1,7 +1,6 @@
 @model Vanguard_Engine.Models.UsersCreateViewModel
 @{
     ViewData["Title"] = "Create User";
-    Layout = "~/Views/Shared/_DarkLayout.cshtml";
 }
 
 <div class="page-hero">
@@ -12,24 +11,30 @@
 
 <div class="dk-card" style="max-width:600px; margin:0 auto;">
     <form asp-action="Create" method="post" class="app-form">
+
+        <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="margin:20px 20px 0;"></div>
+
         <div class="form-section">
             <div class="form-section-header"><span class="section-icon">👤</span> Account Details</div>
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label class="dk-label">Username <span class="req">*</span></label>
-                    <input class="dk-input" asp-for="CreateUser.Username" placeholder="johndoe" />
+                    <label asp-for="Username" class="dk-label">Username <span class="req">*</span></label>
+                    <input class="dk-input" asp-for="Username" placeholder="johndoe" />
+                    <span asp-validation-for="Username" class="field-err"></span>
                 </div>
                 <div class="form-group">
-                    <label class="dk-label">Email <span class="req">*</span></label>
-                    <input class="dk-input" asp-for="CreateUser.Email" type="email" placeholder="user@example.com" />
+                    <label asp-for="Email" class="dk-label">Email <span class="req">*</span></label>
+                    <input class="dk-input" asp-for="Email" type="email" placeholder="user@example.com" />
+                    <span asp-validation-for="Email" class="field-err"></span>
                 </div>
                 <div class="form-group">
-                    <label class="dk-label">Password <span class="req">*</span></label>
-                    <input class="dk-input" asp-for="CreateUser.Password" type="password" placeholder="••••••••" />
+                    <label asp-for="Password" class="dk-label">Password <span class="req">*</span></label>
+                    <input class="dk-input" asp-for="Password" type="password" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="field-err"></span>
                 </div>
                 <div class="form-group">
-                    <label class="dk-label">Role <span class="req">*</span></label>
-                    <select class="dk-input" asp-for="CreateUser.RoleId">
+                    <label asp-for="RoleId" class="dk-label">Role</label>
+                    <select class="dk-input" asp-for="RoleId">
                         <option value="">Select a role</option>
                         @foreach (var role in Model.Roles)
                         {
@@ -39,13 +44,19 @@
                 </div>
             </div>
             <div class="form-group" style="margin-top:12px;">
-                <label class="dk-label">Address</label>
-                <input class="dk-input" asp-for="CreateUser.Address" placeholder="House, Road, Area, District" />
+                <label asp-for="Address" class="dk-label">Address</label>
+                <input class="dk-input" asp-for="Address" placeholder="House, Road, Area, District" />
             </div>
         </div>
+
         <div class="form-section" style="display:flex; gap:12px; justify-content:flex-end;">
             <a asp-action="Index" class="dk-btn dk-btn-ghost">Cancel</a>
             <button type="submit" class="dk-btn dk-btn-primary">Create User</button>
         </div>
+
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
