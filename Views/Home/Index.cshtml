@@ -23,8 +23,8 @@
         @if (userRole == "Guard")
         {
             <a asp-controller="Guard" asp-action="Apply" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.12)); border-color:rgba(99,102,241,0.3);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">🛡️</div>
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(180,83,9,0.08),rgba(146,64,14,0.04)); border-color:rgba(180,83,9,0.2);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#d97706,#9a3412); color:#fff;"><i data-lucide="shield-check"></i></div>
                     <div class="home-card-title">Apply as Guard</div>
                     <div class="home-card-sub">Submit your guard application to join the force.</div>
                     <div class="home-card-arrow">→</div>
@@ -32,7 +32,7 @@
             </a>
             <a asp-controller="Guard" asp-action="MyApplications" style="text-decoration:none;">
                 <div class="home-card">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);">📋</div>
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9); border:1px solid var(--border-strong);"><i data-lucide="clipboard-list"></i></div>
                     <div class="home-card-title">My Applications</div>
                     <div class="home-card-sub">Track the status of your submitted applications.</div>
                     <div class="home-card-arrow">→</div>
@@ -43,16 +43,16 @@
         @if (userRole == "Admin" || userRole == "Recruiter" || userRole == "Client")
         {
             <a asp-controller="Guard" asp-action="Applications" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(16,185,129,0.08)); border-color:rgba(52,211,153,0.3);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#10b981,#059669);">👁️</div>
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(5,150,105,0.04)); border-color:rgba(16,185,129,0.2);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#34d399,#059669); color:#fff;"><i data-lucide="eye"></i></div>
                     <div class="home-card-title">Guard Applications</div>
                     <div class="home-card-sub">Review, approve, or reject all applications.</div>
                     <div class="home-card-arrow">→</div>
                 </div>
             </a>
             <a asp-controller="Recruitment" asp-action="Manage" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.08)); border-color:rgba(245,158,11,0.3);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">📝</div>
+                <div class="home-card" style="background:linear-gradient(135deg,rgba(217,119,6,0.08),rgba(180,83,9,0.04)); border-color:rgba(217,119,6,0.2);">
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#fbbf24,#d97706); color:#fff;"><i data-lucide="file-edit"></i></div>
                     <div class="home-card-title">Recruitment</div>
                     <div class="home-card-sub">Post new job openings and manage hiring notices.</div>
                     <div class="home-card-arrow">→</div>
@@ -64,7 +64,7 @@
         {
             <a asp-controller="Users" asp-action="Index" style="text-decoration:none;">
                 <div class="home-card">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">👥</div>
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9); border:1px solid var(--border-strong);"><i data-lucide="users"></i></div>
                     <div class="home-card-title">Users</div>
                     <div class="home-card-sub">Manage all system users and role assignments.</div>
                     <div class="home-card-arrow">→</div>
@@ -72,7 +72,7 @@
             </a>
             <a asp-controller="Roles" asp-action="Index" style="text-decoration:none;">
                 <div class="home-card">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f87171,#ef4444);">🔑</div>
+                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9); border:1px solid var(--border-strong);"><i data-lucide="key"></i></div>
                     <div class="home-card-title">Roles</div>
                     <div class="home-card-sub">Configure system access roles and permissions.</div>
                     <div class="home-card-arrow">→</div>
@@ -88,8 +88,8 @@ else
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 200px); text-align:center; padding:40px 20px;">
 
         <!-- Logo mark -->
-        <div style="width:80px; height:80px; border-radius:28px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin-bottom:28px; box-shadow:0 16px 48px rgba(99,102,241,0.35);">
-            ⚔️
+        <div style="width:80px; height:80px; border-radius:28px; background:linear-gradient(135deg,#d97706,#9a3412); display:flex; align-items:center; justify-content:center; color:#fff; margin-bottom:28px; box-shadow:0 16px 48px rgba(180,83,9,0.25);">
+            <i data-lucide="shield-half" style="width:36px; height:36px;"></i>
         </div>
 
         <h1 style="font-size:3.5rem; font-weight:900; color:var(--text); letter-spacing:-2px; margin:0 0 16px; line-height:1.1;">
@@ -138,14 +138,14 @@ else
     }
     .home-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
         border-color: var(--border-strong);
     }
     .home-card-icon {
         width: 48px; height: 48px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
         font-size: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
     }
     .home-card-title {
         font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 4px;

@@ -17,7 +17,7 @@
     </div>
     @if (pending > 0)
     {
-        <div style="display:flex; align-items:center; gap:8px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:8px 16px;">
+        <div style="display:flex; align-items:center; gap:8px; background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.25); border-radius:12px; padding:8px 16px;">
             <span style="width:8px; height:8px; border-radius:50%; background:var(--yellow); display:inline-block; animation:pulse 2s infinite;"></span>
             <span style="font-size:0.8rem; font-weight:600; color:#d97706;">@pending Pending</span>
         </div>
@@ -26,11 +26,11 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="dk-alert dk-alert-success">✅ @TempData["SuccessMessage"]</div>
+    <div class="dk-alert dk-alert-success"><i data-lucide="check-circle-2" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> @TempData["SuccessMessage"]</div>
 }
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="dk-alert dk-alert-error">❌ @TempData["ErrorMessage"]</div>
+    <div class="dk-alert dk-alert-error"><i data-lucide="x-circle" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> @TempData["ErrorMessage"]</div>
 }
 
 <!-- Stats -->
@@ -56,7 +56,7 @@
 @if (!list.Any())
 {
     <div class="dk-card" style="padding:72px 24px; text-align:center;">
-        <div style="font-size:3.5rem; margin-bottom:14px;">🔍</div>
+        <div style="font-size:3.5rem; margin-bottom:14px;"><i data-lucide="search" style="width:56px; height:56px; display:inline-block;"></i></div>
         <div style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:8px;">No applications yet</div>
         <div style="font-size:0.85rem; color:var(--text-muted);">Guard applications will appear here once candidates submit them.</div>
     </div>
@@ -77,14 +77,14 @@ else
                     @await Html.PartialAsync("_AppRowPartial", item)
                     <div class="app-row-actions">
                         <a asp-action="Review" asp-route-id="@item.Id" class="dk-btn dk-btn-ghost dk-btn-sm">
-                            👁 Review
+                            <i data-lucide="eye" style="width:14px;height:14px;"></i> Review
                         </a>
                         <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display:inline;">
-                            <button type="submit" class="dk-btn dk-btn-success dk-btn-sm">✓ Approve</button>
+                            <button type="submit" class="dk-btn dk-btn-success dk-btn-sm"><i data-lucide="check" style="width:14px;height:14px;"></i> Approve</button>
                         </form>
                         <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;"
                               onsubmit="return confirm('Reject application from @item.FullName?');">
-                            <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">✗ Reject</button>
+                            <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm"><i data-lucide="x" style="width:14px;height:14px;"></i> Reject</button>
                         </form>
                     </div>
                 </div>
@@ -107,10 +107,10 @@ else
                     @await Html.PartialAsync("_AppRowPartial", item)
                     <div class="app-row-actions">
                         <a asp-action="Review" asp-route-id="@item.Id" class="dk-btn dk-btn-ghost dk-btn-sm">
-                            👁 View
+                            <i data-lucide="eye" style="width:14px;height:14px;"></i> View
                         </a>
                         <span style="font-size:0.75rem; color:var(--text-muted);">
-                            @(item.Status == "Approved" ? "✅ Approved" : "❌ Rejected")
+                            @(item.Status == "Approved" ? Html.Raw("<i data-lucide='check-circle-2' style='width:14px;height:14px;display:inline-block;vertical-align:-2px;'></i> Approved") : Html.Raw("<i data-lucide='x-circle' style='width:14px;height:14px;display:inline-block;vertical-align:-2px;'></i> Rejected"))
                         </span>
                     </div>
                 </div>
@@ -137,14 +137,15 @@ else
         backdrop-filter: blur(12px);
         transition: box-shadow 0.15s;
         flex-wrap: wrap;
+        box-shadow: 0 2px 8px rgba(15,23,42,0.02);
     }
-    .app-row:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
+    .app-row:hover { box-shadow: var(--shadow-sm); }
     .app-row-pending { border-left-color: rgba(251,191,36,0.5); }
     .app-row-info { display: flex; align-items: center; gap: 20px; flex:1; min-width:0; flex-wrap:wrap; }
     .app-row-actions { display: flex; align-items: center; gap: 8px; flex-shrink:0; flex-wrap:wrap; }
     .applicant-avatar {
         width: 40px; height: 40px; border-radius: 14px;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        background: linear-gradient(135deg, #d97706, #9a3412);
         display: flex; align-items: center; justify-content: center;
         font-size: 1rem; font-weight: 800; color: #fff; flex-shrink:0;
     }

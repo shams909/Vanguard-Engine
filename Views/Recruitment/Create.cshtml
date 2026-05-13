@@ -3,89 +3,99 @@
     ViewData["Title"] = "Post New Requirement";
 }
 
-<div style="max-width: 800px; margin: 0 auto;">
-    <div style="margin-bottom: 32px; text-align: center;">
-        <h1 style="font-size: 2rem; font-weight: 800; color: #1e293b; letter-spacing: -1px; margin-bottom: 8px;">
-            Post Recruitment Notice
-        </h1>
-        <p style="color: #64748b; font-size: 0.95rem;">Enter the details for the new guard requirement. This will be visible to all prospective candidates.</p>
+<div class="page-header">
+    <div>
+        <h1 class="page-header-title">Post Recruitment Notice</h1>
+        <p class="page-header-sub">Enter the details for the new guard requirement. This will be visible to all prospective candidates.</p>
     </div>
+</div>
 
-    <div class="glass-card" style="max-width: 100%; margin-bottom: 40px;">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="alert-error" style="list-style: none;"></div>
+<div class="dk-card" style="max-width: 800px; margin-bottom: 40px;">
+    <form asp-action="Create" method="post" class="app-form">
+        <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="list-style: none; margin: 24px 28px 0;"></div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-                <div style="grid-column: span 2;">
-                    <label asp-for="Title" class="vg-label">Requirement Title</label>
-                    <input asp-for="Title" class="vg-input" placeholder="e.g. Senior Security Supervisor" />
-                    <span asp-validation-for="Title" class="field-validation-error"></span>
-                </div>
+        <div class="form-section">
+            <div class="form-section-header"><i data-lucide="file-text" class="section-icon" style="width:20px; height:20px;"></i> General Information</div>
+            
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label asp-for="Title" class="dk-label">Requirement Title <span class="req">*</span></label>
+                <input asp-for="Title" class="dk-input" placeholder="e.g. Senior Security Supervisor" />
+                <span asp-validation-for="Title" class="field-err"></span>
+            </div>
 
-                <div>
-                    <label asp-for="JobType" class="vg-label">Job Category</label>
-                    <select asp-for="JobType" class="vg-input">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label asp-for="JobType" class="dk-label">Job Category <span class="req">*</span></label>
+                    <select asp-for="JobType" class="dk-input">
                         <option value="Full-time">Full-time</option>
                         <option value="Contract">Contract</option>
                         <option value="Urgent Dispatch">Urgent Dispatch</option>
                         <option value="VIP Escort">VIP Escort</option>
                     </select>
-                    <span asp-validation-for="JobType" class="field-validation-error"></span>
+                    <span asp-validation-for="JobType" class="field-err"></span>
                 </div>
 
-                <div>
-                    <label asp-for="Priority" class="vg-label">Deployment Priority</label>
-                    <select asp-for="Priority" class="vg-input">
+                <div class="form-group">
+                    <label asp-for="Priority" class="dk-label">Deployment Priority <span class="req">*</span></label>
+                    <select asp-for="Priority" class="dk-input">
                         <option value="Normal">Normal</option>
                         <option value="High">High (Immediate)</option>
                         <option value="Low">Low</option>
                     </select>
-                    <span asp-validation-for="Priority" class="field-validation-error"></span>
+                    <span asp-validation-for="Priority" class="field-err"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-header"><i data-lucide="map-pin" class="section-icon" style="width:20px; height:20px;"></i> Location & Schedule</div>
+            
+            <div class="form-grid-2" style="margin-bottom: 16px;">
+                <div class="form-group">
+                    <label asp-for="Location" class="dk-label">Operation Location <span class="req">*</span></label>
+                    <input asp-for="Location" class="dk-input" placeholder="e.g. Dhaka HQ" />
+                    <span asp-validation-for="Location" class="field-err"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ExpiryDate" class="dk-label">Notice Expiry Date <span class="req">*</span></label>
+                    <input asp-for="ExpiryDate" class="dk-input" type="date" />
+                    <span asp-validation-for="ExpiryDate" class="field-err"></span>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-                <div>
-                    <label asp-for="Location" class="vg-label">Operation Location</label>
-                    <input asp-for="Location" class="vg-input" placeholder="e.g. Dhaka HQ" />
-                    <span asp-validation-for="Location" class="field-validation-error"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="SalaryRange" class="dk-label">Salary/Compensation Range</label>
+                <input asp-for="SalaryRange" class="dk-input" placeholder="e.g. 40,000 - 60,000 BDT" />
+                <span asp-validation-for="SalaryRange" class="field-err"></span>
+            </div>
+        </div>
 
-                <div>
-                    <label asp-for="ExpiryDate" class="vg-label">Notice Expiry Date</label>
-                    <input asp-for="ExpiryDate" class="vg-input" type="date" />
-                    <span asp-validation-for="ExpiryDate" class="field-validation-error"></span>
-                </div>
+        <div class="form-section">
+            <div class="form-section-header"><i data-lucide="clipboard-list" class="section-icon" style="width:20px; height:20px;"></i> Details & Requirements</div>
+            
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label asp-for="Description" class="dk-label">Detailed Description <span class="req">*</span></label>
+                <textarea asp-for="Description" class="dk-input dk-textarea" placeholder="Outline the main responsibilities..."></textarea>
+                <span asp-validation-for="Description" class="field-err"></span>
             </div>
 
-            <div style="margin-bottom: 24px;">
-                <label asp-for="SalaryRange" class="vg-label">Salary/Compensation Range</label>
-                <input asp-for="SalaryRange" class="vg-input" placeholder="e.g. 40,000 - 60,000 BDT" />
-                <span asp-validation-for="SalaryRange" class="field-validation-error"></span>
+            <div class="form-group">
+                <label asp-for="Requirements" class="dk-label">Mandatory Qualifications <span class="req">*</span></label>
+                <textarea asp-for="Requirements" class="dk-input dk-textarea" placeholder="List required skills, licenses, and experience..."></textarea>
+                <span asp-validation-for="Requirements" class="field-err"></span>
             </div>
+        </div>
 
-            <div style="margin-bottom: 24px;">
-                <label asp-for="Description" class="vg-label">Detailed Description</label>
-                <textarea asp-for="Description" class="vg-input" rows="4" style="resize: vertical;" placeholder="Outline the main responsibilities..."></textarea>
-                <span asp-validation-for="Description" class="field-validation-error"></span>
-            </div>
-
-            <div style="margin-bottom: 32px;">
-                <label asp-for="Requirements" class="vg-label">Mandatory Qualifications</label>
-                <textarea asp-for="Requirements" class="vg-input" rows="4" style="resize: vertical;" placeholder="List required skills, licenses, and experience..."></textarea>
-                <span asp-validation-for="Requirements" class="field-validation-error"></span>
-            </div>
-
-            <div style="display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid rgba(148,163,184,0.1); pt: 24px;">
-                <a asp-action="Manage" style="text-decoration: none; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; color: #64748b; border: 1px solid #cbd5e1; border-radius: 12px; transition: all 0.2s;">
-                    Cancel
-                </a>
-                <button type="submit" class="vg-btn-primary" style="padding: 10px 32px; border-radius: 12px;">
-                    Publish Requirement
-                </button>
-            </div>
-        </form>
-    </div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 24px 28px; background: rgba(255,255,255,0.2);">
+            <a asp-action="Manage" class="dk-btn dk-btn-ghost">
+                Cancel
+            </a>
+            <button type="submit" class="dk-btn dk-btn-primary">
+                <i data-lucide="send" style="width:16px; height:16px;"></i> Publish Requirement
+            </button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

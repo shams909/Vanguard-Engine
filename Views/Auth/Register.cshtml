@@ -8,8 +8,8 @@
 
         <!-- Logo -->
         <div style="text-align:center; margin-bottom:32px;">
-            <div style="width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 16px; box-shadow:0 8px 24px rgba(99,102,241,0.35);">
-                ⚔️
+            <div style="width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,#d97706,#9a3412); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 8px 24px rgba(180,83,9,0.25);">
+                <i data-lucide="shield-half" style="width:28px; height:28px; color:#fff;"></i>
             </div>
             <h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 6px; letter-spacing:-0.5px;">Join Vanguard Engine</h1>
             <p style="color:var(--text-muted); font-size:0.875rem; margin:0;">Create your account — it only takes a minute</p>
@@ -22,7 +22,7 @@
             <form asp-action="Register" method="post" class="app-form">
 
                 <div class="form-section">
-                    <div class="form-section-header"><span class="section-icon">👤</span> Your Details</div>
+                    <div class="form-section-header"><i data-lucide="user" class="section-icon" style="width:20px; height:20px;"></i> Your Details</div>
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label asp-for="Username" class="dk-label">Username <span class="req">*</span></label>
@@ -53,29 +53,29 @@
                 </div>
 
                 <div class="form-section">
-                    <div class="form-section-header"><span class="section-icon">🎯</span> I want to...</div>
+                    <div class="form-section-header"><i data-lucide="target" class="section-icon" style="width:20px; height:20px;"></i> I want to...</div>
                     <div style="display:flex; flex-direction:column; gap:10px;">
 
                         <label style="display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:14px; border:1.5px solid var(--border); cursor:pointer; transition:all 0.15s; background:var(--surface);"
                                id="opt-guard"
-                               onmouseover="this.style.borderColor='rgba(99,102,241,0.5)'" onmouseout="syncStyles()">
+                               onmouseover="this.style.borderColor='rgba(180,83,9,0.5)'" onmouseout="syncStyles()">
                             <input type="radio" asp-for="UserRole" value="Guard" id="radio-guard"
-                                   style="accent-color:#6366f1; width:18px; height:18px;"
+                                   style="accent-color:#b45309; width:18px; height:18px;"
                                    onchange="selectRole(this)" />
                             <div>
-                                <div style="font-weight:700; color:var(--text); font-size:0.9rem;">🛡️ Apply as a Security Guard</div>
+                                <div style="font-weight:700; color:var(--text); font-size:0.9rem;"><i data-lucide="shield-check" style="width:18px; height:18px; display:inline-block; vertical-align:-4px; margin-right:4px;"></i> Apply as a Security Guard</div>
                                 <div style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">Submit applications and track your recruitment status</div>
                             </div>
                         </label>
 
                         <label style="display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:14px; border:1.5px solid var(--border); cursor:pointer; transition:all 0.15s; background:var(--surface);"
                                id="opt-client"
-                               onmouseover="this.style.borderColor='rgba(99,102,241,0.5)'" onmouseout="syncStyles()">
+                               onmouseover="this.style.borderColor='rgba(180,83,9,0.5)'" onmouseout="syncStyles()">
                             <input type="radio" asp-for="UserRole" value="Client" id="radio-client"
-                                   style="accent-color:#6366f1; width:18px; height:18px;"
+                                   style="accent-color:#b45309; width:18px; height:18px;"
                                    onchange="selectRole(this)" />
                             <div>
-                                <div style="font-weight:700; color:var(--text); font-size:0.9rem;">👔 Recruit Security Guards</div>
+                                <div style="font-weight:700; color:var(--text); font-size:0.9rem;"><i data-lucide="briefcase" style="width:18px; height:18px; display:inline-block; vertical-align:-4px; margin-right:4px;"></i> Recruit Security Guards</div>
                                 <div style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">Browse, review, and hire qualified security personnel</div>
                             </div>
                         </label>
@@ -110,10 +110,10 @@
         var c = document.getElementById('radio-client');
         var og = document.getElementById('opt-guard');
         var oc = document.getElementById('opt-client');
-        og.style.borderColor = g.checked ? 'rgba(99,102,241,0.6)' : 'var(--border)';
-        og.style.background = g.checked ? 'rgba(99,102,241,0.08)' : 'var(--surface)';
-        oc.style.borderColor = c.checked ? 'rgba(99,102,241,0.6)' : 'var(--border)';
-        oc.style.background = c.checked ? 'rgba(99,102,241,0.08)' : 'var(--surface)';
+        og.style.borderColor = g.checked ? 'rgba(180,83,9,0.6)' : 'var(--border)';
+        og.style.background = g.checked ? 'rgba(180,83,9,0.08)' : 'var(--surface)';
+        oc.style.borderColor = c.checked ? 'rgba(180,83,9,0.6)' : 'var(--border)';
+        oc.style.background = c.checked ? 'rgba(180,83,9,0.08)' : 'var(--surface)';
     }
     document.addEventListener('DOMContentLoaded', syncStyles);
 </script>

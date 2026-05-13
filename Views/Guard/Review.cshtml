@@ -4,9 +4,9 @@
     var isPending = Model.Status == "Pending";
     var isApproved = Model.Status == "Approved";
     var statusColor = isApproved ? "var(--green)" : (isPending ? "var(--yellow)" : "var(--red)");
-    var statusBg = isApproved ? "rgba(52,211,153,0.08)" : (isPending ? "rgba(251,191,36,0.08)" : "rgba(248,113,113,0.08)");
-    var statusBorder = isApproved ? "rgba(52,211,153,0.3)" : (isPending ? "rgba(251,191,36,0.3)" : "rgba(248,113,113,0.3)");
-    var statusIcon = isApproved ? "✅" : (isPending ? "⏳" : "❌");
+    var statusBg = isApproved ? "rgba(52,211,153,0.12)" : (isPending ? "rgba(217,119,6,0.12)" : "rgba(248,113,113,0.12)");
+    var statusBorder = isApproved ? "rgba(52,211,153,0.3)" : (isPending ? "rgba(217,119,6,0.3)" : "rgba(248,113,113,0.3)");
+    var statusIcon = isApproved ? "<i data-lucide='check-circle-2' style='width:14px;height:14px;display:inline-block;vertical-align:-2px;'></i>" : (isPending ? "<i data-lucide='hourglass' style='width:14px;height:14px;display:inline-block;vertical-align:-2px;'></i>" : "<i data-lucide='x-circle' style='width:14px;height:14px;display:inline-block;vertical-align:-2px;'></i>");
     var initials = Model.FullName.Length > 0 ? Model.FullName.Substring(0, 1).ToUpper() : "?";
 }
 
@@ -23,7 +23,7 @@
 <!-- Hero -->
 <div style="display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:28px;">
     <div style="display:flex; gap:16px; align-items:center;">
-        <div style="width:64px; height:64px; border-radius:22px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:900; color:#fff; box-shadow:0 8px 24px rgba(99,102,241,0.35); flex-shrink:0;">
+        <div style="width:64px; height:64px; border-radius:22px; background:linear-gradient(135deg,#d97706,#9a3412); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:900; color:#fff; box-shadow:0 8px 24px rgba(180,83,9,0.25); flex-shrink:0;">
             @initials
         </div>
         <div>
@@ -41,7 +41,7 @@
     <!-- Status + action buttons -->
     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
         <span style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:14px; font-size:0.9rem; font-weight:700; background:@statusBg; color:@statusColor; border:1px solid @statusBorder;">
-            @statusIcon @Model.Status
+            @Html.Raw(statusIcon) @Model.Status
         </span>
         @if (isPending)
         {
@@ -49,13 +49,13 @@
                 <form asp-action="Approve" asp-route-id="@Model.Id" method="post">
                     <button type="submit" class="dk-btn dk-btn-success"
                             onclick="return confirm('Approve application for @Model.FullName?')">
-                        ✓ Approve Application
+                        <i data-lucide="check" style="width:14px;height:14px;"></i> Approve Application
                     </button>
                 </form>
                 <form asp-action="Reject" asp-route-id="@Model.Id" method="post">
                     <button type="submit" class="dk-btn dk-btn-danger"
                             onclick="return confirm('Reject application for @Model.FullName?')">
-                        ✗ Reject Application
+                        <i data-lucide="x" style="width:14px;height:14px;"></i> Reject Application
                     </button>
                 </form>
             </div>
@@ -67,7 +67,7 @@
 @if (!isPending)
 {
     <div style="background:@statusBg; border:1px solid @statusBorder; border-radius:14px; padding:14px 20px; margin-bottom:24px; display:flex; gap:12px; align-items:center;">
-        <span style="font-size:1.5rem;">@statusIcon</span>
+        <span style="font-size:1.5rem; display:flex; align-items:center; justify-content:center; width:32px; height:32px;">@Html.Raw(statusIcon)</span>
         <div>
             <div style="font-weight:700; color:@statusColor; font-size:0.9rem; margin-bottom:3px;">
                 @(isApproved ? "Application Approved" : "Application Rejected")
@@ -89,7 +89,7 @@
 
         <!-- Personal Info -->
         <div class="rev-card">
-            <div class="rev-section-title">🪪 Identity</div>
+            <div class="rev-section-title"><i data-lucide="id-card" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"></i> Identity</div>
             <div class="rev-field">
                 <span class="rev-label">Full Name</span>
                 <span class="rev-value">@Model.FullName</span>
@@ -110,10 +110,10 @@
 
         <!-- Deployment Info -->
         <div class="rev-card">
-            <div class="rev-section-title">📋 Deployment Profile</div>
+            <div class="rev-section-title"><i data-lucide="clipboard-list" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"></i> Deployment Profile</div>
             <div class="rev-field">
                 <span class="rev-label">Preferred Location</span>
-                <span class="rev-value">📍 @Model.PreferredLocation</span>
+                <span class="rev-value"><i data-lucide="map-pin" style="width:14px;height:14px;vertical-align:-2px;margin-right:2px;"></i> @Model.PreferredLocation</span>
             </div>
             <div class="rev-field">
                 <span class="rev-label">Years of Experience</span>
@@ -147,8 +147,8 @@
         </div>
 
         <!-- Quick score indicator -->
-        <div class="rev-card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.04));">
-            <div class="rev-section-title">⚡ Quick Assessment</div>
+        <div class="rev-card" style="background:linear-gradient(135deg,rgba(180,83,9,0.08),rgba(146,64,14,0.04));">
+            <div class="rev-section-title"><i data-lucide="zap" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"></i> Quick Assessment</div>
             <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:0.8rem; color:var(--text-sub);">Experience Level</span>
@@ -159,7 +159,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:0.8rem; color:var(--text-sub);">Armed Clearance</span>
                     <span style="font-size:0.82rem; font-weight:700; color:@(Model.ArmedLicense ? "var(--green)" : "var(--text-muted)");">
-                        @(Model.ArmedLicense ? "✓ Cleared" : "— N/A")
+                        @(Model.ArmedLicense ? Html.Raw("<i data-lucide='check' style='width:14px;height:14px;vertical-align:-2px;'></i> Cleared") : "— N/A")
                     </span>
                 </div>
             </div>
@@ -171,20 +171,20 @@
     <div style="display:flex; flex-direction:column; gap:16px;">
 
         <div class="rev-card" style="flex:1;">
-            <div class="rev-section-title">💼 Work Experience</div>
+            <div class="rev-section-title"><i data-lucide="briefcase" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"></i> Work Experience</div>
             <p style="font-size:0.875rem; color:var(--text-sub); line-height:1.8; margin:0; white-space:pre-wrap;">@Model.Experience</p>
         </div>
 
         <div class="rev-card" style="flex:1;">
-            <div class="rev-section-title">🎯 Skills &amp; Certifications</div>
+            <div class="rev-section-title"><i data-lucide="target" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"></i> Skills &amp; Certifications</div>
             <p style="font-size:0.875rem; color:var(--text-sub); line-height:1.8; margin:0; white-space:pre-wrap;">@Model.Skills</p>
         </div>
 
         @if (isPending)
         {
             <!-- Decision box -->
-            <div style="background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2); border-radius:16px; padding:20px 22px;">
-                <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:14px;">⚖️ Recruitment Decision</div>
+            <div style="background:rgba(180,83,9,0.06); border:1px solid rgba(180,83,9,0.2); border-radius:16px; padding:20px 22px;">
+                <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:14px;"><i data-lucide="scale" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px;"></i> Recruitment Decision</div>
                 <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 18px; line-height:1.6;">
                     Review the applicant's experience and skills above before making a decision. This action is permanent and will immediately update the applicant's status.
                 </p>
@@ -192,13 +192,13 @@
                     <form asp-action="Approve" asp-route-id="@Model.Id" method="post" style="flex:1;">
                         <button type="submit" class="dk-btn dk-btn-success" style="width:100%; justify-content:center; padding:12px;"
                                 onclick="return confirm('Approve @Model.FullName\'s application? This cannot be reversed.')">
-                            ✓ Approve Candidate
+                            <i data-lucide="check" style="width:14px;height:14px;"></i> Approve Candidate
                         </button>
                     </form>
                     <form asp-action="Reject" asp-route-id="@Model.Id" method="post" style="flex:1;">
                         <button type="submit" class="dk-btn dk-btn-danger" style="width:100%; justify-content:center; padding:12px;"
                                 onclick="return confirm('Reject @Model.FullName\'s application? This cannot be reversed.')">
-                            ✗ Reject Candidate
+                            <i data-lucide="x" style="width:14px;height:14px;"></i> Reject Candidate
                         </button>
                     </form>
                 </div>
@@ -210,7 +210,7 @@
 
 <!-- Footer nav -->
 <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--border);">
-    <a asp-action="Applications" class="dk-btn dk-btn-ghost">← Back to All Applications</a>
+    <a asp-action="Applications" class="dk-btn dk-btn-ghost"><i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back to All Applications</a>
 </div>
 
 <style>
@@ -219,7 +219,8 @@
         border: 1px solid var(--glass-border);
         border-radius: 18px;
         padding: 20px 22px;
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(24px);
+        box-shadow: var(--shadow-sm);
     }
     .rev-section-title {
         font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
@@ -227,7 +228,7 @@
     }
     .rev-field {
         display: flex; flex-direction: column; gap: 4px;
-        padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+        padding: 10px 0; border-bottom: 1px solid rgba(15,23,42,0.06);
     }
     .rev-field:last-child { border-bottom: none; padding-bottom: 0; }
     .rev-field:first-of-type { padding-top: 0; }
