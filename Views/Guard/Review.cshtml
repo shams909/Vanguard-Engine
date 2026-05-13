@@ -1,0 +1,240 @@
+@model Vanguard_Engine.Entities.GuardApplication
+@{
+    ViewData["Title"] = "Review Application";
+    var isPending = Model.Status == "Pending";
+    var isApproved = Model.Status == "Approved";
+    var statusColor = isApproved ? "var(--green)" : (isPending ? "var(--yellow)" : "var(--red)");
+    var statusBg = isApproved ? "rgba(52,211,153,0.08)" : (isPending ? "rgba(251,191,36,0.08)" : "rgba(248,113,113,0.08)");
+    var statusBorder = isApproved ? "rgba(52,211,153,0.3)" : (isPending ? "rgba(251,191,36,0.3)" : "rgba(248,113,113,0.3)");
+    var statusIcon = isApproved ? "✅" : (isPending ? "⏳" : "❌");
+    var initials = Model.FullName.Length > 0 ? Model.FullName.Substring(0, 1).ToUpper() : "?";
+}
+
+<!-- Breadcrumb -->
+<div style="display:flex; align-items:center; gap:8px; margin-bottom:28px; font-size:0.82rem; color:var(--text-muted);">
+    <a asp-action="Applications" style="color:var(--text-muted); text-decoration:none; transition:color 0.15s;"
+       onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-muted)'">
+        Applications Panel
+    </a>
+    <span>›</span>
+    <span style="color:var(--text-sub);">Review: @Model.FullName</span>
+</div>
+
+<!-- Hero -->
+<div style="display:flex; gap:20px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:28px;">
+    <div style="display:flex; gap:16px; align-items:center;">
+        <div style="width:64px; height:64px; border-radius:22px; background:linear-gradient(135deg,#6366f1,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:900; color:#fff; box-shadow:0 8px 24px rgba(99,102,241,0.35); flex-shrink:0;">
+            @initials
+        </div>
+        <div>
+            <h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0 0 5px; letter-spacing:-0.3px;">@Model.FullName</h1>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <span style="font-size:0.78rem; color:var(--text-muted);">@Model.Phone</span>
+                <span style="color:var(--border-strong);">·</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);">NID: @Model.NationalId</span>
+                <span style="color:var(--border-strong);">·</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);">Applied @Model.CreatedAt.ToString("dd MMM yyyy, HH:mm") UTC</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status + action buttons -->
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
+        <span style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:14px; font-size:0.9rem; font-weight:700; background:@statusBg; color:@statusColor; border:1px solid @statusBorder;">
+            @statusIcon @Model.Status
+        </span>
+        @if (isPending)
+        {
+            <div style="display:flex; gap:10px;">
+                <form asp-action="Approve" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="dk-btn dk-btn-success"
+                            onclick="return confirm('Approve application for @Model.FullName?')">
+                        ✓ Approve Application
+                    </button>
+                </form>
+                <form asp-action="Reject" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="dk-btn dk-btn-danger"
+                            onclick="return confirm('Reject application for @Model.FullName?')">
+                        ✗ Reject Application
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Status banner for processed -->
+@if (!isPending)
+{
+    <div style="background:@statusBg; border:1px solid @statusBorder; border-radius:14px; padding:14px 20px; margin-bottom:24px; display:flex; gap:12px; align-items:center;">
+        <span style="font-size:1.5rem;">@statusIcon</span>
+        <div>
+            <div style="font-weight:700; color:@statusColor; font-size:0.9rem; margin-bottom:3px;">
+                @(isApproved ? "Application Approved" : "Application Rejected")
+            </div>
+            <div style="font-size:0.82rem; color:var(--text-muted);">
+                @(isApproved
+                    ? "This candidate has been approved. Their status is final and cannot be changed."
+                    : "This application was rejected. The candidate may re-apply after updating their profile.")
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Main 3-column layout -->
+<div style="display:grid; grid-template-columns:1fr 2fr; gap:20px; align-items:start;">
+
+    <!-- LEFT COLUMN: Identity + Qualifications -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+        <!-- Personal Info -->
+        <div class="rev-card">
+            <div class="rev-section-title">🪪 Identity</div>
+            <div class="rev-field">
+                <span class="rev-label">Full Name</span>
+                <span class="rev-value">@Model.FullName</span>
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">Phone</span>
+                <span class="rev-value">@Model.Phone</span>
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">National ID</span>
+                <span class="rev-value mono">@Model.NationalId</span>
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">Current Address</span>
+                <span class="rev-value">@Model.Address</span>
+            </div>
+        </div>
+
+        <!-- Deployment Info -->
+        <div class="rev-card">
+            <div class="rev-section-title">📋 Deployment Profile</div>
+            <div class="rev-field">
+                <span class="rev-label">Preferred Location</span>
+                <span class="rev-value">📍 @Model.PreferredLocation</span>
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">Years of Experience</span>
+                <span class="rev-value" style="font-size:1.6rem; font-weight:900; color:var(--accent);">
+                    @Model.YearsOfExperience
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:500;"> yrs</span>
+                </span>
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">Armed Guard License</span>
+                @if (Model.ArmedLicense)
+                {
+                    <span class="rev-value" style="display:flex; align-items:center; gap:8px; color:var(--green);">
+                        <span style="width:8px; height:8px; border-radius:50%; background:var(--green);"></span>
+                        Licensed &amp; Certified
+                    </span>
+                }
+                else
+                {
+                    <span class="rev-value" style="color:var(--text-muted);">No Firearms License</span>
+                }
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">Submission Date</span>
+                <span class="rev-value">@Model.CreatedAt.ToString("dd MMMM yyyy")</span>
+            </div>
+            <div class="rev-field">
+                <span class="rev-label">Submission Time</span>
+                <span class="rev-value mono">@Model.CreatedAt.ToString("HH:mm") UTC</span>
+            </div>
+        </div>
+
+        <!-- Quick score indicator -->
+        <div class="rev-card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.04));">
+            <div class="rev-section-title">⚡ Quick Assessment</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.8rem; color:var(--text-sub);">Experience Level</span>
+                    <span style="font-size:0.82rem; font-weight:700; color:@(Model.YearsOfExperience >= 5 ? "var(--green)" : Model.YearsOfExperience >= 2 ? "var(--yellow)" : "var(--text-muted)");">
+                        @(Model.YearsOfExperience >= 5 ? "Senior" : Model.YearsOfExperience >= 2 ? "Mid-level" : "Entry-level")
+                    </span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.8rem; color:var(--text-sub);">Armed Clearance</span>
+                    <span style="font-size:0.82rem; font-weight:700; color:@(Model.ArmedLicense ? "var(--green)" : "var(--text-muted)");">
+                        @(Model.ArmedLicense ? "✓ Cleared" : "— N/A")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Experience + Skills -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+        <div class="rev-card" style="flex:1;">
+            <div class="rev-section-title">💼 Work Experience</div>
+            <p style="font-size:0.875rem; color:var(--text-sub); line-height:1.8; margin:0; white-space:pre-wrap;">@Model.Experience</p>
+        </div>
+
+        <div class="rev-card" style="flex:1;">
+            <div class="rev-section-title">🎯 Skills &amp; Certifications</div>
+            <p style="font-size:0.875rem; color:var(--text-sub); line-height:1.8; margin:0; white-space:pre-wrap;">@Model.Skills</p>
+        </div>
+
+        @if (isPending)
+        {
+            <!-- Decision box -->
+            <div style="background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2); border-radius:16px; padding:20px 22px;">
+                <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:14px;">⚖️ Recruitment Decision</div>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 18px; line-height:1.6;">
+                    Review the applicant's experience and skills above before making a decision. This action is permanent and will immediately update the applicant's status.
+                </p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <form asp-action="Approve" asp-route-id="@Model.Id" method="post" style="flex:1;">
+                        <button type="submit" class="dk-btn dk-btn-success" style="width:100%; justify-content:center; padding:12px;"
+                                onclick="return confirm('Approve @Model.FullName\'s application? This cannot be reversed.')">
+                            ✓ Approve Candidate
+                        </button>
+                    </form>
+                    <form asp-action="Reject" asp-route-id="@Model.Id" method="post" style="flex:1;">
+                        <button type="submit" class="dk-btn dk-btn-danger" style="width:100%; justify-content:center; padding:12px;"
+                                onclick="return confirm('Reject @Model.FullName\'s application? This cannot be reversed.')">
+                            ✗ Reject Candidate
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+<!-- Footer nav -->
+<div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--border);">
+    <a asp-action="Applications" class="dk-btn dk-btn-ghost">← Back to All Applications</a>
+</div>
+
+<style>
+    .rev-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 20px 22px;
+        backdrop-filter: blur(20px);
+    }
+    .rev-section-title {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 16px;
+    }
+    .rev-field {
+        display: flex; flex-direction: column; gap: 4px;
+        padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .rev-field:last-child { border-bottom: none; padding-bottom: 0; }
+    .rev-field:first-of-type { padding-top: 0; }
+    .rev-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .rev-value { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+
+    @@media (max-width: 768px) {
+        div[style*="grid-template-columns:1fr 2fr"] { grid-template-columns: 1fr !important; }
+    }
+</style>

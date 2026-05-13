@@ -102,6 +102,17 @@ public class GuardController : Controller
         return View(applications);
     }
 
+    // ── ADMIN / RECRUITER: REVIEW DETAIL ─────────
+
+    [HttpGet]
+    [Authorize(Roles = "Admin,Recruiter,Client")]
+    public async Task<IActionResult> Review(string id)
+    {
+        var application = await _guardApplicationService.GetByIdAsync(id);
+        if (application == null) return NotFound();
+        return View(application);
+    }
+
     // ── ADMIN / RECRUITER: APPROVE ───────────────
 
     [HttpPost]

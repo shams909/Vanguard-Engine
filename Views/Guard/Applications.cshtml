@@ -1,14 +1,27 @@
 @model IEnumerable<Vanguard_Engine.Entities.GuardApplication>
 @{
-    ViewData["Title"] = "Guard Applications Panel";
-    Layout = "~/Views/Shared/_DarkLayout.cshtml";
+    ViewData["Title"] = "Applications Panel";
+    var list = Model.ToList();
+    var pending = list.Count(a => a.Status == "Pending");
+    var approved = list.Count(a => a.Status == "Approved");
+    var rejected = list.Count(a => a.Status == "Rejected");
 }
 
 <div class="page-header">
     <div>
         <h1 class="page-header-title">Guard Applications Panel</h1>
-        <p class="page-header-sub">Review, approve, or reject submitted guard applications</p>
+        <p class="page-header-sub">
+            @pending application@(pending == 1 ? "" : "s") awaiting review ·
+            @list.Count total submitted
+        </p>
     </div>
+    @if (pending > 0)
+    {
+        <div style="display:flex; align-items:center; gap:8px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:8px 16px;">
+            <span style="width:8px; height:8px; border-radius:50%; background:var(--yellow); display:inline-block; animation:pulse 2s infinite;"></span>
+            <span style="font-size:0.8rem; font-weight:600; color:#d97706;">@pending Pending</span>
+        </div>
+    }
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -20,112 +33,129 @@
     <div class="dk-alert dk-alert-error">❌ @TempData["ErrorMessage"]</div>
 }
 
-<div class="stat-grid">
+<!-- Stats -->
+<div class="stat-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:28px;">
     <div class="stat-card stat-total">
-        <span class="stat-label">Total Applications</span>
-        <span class="stat-value">@Model.Count()</span>
+        <span class="stat-label">Total Received</span>
+        <span class="stat-value">@list.Count</span>
     </div>
     <div class="stat-card stat-pending">
-        <span class="stat-label">Pending Review</span>
-        <span class="stat-value">@Model.Count(a => a.Status == "Pending")</span>
+        <span class="stat-label">Awaiting Review</span>
+        <span class="stat-value">@pending</span>
     </div>
     <div class="stat-card stat-approved">
         <span class="stat-label">Approved</span>
-        <span class="stat-value">@Model.Count(a => a.Status == "Approved")</span>
+        <span class="stat-value">@approved</span>
     </div>
     <div class="stat-card stat-rejected">
         <span class="stat-label">Rejected</span>
-        <span class="stat-value">@Model.Count(a => a.Status == "Rejected")</span>
+        <span class="stat-value">@rejected</span>
     </div>
 </div>
 
-<div class="dk-card">
-    @if (Model.Any())
+@if (!list.Any())
+{
+    <div class="dk-card" style="padding:72px 24px; text-align:center;">
+        <div style="font-size:3.5rem; margin-bottom:14px;">🔍</div>
+        <div style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:8px;">No applications yet</div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">Guard applications will appear here once candidates submit them.</div>
+    </div>
+}
+else
+{
+    <!-- Pending section first -->
+    @if (list.Any(a => a.Status == "Pending"))
     {
-        <table class="dk-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Applicant</th>
-                    <th>NID</th>
-                    <th>Location</th>
-                    <th>Yrs</th>
-                    <th>Armed</th>
-                    <th>Applied</th>
-                    <th>Status</th>
-                    <th style="text-align:center;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{ int i = 1; }
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td><span class="mono">@i</span></td>
-                        <td>
-                            <div style="font-weight:600; color:var(--text);">@item.FullName</div>
-                            <div class="mono" style="margin-top:2px;">@item.Phone</div>
-                        </td>
-                        <td><span class="mono">@item.NationalId</span></td>
-                        <td style="color:var(--text-sub); font-size:0.83rem;">@item.PreferredLocation</td>
-                        <td>
-                            <span style="font-weight:600; color:var(--text);">@item.YearsOfExperience</span>
-                            <span style="color:var(--text-muted); font-size:0.75rem;">yr</span>
-                        </td>
-                        <td>
-                            @if (item.ArmedLicense)
-                            {
-                                <span class="badge badge-approved">✓ Yes</span>
-                            }
-                            else
-                            {
-                                <span style="color:var(--text-muted); font-size:0.8rem;">No</span>
-                            }
-                        </td>
-                        <td style="color:var(--text-muted); font-size:0.8rem; white-space:nowrap;">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
-                        <td>
-                            @if (item.Status == "Pending")
-                            {
-                                <span class="badge badge-pending">⏳ Pending</span>
-                            }
-                            else if (item.Status == "Approved")
-                            {
-                                <span class="badge badge-approved">✅ Approved</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-rejected">❌ Rejected</span>
-                            }
-                        </td>
-                        <td style="text-align:center;">
-                            @if (item.Status == "Pending")
-                            {
-                                <div style="display:flex; gap:8px; justify-content:center;">
-                                    <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display:inline;">
-                                        <button type="submit" class="dk-btn dk-btn-success dk-btn-sm">✓ Approve</button>
-                                    </form>
-                                    <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
-                                        <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">✗ Reject</button>
-                                    </form>
-                                </div>
-                            }
-                            else
-                            {
-                                <span style="color:var(--text-muted); font-size:0.78rem;">Processed</span>
-                            }
-                        </td>
-                    </tr>
-                    i++;
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <div class="empty-state">
-            <div class="empty-icon">🔍</div>
-            <div class="empty-title">No applications found</div>
-            <div class="empty-sub">Guard applications will appear here once submitted.</div>
+        <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--yellow); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--yellow); display:inline-block;"></span>
+            Pending Review
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:28px;">
+            @foreach (var item in list.Where(a => a.Status == "Pending"))
+            {
+                <div class="app-row app-row-pending">
+                    @await Html.PartialAsync("_AppRowPartial", item)
+                    <div class="app-row-actions">
+                        <a asp-action="Review" asp-route-id="@item.Id" class="dk-btn dk-btn-ghost dk-btn-sm">
+                            👁 Review
+                        </a>
+                        <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            <button type="submit" class="dk-btn dk-btn-success dk-btn-sm">✓ Approve</button>
+                        </form>
+                        <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;"
+                              onsubmit="return confirm('Reject application from @item.FullName?');">
+                            <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">✗ Reject</button>
+                        </form>
+                    </div>
+                </div>
+            }
         </div>
     }
-</div>
+
+    <!-- Processed section -->
+    @if (list.Any(a => a.Status != "Pending"))
+    {
+        <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--border-strong); display:inline-block;"></span>
+            Processed
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            @foreach (var item in list.Where(a => a.Status != "Pending").OrderByDescending(a => a.CreatedAt))
+            {
+                var rowBorder = item.Status == "Approved" ? "rgba(52,211,153,0.3)" : "rgba(248,113,113,0.3)";
+                <div class="app-row" style="border-left-color:@rowBorder; opacity:0.82;">
+                    @await Html.PartialAsync("_AppRowPartial", item)
+                    <div class="app-row-actions">
+                        <a asp-action="Review" asp-route-id="@item.Id" class="dk-btn dk-btn-ghost dk-btn-sm">
+                            👁 View
+                        </a>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">
+                            @(item.Status == "Approved" ? "✅ Approved" : "❌ Rejected")
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+<style>
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+    .app-row {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-left: 3px solid rgba(251,191,36,0.4);
+        border-radius: 16px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        backdrop-filter: blur(12px);
+        transition: box-shadow 0.15s;
+        flex-wrap: wrap;
+    }
+    .app-row:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
+    .app-row-pending { border-left-color: rgba(251,191,36,0.5); }
+    .app-row-info { display: flex; align-items: center; gap: 20px; flex:1; min-width:0; flex-wrap:wrap; }
+    .app-row-actions { display: flex; align-items: center; gap: 8px; flex-shrink:0; flex-wrap:wrap; }
+    .applicant-avatar {
+        width: 40px; height: 40px; border-radius: 14px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; font-weight: 800; color: #fff; flex-shrink:0;
+    }
+    .app-meta { display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .app-name { font-size:0.9rem; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .app-sub { font-size:0.75rem; color:var(--text-muted); }
+    .app-pill {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:4px 10px; border-radius:100px;
+        font-size:0.72rem; font-weight:600;
+        background:var(--surface); color:var(--text-sub);
+        border:1px solid var(--border); white-space:nowrap;
+    }
+</style>

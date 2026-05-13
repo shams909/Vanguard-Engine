@@ -1,0 +1,16 @@
+@model Vanguard_Engine.Entities.GuardApplication
+
+<div class="app-row-info">
+    <div class="applicant-avatar">@Model.FullName.Substring(0, 1).ToUpper()</div>
+    <div class="app-meta">
+        <div class="app-name">@Model.FullName</div>
+        <div class="app-sub">@Model.Phone · @Model.NationalId</div>
+    </div>
+    <div class="app-pill">📍 @Model.PreferredLocation</div>
+    <div class="app-pill">⏱️ @Model.YearsOfExperience yr</div>
+    @if (Model.ArmedLicense)
+    {
+        <div class="app-pill" style="color:var(--accent); border-color:rgba(129,140,248,0.3); background:rgba(129,140,248,0.08);">🔫 Armed</div>
+    }
+    <div class="app-pill" style="color:var(--text-muted); font-size:0.7rem;">@Model.CreatedAt.ToString("MMM dd, yyyy")</div>
+</div>
