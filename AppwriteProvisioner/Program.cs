@@ -44,6 +44,12 @@ try
         } catch { Console.WriteLine($"- Attribute '{attributes[i,0]}' exists."); }
     }
 
+    // --- Guard Applications Update ---
+    try {
+        await databases.CreateStringAttribute(databaseId, "guard_applications", "jobId", 100, false);
+        Console.WriteLine("- Attribute 'jobId' added to guard_applications.");
+    } catch { }
+
     // --- Admin Creation ---
     Console.WriteLine("\nFetching Admin Role ID...");
     var rolesList = await databases.ListDocuments(databaseId, "roles", queries: new List<string> { Query.Equal("roleName", "Admin") });

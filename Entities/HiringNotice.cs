@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using Vanguard_Engine.Entities;
 
 namespace Vanguard_Engine.Entities;
 
 public class HiringNotice
 {
+    [JsonProperty("$id")]
     public string Id { get; set; } = string.Empty;
 
     [Required]
@@ -31,6 +33,7 @@ public class HiringNotice
 
     public string? SalaryRange { get; set; }
 
+    [JsonProperty("$createdAt")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? ExpiryDate { get; set; }

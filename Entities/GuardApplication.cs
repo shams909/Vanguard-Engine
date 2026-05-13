@@ -10,6 +10,9 @@ public class GuardApplication
     [JsonProperty("userId")]
     public string UserId { get; set; } = string.Empty;
 
+    [JsonProperty("jobId")]
+    public string? JobId { get; set; }
+
     [JsonProperty("fullName")]
     public string FullName { get; set; } = string.Empty;
 
