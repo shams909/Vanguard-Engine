@@ -74,6 +74,18 @@ public abstract class AppwriteRepository<T> : IGenericRepository<T> where T : cl
         var json = JsonConvert.SerializeObject(entity);
         var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
         
+        string documentId = ID.Unique();
+        
+        // Check for existing ID to allow synchronization between Auth and Database
+        if (data != null && data.ContainsKey("$id") && !string.IsNullOrEmpty(data["$id"]?.ToString()))
+        {
+            documentId = data["$id"].ToString()!;
+        }
+        else if (data != null && data.ContainsKey("Id") && !string.IsNullOrEmpty(data["Id"]?.ToString()))
+        {
+            documentId = data["Id"].ToString()!;
+        }
+
         // Remove Appwrite metadata fields and C# Id field if they exist
         string[] metadataFields = { "$id", "$createdAt", "$updatedAt", "$permissions", "$databaseId", "$collectionId", "Id", "id" };
         foreach (var field in metadataFields)
@@ -81,7 +93,7 @@ public abstract class AppwriteRepository<T> : IGenericRepository<T> where T : cl
             data?.Remove(field);
         }
 
-        await _databases.CreateDocument(_databaseId, _collectionId, ID.Unique(), data!);
+        await _databases.CreateDocument(_databaseId, _collectionId, documentId, data!);
     }
 
     public virtual void Update(T entity)

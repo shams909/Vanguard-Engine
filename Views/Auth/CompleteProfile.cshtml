@@ -1,47 +1,52 @@
-@model Vanguard_Engine.Models.RegisterViewModel
+@model Vanguard_Engine.Models.CompleteProfileViewModel
+
 @{
-    ViewData["Title"] = "Create Account";
+    ViewData["Title"] = "Complete Your Profile";
+    Layout = "_PremiumLayout";
 }
 
 <div style="min-height:calc(100vh - 140px); display:flex; align-items:center; justify-content:center; padding:40px 20px;">
-    <div style="width:100%; max-width:540px;">
+    <div style="width:100%; max-width:640px;">
 
         <!-- Logo -->
         <div style="text-align:center; margin-bottom:32px;">
             <div style="width:56px; height:56px; border-radius:18px; background:linear-gradient(135deg,#d97706,#9a3412); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 8px 24px rgba(180,83,9,0.25);">
                 <i data-lucide="shield-half" style="width:28px; height:28px; color:#fff;"></i>
             </div>
-            <h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 6px; letter-spacing:-0.5px;">Join Vanguard Engine</h1>
-            <p style="color:var(--text-muted); font-size:0.875rem; margin:0;">Create your account — it only takes a minute</p>
+            <h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 6px; letter-spacing:-0.5px;">Welcome, @Model.Username!</h1>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin:0;">Complete your profile — it only takes a minute</p>
         </div>
 
         <!-- Card -->
         <div class="dk-card">
             <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="margin:24px 24px 0;"></div>
 
-            <form asp-action="Register" method="post" class="app-form">
+            <form asp-action="CompleteProfile" method="post" class="app-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="AppwriteUserId" />
+                <input type="hidden" asp-for="Email" />
+                <input type="hidden" asp-for="Username" />
 
+                <!-- Details Section -->
                 <div class="form-section">
                     <div class="form-section-header"><i data-lucide="user" class="section-icon" style="width:20px; height:20px;"></i> Your Details</div>
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label asp-for="Username" class="dk-label">Username <span class="req">*</span></label>
-                            <input asp-for="Username" class="dk-input" placeholder="johndoe" autocomplete="username" />
-                            <span asp-validation-for="Username" class="field-err"></span>
+                            <label class="dk-label">Username</label>
+                            <input class="dk-input" value="@Model.Username" disabled style="opacity:0.7; cursor:not-allowed;" />
                         </div>
                         <div class="form-group">
-                            <label asp-for="Email" class="dk-label">Email <span class="req">*</span></label>
-                            <input asp-for="Email" class="dk-input" type="email" placeholder="you@example.com" autocomplete="email" />
-                            <span asp-validation-for="Email" class="field-err"></span>
+                            <label class="dk-label">Email</label>
+                            <input class="dk-input" value="@Model.Email" disabled style="opacity:0.7; cursor:not-allowed;" />
                         </div>
                         <div class="form-group">
-                            <label asp-for="Password" class="dk-label">Password <span class="req">*</span></label>
-                            <input asp-for="Password" class="dk-input" type="password" placeholder="••••••••" autocomplete="new-password" />
+                            <label asp-for="Password" class="dk-label">Set Password <span class="req">*</span></label>
+                            <input asp-for="Password" class="dk-input" type="password" placeholder="••••••••" />
                             <span asp-validation-for="Password" class="field-err"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="ConfirmPassword" class="dk-label">Confirm Password <span class="req">*</span></label>
-                            <input asp-for="ConfirmPassword" class="dk-input" type="password" placeholder="••••••••" autocomplete="new-password" />
+                            <input asp-for="ConfirmPassword" class="dk-input" type="password" placeholder="••••••••" />
                             <span asp-validation-for="ConfirmPassword" class="field-err"></span>
                         </div>
                         <div class="form-group">
@@ -51,12 +56,13 @@
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:12px;">
-                        <label asp-for="Address" class="dk-label">Address</label>
-                        <input asp-for="Address" class="dk-input" placeholder="House, Road, Area, City" autocomplete="street-address" />
+                        <label asp-for="Address" class="dk-label">Address <span class="req">*</span></label>
+                        <input asp-for="Address" class="dk-input" placeholder="House, Road, Area, City" />
                         <span asp-validation-for="Address" class="field-err"></span>
                     </div>
                 </div>
 
+                <!-- Role Section -->
                 <div class="form-section">
                     <div class="form-section-header"><i data-lucide="target" class="section-icon" style="width:20px; height:20px;"></i> I want to...</div>
                     <div style="display:flex; flex-direction:column; gap:10px;">
@@ -88,38 +94,15 @@
                     </div>
                 </div>
 
-                <div class="form-section" style="border-bottom:none; display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-section" style="border-bottom:none;">
                     <button type="submit" class="dk-btn dk-btn-primary"
                             style="width:100%; justify-content:center; padding:13px; font-size:0.95rem; border-radius:14px;">
-                        Create Account →
+                        Complete Profile & Access Dashboard →
                     </button>
-
-                    <!-- OR Divider -->
-                    <div style="display:flex; align-items:center; gap:12px; margin:4px 0;">
-                        <div style="flex:1; height:1px; background:var(--border);"></div>
-                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">OR</span>
-                        <div style="flex:1; height:1px; background:var(--border);"></div>
-                    </div>
-
-                    <a asp-action="LoginWithGoogle" class="dk-btn dk-btn-outline" 
-                       style="width:100%; justify-content:center; padding:11px; font-size:0.9rem; border-radius:14px; gap:10px; background:var(--card-bg); border-color:var(--border);">
-                        <svg width="18" height="18" viewBox="0 0 18 18">
-                            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-                            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-                            <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.712s.102-1.172.282-1.712V4.956H.957a8.996 8.996 0 000 8.088l3.007-2.332z" fill="#FBBC05"/>
-                            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.956l3.007 2.332C4.672 5.164 6.656 3.58 9 3.58z" fill="#EA4335"/>
-                        </svg>
-                        Continue with Google
-                    </a>
                 </div>
 
             </form>
         </div>
-
-        <p style="text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-muted);">
-            Already have an account?
-            <a asp-action="Login" style="color:var(--accent); font-weight:600; text-decoration:none;">Sign in instead</a>
-        </p>
 
     </div>
 </div>
@@ -134,14 +117,19 @@
         var og = document.getElementById('opt-guard');
         var oc = document.getElementById('opt-client');
         if(!og || !oc) return;
-        og.style.borderColor = g.checked ? 'rgba(180,83,9,0.6)' : 'var(--border)';
-        og.style.background = g.checked ? 'rgba(180,83,9,0.08)' : 'var(--surface)';
-        oc.style.borderColor = c.checked ? 'rgba(180,83,9,0.6)' : 'var(--border)';
-        oc.style.background = c.checked ? 'rgba(180,83,9,0.08)' : 'var(--surface)';
+        og.style.borderColor = (g && g.checked) ? 'rgba(180,83,9,0.6)' : 'var(--border)';
+        og.style.background = (g && g.checked) ? 'rgba(180,83,9,0.08)' : 'var(--surface)';
+        oc.style.borderColor = (c && c.checked) ? 'rgba(180,83,9,0.6)' : 'var(--border)';
+        oc.style.background = (c && c.checked) ? 'rgba(180,83,9,0.08)' : 'var(--surface)';
     }
     document.addEventListener('DOMContentLoaded', syncStyles);
 </script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
 }

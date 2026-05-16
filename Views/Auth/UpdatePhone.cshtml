@@ -1,0 +1,62 @@
+@model Vanguard_Engine.Models.UpdatePhoneViewModel
+
+@{
+    ViewData["Title"] = "Action Required";
+    Layout = "_PremiumLayout";
+}
+
+<div style="min-height:calc(100vh - 140px); display:flex; align-items:center; justify-content:center; padding:40px 20px;">
+    <div style="width:100%; max-width:480px;">
+
+        <!-- Logo -->
+        <div style="text-align:center; margin-bottom:32px;">
+            <div style="width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,#d97706,#9a3412); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 8px 24px rgba(180,83,9,0.25);">
+                <i data-lucide="phone" style="width:32px; height:32px; color:#fff;"></i>
+            </div>
+            <h1 style="font-size:1.8rem; font-weight:800; color:var(--text); margin:0 0 8px; letter-spacing:-0.5px;">Verify Your Phone</h1>
+            <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">To keep your account secure, please add a contact number.</p>
+        </div>
+
+        <!-- Card -->
+        <div class="dk-card">
+            <form asp-action="UpdatePhone" method="post" class="app-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="form-section" style="border-bottom:none; padding:32px;">
+                    <div style="margin-bottom:24px;">
+                        <label asp-for="PhoneNumber" class="dk-label">Mobile Phone Number <span class="req">*</span></label>
+                        <input asp-for="PhoneNumber" class="dk-input" placeholder="+1 (555) 000-0000" style="margin-top:8px;" autofocus />
+                        <span asp-validation-for="PhoneNumber" class="field-err"></span>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:12px; line-height:1.4;">
+                            <i data-lucide="info" style="width:12px; height:12px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i>
+                            We need this to contact you about security assignments and account alerts.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="dk-btn dk-btn-primary"
+                            style="width:100%; justify-content:center; padding:14px; font-size:1rem; border-radius:14px; font-weight:700;">
+                        Update & Continue →
+                    </button>
+                    
+                    <div style="text-align:center; margin-top:20px;">
+                        <a asp-action="Login" style="font-size:0.85rem; color:var(--text-muted); text-decoration:none;">
+                            <i data-lucide="arrow-left" style="width:14px; height:14px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i>
+                            Cancel and go back
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+}

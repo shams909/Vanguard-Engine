@@ -18,6 +18,9 @@ public class User
     [JsonProperty("address")]
     public string? Address { get; set; }
     
+    [JsonProperty("phoneNumber")]
+    public string? PhoneNumber { get; set; }
+    
     [JsonProperty("roleId")]
     public string? RoleId { get; set; }
     
