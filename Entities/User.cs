@@ -26,6 +26,15 @@ public class User
     
     [JsonProperty("lastLogin")]
     public DateTime LastLogin { get; set; }
+
+    [JsonProperty("isEmailVerified")]
+    public bool IsEmailVerified { get; set; }
+
+    [JsonProperty("verificationToken")]
+    public string? VerificationToken { get; set; }
+
+    [JsonProperty("verificationTokenExpiry")]
+    public DateTime? VerificationTokenExpiry { get; set; }
     
     [JsonIgnore]
     public Role? Role { get; set; }

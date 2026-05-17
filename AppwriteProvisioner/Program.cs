@@ -50,6 +50,23 @@ try
         Console.WriteLine("- Attribute 'jobId' added to guard_applications.");
     } catch { }
 
+    // --- Users Collection Update ---
+    Console.WriteLine("\n--- Updating Users Collection Schema ---");
+    try {
+        await databases.CreateBooleanAttribute(databaseId, "users", "isEmailVerified", false, false);
+        Console.WriteLine("- Attribute 'isEmailVerified' added to users.");
+    } catch (Exception ex) { Console.WriteLine($"- Attribute 'isEmailVerified' skipped: {ex.Message}"); }
+
+    try {
+        await databases.CreateStringAttribute(databaseId, "users", "verificationToken", 255, false);
+        Console.WriteLine("- Attribute 'verificationToken' added to users.");
+    } catch (Exception ex) { Console.WriteLine($"- Attribute 'verificationToken' skipped: {ex.Message}"); }
+
+    try {
+        await databases.CreateDatetimeAttribute(databaseId, "users", "verificationTokenExpiry", false);
+        Console.WriteLine("- Attribute 'verificationTokenExpiry' added to users.");
+    } catch (Exception ex) { Console.WriteLine($"- Attribute 'verificationTokenExpiry' skipped: {ex.Message}"); }
+
     // --- Admin Creation ---
     Console.WriteLine("\nFetching Admin Role ID...");
     var rolesList = await databases.ListDocuments(databaseId, "roles", queries: new List<string> { Query.Equal("roleName", "Admin") });

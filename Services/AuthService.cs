@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.Models;
 using Vanguard_Engine.UnitOfWork;
+using System;
+using System.Threading.Tasks;
 
 namespace Vanguard_Engine.Services;
 
@@ -12,31 +14,50 @@ public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAppwriteService _appwriteService;
+    private readonly IEmailService _emailService;
     private readonly PasswordHasher<User> _passwordHasher;
 
-    public AuthService(IUnitOfWork unitOfWork, IAppwriteService appwriteService)
+    public AuthService(IUnitOfWork unitOfWork, IAppwriteService appwriteService, IEmailService emailService)
     {
         _unitOfWork = unitOfWork;
         _appwriteService = appwriteService;
+        _emailService = emailService;
         _passwordHasher = new PasswordHasher<User>();
     }
 
-    public async Task<User?> LoginAsync(LoginViewModel model)
+    public async Task<LoginResult> LoginAsync(LoginViewModel model)
     {
         var user = await _unitOfWork.Users.GetByEmailAsync(model.Email);
-        if (user == null) return null;
+        if (user == null)
+        {
+            return new LoginResult { Success = false, ErrorMessage = "Invalid email or password" };
+        }
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-        if (result == PasswordVerificationResult.Failed) return null;
+        if (result == PasswordVerificationResult.Failed)
+        {
+            return new LoginResult { Success = false, ErrorMessage = "Invalid email or password" };
+        }
+
+        // Email Verification Rule
+        if (!user.IsEmailVerified)
+        {
+            return new LoginResult 
+            { 
+                Success = false, 
+                IsEmailUnverified = true, 
+                User = user 
+            };
+        }
 
         user.LastLogin = DateTime.UtcNow;
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync();
 
-        return user;
+        return new LoginResult { Success = true, User = user };
     }
 
-    public async Task<bool> RegisterAsync(RegisterViewModel model)
+    public async Task<bool> RegisterAsync(RegisterViewModel model, string baseUrl)
     {
         var existingUser = await _unitOfWork.Users.GetByEmailAsync(model.Email);
         if (existingUser != null) return false;
@@ -46,20 +67,27 @@ public class AuthService : IAuthService
         
         if (role == null)
         {
-            // Fallback or create role if it doesn't exist (though it should be seeded)
             role = new Vanguard_Engine.Entities.Role { RoleName = roleName };
             await _unitOfWork.Roles.AddAsync(role);
             await _unitOfWork.SaveChangesAsync();
         }
 
+        var userId = Guid.NewGuid().ToString("N").Substring(0, 20);
+        var verificationToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+        var tokenExpiry = DateTime.UtcNow.AddHours(24);
+
         var user = new User
         {
+            Id = userId,
             Username = model.Username,
             Email = model.Email,
             Address = model.Address,
             PhoneNumber = model.PhoneNumber,
             RoleId = role.Id,
-            LastLogin = DateTime.UtcNow
+            LastLogin = DateTime.UtcNow,
+            IsEmailVerified = false,
+            VerificationToken = verificationToken,
+            VerificationTokenExpiry = tokenExpiry
         };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
@@ -67,14 +95,15 @@ public class AuthService : IAuthService
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
 
+        // Send verification email
+        var verificationLink = $"{baseUrl.TrimEnd('/')}/auth/verifyemail?userId={userId}&token={verificationToken}";
+        await _emailService.SendVerificationEmailAsync(user.Email, user.Username, verificationLink);
+
         return true;
     }
 
     public async Task<string> GetOAuth2UrlAsync(string provider, string successUrl, string failureUrl)
     {
-        // Manually construct the URL to bypass SDK internal Redirect logic that is causing the 412 error.
-        // This matches the "Ultimate Test" link that confirmed your console settings are correct.
-        
         var baseUrl = _appwriteService.Endpoint.TrimEnd('/');
         var projectId = _appwriteService.ProjectId;
         
@@ -93,7 +122,6 @@ public class AuthService : IAuthService
         {
             Appwrite.Models.User? account = null;
 
-            // Option A: We have a fresh OAuth secret (preferred)
             if (userId != secret && !string.IsNullOrEmpty(secret))
             {
                 var accountService = new Account(_appwriteService.GetClient());
@@ -102,17 +130,22 @@ public class AuthService : IAuthService
             }
             else
             {
-                // Option B: The tokens were lost, but we have the userId!
-                // We use our API Key (Privileged Client) to fetch the user data.
                 var usersService = new Users(_appwriteService.GetClient());
                 account = await usersService.Get(userId);
             }
 
-            // Check if user exists in our database collection by ID
             var user = await _unitOfWork.Users.GetByIdAsync(account.Id);
 
             if (user != null)
             {
+                // Auto-verify OAuth accounts just in case they were registered locally but are logging in via Google
+                if (!user.IsEmailVerified)
+                {
+                    user.IsEmailVerified = true;
+                    user.VerificationToken = null;
+                    user.VerificationTokenExpiry = null;
+                }
+
                 user.LastLogin = DateTime.UtcNow;
                 _unitOfWork.Users.Update(user);
                 await _unitOfWork.SaveChangesAsync();
@@ -125,7 +158,6 @@ public class AuthService : IAuthService
                 };
             }
 
-            // New user, return details for profile completion
             return new OAuthResult
             {
                 Success = true,
@@ -152,16 +184,16 @@ public class AuthService : IAuthService
 
         var user = new User
         {
-            Id = model.AppwriteUserId, // Link to Appwrite Auth ID
+            Id = model.AppwriteUserId, 
             Username = model.Username,
             Email = model.Email,
             Address = model.Address,
             PhoneNumber = model.PhoneNumber,
             RoleId = role.Id,
-            LastLogin = DateTime.UtcNow
+            LastLogin = DateTime.UtcNow,
+            IsEmailVerified = true // Google accounts should be pre-verified
         };
 
-        // Hash the password
         user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
 
         await _unitOfWork.Users.AddAsync(user);
@@ -186,9 +218,52 @@ public class AuthService : IAuthService
         return true;
     }
 
+    public async Task<bool> VerifyEmailAsync(string userId, string token)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null) return false;
+
+        if (user.IsEmailVerified) return true;
+
+        if (user.VerificationToken != token) return false;
+
+        if (user.VerificationTokenExpiry == null || user.VerificationTokenExpiry.Value < DateTime.UtcNow)
+        {
+            return false; // Expired
+        }
+
+        user.IsEmailVerified = true;
+        user.VerificationToken = null;
+        user.VerificationTokenExpiry = null;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> ResendVerificationEmailAsync(string email, string baseUrl)
+    {
+        var user = await _unitOfWork.Users.GetByEmailAsync(email);
+        if (user == null || user.IsEmailVerified) return false;
+
+        var verificationToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+        var tokenExpiry = DateTime.UtcNow.AddHours(24);
+
+        user.VerificationToken = verificationToken;
+        user.VerificationTokenExpiry = tokenExpiry;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+
+        var verificationLink = $"{baseUrl.TrimEnd('/')}/auth/verifyemail?userId={user.Id}&token={verificationToken}";
+        await _emailService.SendVerificationEmailAsync(user.Email, user.Username, verificationLink);
+
+        return true;
+    }
+
     public Task LogoutAsync()
     {
-        // Cookie clearing is handled in the controller
         return Task.CompletedTask;
     }
 }

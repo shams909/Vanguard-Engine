@@ -34,6 +34,23 @@
                 </div>
             }
 
+            @if (TempData["UnverifiedEmail"] != null)
+            {
+                <div class="dk-alert dk-alert-error" style="margin-bottom: 16px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05);">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="alert-triangle" style="width:16px; height:16px; color: #ef4444;"></i>
+                        <span style="font-weight: 600;">Verification Required</span>
+                    </div>
+                    <p style="margin: 0; color: var(--text-sub);">Please verify your email before logging in.</p>
+                    <form asp-action="ResendVerification" method="post" style="margin: 4px 0 0 0;">
+                        <input type="hidden" name="email" value="@TempData["UnverifiedEmail"]" />
+                        <button type="submit" class="dk-btn" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; width: fit-content; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; cursor: pointer; transition: all 0.2s;">
+                            Resend Verification Email
+                        </button>
+                    </form>
+                </div>
+            }
+
             <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="margin-bottom: 16px; font-size: 0.85rem;"></div>
 
             <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post"

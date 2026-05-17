@@ -29,12 +29,22 @@ public class AuthController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var user = await _authService.LoginAsync(model);
-        if (user == null)
+        var result = await _authService.LoginAsync(model);
+        if (!result.Success)
         {
-            ModelState.AddModelError(string.Empty, "Invalid email or password");
+            if (result.IsEmailUnverified)
+            {
+                TempData["UnverifiedEmail"] = model.Email;
+                ModelState.AddModelError(string.Empty, "Please verify your email before logging in.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Invalid email or password");
+            }
             return View(model);
         }
+
+        var user = result.User!;
 
         // INTERCEPT: Check if existing user has a phone number
         if (string.IsNullOrEmpty(user.PhoneNumber))
@@ -252,14 +262,69 @@ public class AuthController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var result = await _authService.RegisterAsync(model);
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var result = await _authService.RegisterAsync(model, baseUrl);
         if (result)
         {
+            TempData["SuccessMessage"] = "Registration successful! A verification link has been sent to your email. Please verify your account before logging in.";
             return RedirectToAction(nameof(Login));
         }
 
         ModelState.AddModelError(string.Empty, "Registration failed. Email might already be in use.");
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> VerifyEmail(string userId, string token)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+        {
+            TempData["ErrorMessage"] = "Invalid verification link.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var success = await _authService.VerifyEmailAsync(userId, token);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Your email has been verified successfully! You can now log in.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Verification link is invalid or has expired. Please request a new verification link below.";
+            
+            // Premium UX: Auto-populate the unverified email so the resend button appears instantly
+            var user = await _authService.GetUserByIdAsync(userId);
+            if (user != null && !user.IsEmailVerified)
+            {
+                TempData["UnverifiedEmail"] = user.Email;
+            }
+        }
+
+        return RedirectToAction(nameof(Login));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResendVerification(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            TempData["ErrorMessage"] = "Email address is required.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var success = await _authService.ResendVerificationEmailAsync(email, baseUrl);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "A fresh verification link has been sent to your email.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Unable to resend verification. The email may already be verified or the account doesn't exist.";
+        }
+
+        return RedirectToAction(nameof(Login));
     }
 
     [HttpPost]
