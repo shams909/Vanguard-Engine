@@ -1,0 +1,82 @@
+@{
+    ViewData["Title"] = "Security Services Console";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Client Service Portal</div>
+        <h1 class="page-header-title">Security Services Dashboard</h1>
+        <p class="page-header-sub">Request armed tactical guard detachments, monitor deploy status, and track assigned personnel.</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Active Protection Services / Requests -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- Quick Request card -->
+        <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.04), rgba(255,255,255,0.45)); border-color: rgba(180, 83, 9, 0.25);">
+            <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                <div style="width: 54px; height: 54px; border-radius: 16px; background: rgba(180, 83, 9, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i data-lucide="shield-plus" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 0 0 6px;">Need Security Deployment?</h2>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin: 0 0 18px;">
+                        Instantly submit deployment parameters including target patrol locations, required guard counts, shift durations, and tactical requirements.
+                    </p>
+                    <a href="#build-request" class="dk-btn dk-btn-primary">
+                        <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i> Draft Security Request
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service History / Roster -->
+        <div class="dk-card dk-card-pad">
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--accent);"></i> Active Security Roster
+            </h3>
+
+            <!-- Placeholder for active services -->
+            <div class="empty-state" style="padding: 40px 20px; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.1);">
+                <div class="empty-icon"><i data-lucide="users-2" style="width: 36px; height: 36px; color: var(--text-muted);"></i></div>
+                <div class="empty-title">No Active Detachments</div>
+                <div class="empty-sub">Once an Admin approves your drafted requests, your assigned guards will appear here in real-time.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right: Sidebar metrics & support -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="dk-card dk-card-pad">
+            <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--text); margin: 0 0 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="info" style="width: 16px; height: 16px; color: var(--accent);"></i> Deployment Tiers
+            </h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.8rem; line-height: 1.4;">
+                <div>
+                    <strong style="color: var(--text);">Armed Static Patrol:</strong>
+                    <div style="color: var(--text-muted);">Commercial/Residential perimeter patrol operations.</div>
+                </div>
+                <div style="border-top: 1px solid var(--border); padding-top: 8px;">
+                    <strong style="color: var(--text);">Armed Escort Detachments:</strong>
+                    <div style="color: var(--text-muted);">High-security transit escort and asset custody protection.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dk-card dk-card-pad" style="background: rgba(255, 255, 255, 0.3);">
+            <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--text); margin: 0 0 12px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="help-circle" style="width: 16px; height: 16px; color: var(--accent);"></i> Operations Help Desk
+            </h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px;">
+                Need help coordinating complex, multi-site deployments or VIP operations? Contact Vanguard dispatch directly.
+            </p>
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="phone-call" style="width: 14px; height: 14px;"></i> Dispatch: +1 (800) VANGUARD
+            </div>
+        </div>
+    </div>
+</div>

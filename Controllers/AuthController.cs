@@ -65,7 +65,7 @@ public class AuthController : Controller
             return Redirect(returnUrl);
         }
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Dashboard");
     }
 
     [HttpGet]
@@ -120,7 +120,7 @@ public class AuthController : Controller
             }
             
             await SignInUser(result.User);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         return RedirectToAction(nameof(Login));
@@ -146,7 +146,7 @@ public class AuthController : Controller
             if (user != null)
             {
                 await SignInUser(user);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Dashboard");
             }
             
             TempData["SuccessMessage"] = "Profile completed! Please log in.";
@@ -225,7 +225,7 @@ public class AuthController : Controller
             if (user != null)
             {
                 await SignInUser(user);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Dashboard");
             }
         }
 

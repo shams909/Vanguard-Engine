@@ -1,0 +1,126 @@
+@{
+    ViewData["Title"] = "Admin Operations Center";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Vanguard Engine</div>
+        <h1 class="page-header-title">Admin Operations Center</h1>
+        <p class="page-header-sub">Comprehensive overview of system users, security recruitment pipelines, and deployment logs.</p>
+    </div>
+    <div style="display: flex; gap: 8px;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(180, 83, 9, 0.1); color: var(--accent); border: 1px solid rgba(180, 83, 9, 0.2); border-radius: 100px; font-size: 0.8rem; font-weight: 700;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block;"></span> System Secure
+        </span>
+    </div>
+</div>
+
+<!-- Stats Dashboard Grid -->
+<div class="stat-grid">
+    <div class="stat-card stat-total">
+        <span class="stat-label">Total Users</span>
+        <div class="stat-value">@ViewBag.TotalUsers</div>
+    </div>
+    <div class="stat-card stat-pending">
+        <span class="stat-label">Pending Applications</span>
+        <div class="stat-value">@ViewBag.PendingApplications</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <span class="stat-label">Approved Guards</span>
+        <div class="stat-value">@ViewBag.ApprovedApplications</div>
+    </div>
+    <div class="stat-card stat-total" style="border-color: rgba(180, 83, 9, 0.35);">
+        <span class="stat-label">Hiring Notices</span>
+        <div class="stat-value">@ViewBag.TotalNotices</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 8px;">
+    <!-- Shortcuts and Admin operations -->
+    <div class="dk-card dk-card-pad">
+        <h2 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 20px; color: var(--text); display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="layers" style="width: 20px; height: 20px; color: var(--accent);"></i> Administrative Modules
+        </h2>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <a asp-controller="Users" asp-action="Index" style="text-decoration: none;">
+                <div style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(255, 255, 255, 0.3); transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(180, 83, 9, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center;"><i data-lucide="users"></i></div>
+                    <div>
+                        <div style="font-weight: 700; color: var(--text); font-size: 0.92rem;">User Management</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Assign roles & security clearances</div>
+                    </div>
+                </div>
+            </a>
+
+            <a asp-controller="Roles" asp-action="Index" style="text-decoration: none;">
+                <div style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(255, 255, 255, 0.3); transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(180, 83, 9, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center;"><i data-lucide="key"></i></div>
+                    <div>
+                        <div style="font-weight: 700; color: var(--text); font-size: 0.92rem;">Role Definitions</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Manage backend roles and policies</div>
+                    </div>
+                </div>
+            </a>
+
+            <a asp-controller="Guard" asp-action="Applications" style="text-decoration: none;">
+                <div style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(255, 255, 255, 0.3); transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(52, 211, 153, 0.1); color: var(--green); display: flex; align-items: center; justify-content: center;"><i data-lucide="shield"></i></div>
+                    <div>
+                        <div style="font-weight: 700; color: var(--text); font-size: 0.92rem;">Recruitment Desk</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Approve or reject guard applicants</div>
+                    </div>
+                </div>
+            </a>
+
+            <a asp-controller="Recruitment" asp-action="Manage" style="text-decoration: none;">
+                <div style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: rgba(255, 255, 255, 0.3); transition: all 0.2s; cursor: pointer; display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(180, 83, 9, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center;"><i data-lucide="file-text"></i></div>
+                    <div>
+                        <div style="font-weight: 700; color: var(--text); font-size: 0.92rem;">Deployment Notices</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Post new hiring notices for guards</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Right Sidebar info -->
+    <div class="dk-card dk-card-pad" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--green);"></i> System Activity
+            </h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; gap: 10px; font-size: 0.8rem; line-height: 1.4;">
+                    <div style="color: var(--green);"><i data-lucide="check-circle" style="width: 16px; height: 16px;"></i></div>
+                    <div>
+                        <strong style="color: var(--text);">Database Connected</strong>
+                        <div style="color: var(--text-muted); font-size: 0.74rem;">Linked with Appwrite cloud servers</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; font-size: 0.8rem; line-height: 1.4;">
+                    <div style="color: var(--accent);"><i data-lucide="shield-check" style="width: 16px; height: 16px;"></i></div>
+                    <div>
+                        <strong style="color: var(--text);">Security Module Active</strong>
+                        <div style="color: var(--text-muted); font-size: 0.74rem;">Role validation engine operating normally</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; font-size: 0.8rem; line-height: 1.4;">
+                    <div style="color: var(--text-muted);"><i data-lucide="clock" style="width: 16px; height: 16px;"></i></div>
+                    <div>
+                        <strong style="color: var(--text);">Session Protection Active</strong>
+                        <div style="color: var(--text-muted); font-size: 0.74rem;">Cookie sliding expiration at 60 mins</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 20px; font-size: 0.74rem; color: var(--text-muted); line-height: 1.5;">
+            Need help? Open the <a href="/Week1_Documentation.md" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 600;">System Documentation Guide</a> for operational checklists.
+        </div>
+    </div>
+</div>

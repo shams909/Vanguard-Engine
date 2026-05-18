@@ -1,0 +1,95 @@
+@model List<Vanguard_Engine.Entities.GuardApplication>
+@{
+    ViewData["Title"] = "Recruitment Command";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Recruiter Dashboard</div>
+        <h1 class="page-header-title">Recruitment Command</h1>
+        <p class="page-header-sub">Review guard applications, manage vetting processes, and expand our tactical security roster.</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stat-grid">
+    <div class="stat-card stat-pending">
+        <span class="stat-label">Pending Review</span>
+        <div class="stat-value">@ViewBag.PendingApps</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <span class="stat-label">Approved Personnel</span>
+        <div class="stat-value">@ViewBag.ApprovedApps</div>
+    </div>
+    <div class="stat-card stat-rejected">
+        <span class="stat-label">Rejected Candidates</span>
+        <div class="stat-value">@ViewBag.RejectedApps</div>
+    </div>
+    <div class="stat-card stat-total">
+        <span class="stat-label">Total Submissions</span>
+        <div class="stat-value">@ViewBag.TotalApps</div>
+    </div>
+</div>
+
+<!-- Recent Pending Applications Section -->
+<div class="dk-card" style="margin-top: 12px;">
+    <div style="padding: 24px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0;">
+            <i data-lucide="inbox" style="width: 20px; height: 20px; color: var(--accent);"></i> New Applications Pending Vetting
+        </h2>
+        <a asp-controller="Guard" asp-action="Applications" class="dk-btn dk-btn-ghost dk-btn-sm">
+            <i data-lucide="eye" style="width: 14px; height: 14px;"></i> View All Applications
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon"><i data-lucide="check-circle-2" style="width: 48px; height: 48px; color: var(--green);"></i></div>
+            <div class="empty-title">Inbox All Clear</div>
+            <div class="empty-sub">All guard applications have been reviewed. Good job operations!</div>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.15);">
+                        <th style="padding: 14px 28px; font-weight: 700; color: var(--text-sub);">Applicant Name</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Experience</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Preferred Location</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Status</th>
+                        <th style="padding: 14px 28px; font-weight: 700; color: var(--text-sub); text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        <tr style="border-bottom: 1px solid var(--border); transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 14px 28px; font-weight: 600; color: var(--text);">
+                                @app.FullName
+                            </td>
+                            <td style="padding: 14px 20px; color: var(--text-sub);">
+                                @app.YearsOfExperience Years
+                            </td>
+                            <td style="padding: 14px 20px; color: var(--text-sub);">
+                                @app.PreferredLocation
+                            </td>
+                            <td style="padding: 14px 20px;">
+                                <span class="badge-pending" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700;">
+                                    <span style="width:5px; height:5px; border-radius:50%; background:var(--yellow); display:inline-block;"></span> @app.Status
+                                </span>
+                            </td>
+                            <td style="padding: 14px 28px; text-align: right;">
+                                <a asp-controller="Guard" asp-action="Review" asp-route-id="@app.Id" class="dk-btn dk-btn-primary dk-btn-sm" style="box-shadow: none;">
+                                    Review File
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

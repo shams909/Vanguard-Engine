@@ -338,19 +338,29 @@
             <li><a asp-controller="Recruitment" asp-action="Index"><i data-lucide="megaphone" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers</a></li>
             @if (isAuth)
             {
+                <li><a asp-controller="Dashboard" asp-action="Index"><i data-lucide="layout-dashboard" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Dashboard</a></li>
                 @if (currentRole == "Guard")
                 {
-                    <li><a asp-controller="Guard" asp-action="Apply" class="active"><i data-lucide="shield-check" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Apply</a></li>
+                    <li><a asp-controller="Guard" asp-action="Apply"><i data-lucide="shield-check" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Apply</a></li>
                     <li><a asp-controller="Guard" asp-action="MyApplications"><i data-lucide="clipboard-list" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> My Applications</a></li>
                 }
-                @if (currentRole == "Admin" || currentRole == "Recruiter" || currentRole == "Client")
+                @if (currentRole == "Admin" || currentRole == "Recruiter")
                 {
-                    <li><a asp-controller="Guard" asp-action="Applications"><i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Guard Applications</a></li>
+                    <li><a asp-controller="Guard" asp-action="Applications"><i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Applications</a></li>
+                    <li><a asp-controller="Recruitment" asp-action="Manage"><i data-lucide="file-edit" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Manage Hiring</a></li>
                 }
                 @if (currentRole == "Admin")
                 {
                     <li><a asp-controller="Users" asp-action="Index"><i data-lucide="users" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Users</a></li>
                     <li><a asp-controller="Roles" asp-action="Index"><i data-lucide="key" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Roles</a></li>
+                }
+                @if (currentRole == "Client")
+                {
+                    <li><a href="#requests"><i data-lucide="file-text" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Security Requests</a></li>
+                }
+                @if (currentRole == "VIP Client" || currentRole == "VIP")
+                {
+                    <li><a href="#protection"><i data-lucide="shield-alert" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Elite Protection</a></li>
                 }
             }
         </ul>
