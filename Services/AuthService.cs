@@ -271,4 +271,55 @@ public class AuthService : IAuthService
     {
         return Task.CompletedTask;
     }
+
+    public async Task<bool> ForgotPasswordAsync(string email, string baseUrl)
+    {
+        var user = await _unitOfWork.Users.GetByEmailAsync(email);
+        if (user == null) return false;
+
+        // Generate a secure random reset token
+        var resetToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+        var tokenExpiry = DateTime.UtcNow.AddHours(2);
+
+        user.ResetToken = resetToken;
+        user.ResetTokenExpiry = tokenExpiry;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+
+        var resetLink = $"{baseUrl.TrimEnd('/')}/auth/resetpassword?token={resetToken}";
+        await _emailService.SendPasswordResetEmailAsync(user.Email, user.Username, resetLink);
+
+        return true;
+    }
+
+    public async Task<bool> ValidateResetTokenAsync(string token)
+    {
+        var user = await _unitOfWork.Users.GetByResetTokenAsync(token);
+        if (user == null) return false;
+        if (user.ResetToken != token) return false;
+        if (user.ResetTokenExpiry == null || user.ResetTokenExpiry.Value < DateTime.UtcNow) return false;
+
+        return true;
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    {
+        var user = await _unitOfWork.Users.GetByResetTokenAsync(token);
+        if (user == null) return false;
+        if (user.ResetToken != token) return false;
+        if (user.ResetTokenExpiry == null || user.ResetTokenExpiry.Value < DateTime.UtcNow) return false;
+
+        // Hash the new password using the existing hasher
+        user.PasswordHash = _passwordHasher.HashPassword(user, newPassword);
+
+        // Invalidate the reset token so it cannot be reused
+        user.ResetToken = null;
+        user.ResetTokenExpiry = null;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+
+        return true;
+    }
 }

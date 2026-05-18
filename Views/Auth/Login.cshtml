@@ -65,10 +65,12 @@
                 </div>
 
                 <div>
-                    <label asp-for="Password" class="dk-label">Password</label>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                        <label asp-for="Password" class="dk-label" style="margin:0;">Password</label>
+                        <a asp-action="ForgotPassword" style="font-size:0.8rem; color:var(--accent); text-decoration:none; font-weight:500; opacity:0.85; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">Forgot password?</a>
+                    </div>
                     <input asp-for="Password" class="dk-input" type="password"
-                           placeholder="••••••••" autocomplete="current-password"
-                           style="margin-top:6px;" />
+                           placeholder="••••••••" autocomplete="current-password" />
                     <span asp-validation-for="Password" class="field-err"></span>
                 </div>
 

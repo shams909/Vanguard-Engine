@@ -15,5 +15,8 @@ public interface IAuthService
     Task<bool> UpdatePhoneNumberAsync(string userId, string phoneNumber);
     Task<bool> VerifyEmailAsync(string userId, string token);
     Task<bool> ResendVerificationEmailAsync(string email, string baseUrl);
+    Task<bool> ForgotPasswordAsync(string email, string baseUrl);
+    Task<bool> ValidateResetTokenAsync(string token);
+    Task<bool> ResetPasswordAsync(string token, string newPassword);
     Task LogoutAsync();
 }

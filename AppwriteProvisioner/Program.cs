@@ -67,6 +67,16 @@ try
         Console.WriteLine("- Attribute 'verificationTokenExpiry' added to users.");
     } catch (Exception ex) { Console.WriteLine($"- Attribute 'verificationTokenExpiry' skipped: {ex.Message}"); }
 
+    try {
+        await databases.CreateStringAttribute(databaseId, "users", "resetToken", 255, false);
+        Console.WriteLine("- Attribute 'resetToken' added to users.");
+    } catch (Exception ex) { Console.WriteLine($"- Attribute 'resetToken' skipped: {ex.Message}"); }
+
+    try {
+        await databases.CreateDatetimeAttribute(databaseId, "users", "resetTokenExpiry", false);
+        Console.WriteLine("- Attribute 'resetTokenExpiry' added to users.");
+    } catch (Exception ex) { Console.WriteLine($"- Attribute 'resetTokenExpiry' skipped: {ex.Message}"); }
+
     // --- Admin Creation ---
     Console.WriteLine("\nFetching Admin Role ID...");
     var rolesList = await databases.ListDocuments(databaseId, "roles", queries: new List<string> { Query.Equal("roleName", "Admin") });

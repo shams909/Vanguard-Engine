@@ -370,4 +370,68 @@ public class AuthController : Controller
     {
         return View();
     }
+
+    // ─── Forgot Password ────────────────────────────────────────────────────────
+
+    [HttpGet]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        // Always show success to avoid email enumeration attacks
+        await _authService.ForgotPasswordAsync(model.Email, baseUrl);
+
+        TempData["SuccessMessage"] = "If that email is registered, we've sent a secure password reset link. Please check your inbox (and spam folder).";
+        return View(model);
+    }
+
+    // ─── Reset Password ─────────────────────────────────────────────────────────
+
+    [HttpGet]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(string? token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            TempData["ErrorMessage"] = "Invalid password reset link.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var isValid = await _authService.ValidateResetTokenAsync(token);
+        if (!isValid)
+        {
+            TempData["ErrorMessage"] = "This password reset link is invalid or has expired. Please request a new one.";
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        return View(new ResetPasswordViewModel { Token = token });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var success = await _authService.ResetPasswordAsync(model.Token, model.Password);
+        if (!success)
+        {
+            TempData["ErrorMessage"] = "This password reset link is invalid or has expired. Please request a new one.";
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        TempData["SuccessMessage"] = "Password updated successfully. Please login with your new password.";
+        return RedirectToAction(nameof(Login));
+    }
 }

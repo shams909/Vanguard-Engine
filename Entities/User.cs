@@ -36,6 +36,12 @@ public class User
     [JsonProperty("verificationTokenExpiry")]
     public DateTime? VerificationTokenExpiry { get; set; }
     
+    [JsonProperty("resetToken")]
+    public string? ResetToken { get; set; }
+
+    [JsonProperty("resetTokenExpiry")]
+    public DateTime? ResetTokenExpiry { get; set; }
+
     [JsonIgnore]
     public Role? Role { get; set; }
 }
