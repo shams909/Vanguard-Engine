@@ -120,24 +120,29 @@ public class AuthService : IAuthService
     {
         try
         {
-            Appwrite.Models.User? account = null;
+            // Always fetch the user account via the Users service (with the server's API Key)
+            // to avoid client-side CreateSession restrictions on the server-side client
+            var usersService = new Users(_appwriteService.GetClient());
+            var account = await usersService.Get(userId);
 
-            if (userId != secret && !string.IsNullOrEmpty(secret))
-            {
-                var accountService = new Account(_appwriteService.GetClient());
-                await accountService.CreateSession(userId, secret);
-                account = await accountService.Get();
-            }
-            else
-            {
-                var usersService = new Users(_appwriteService.GetClient());
-                account = await usersService.Get(userId);
-            }
-
-            var user = await _unitOfWork.Users.GetByIdAsync(account.Id);
+            // Fetch the user from the database collection by Email (fixes Bug 1)
+            var user = await _unitOfWork.Users.GetByEmailAsync(account.Email);
 
             if (user != null)
             {
+                // Migrate the user's DB record to use the Google Auth ID if it differs
+                if (user.Id != account.Id)
+                {
+                    // 1. Delete old document with local random C# ID
+                    _unitOfWork.Users.Remove(user);
+                    
+                    // 2. Assign the Google Auth ID
+                    user.Id = account.Id;
+                    
+                    // 3. Create the new document with the updated ID
+                    await _unitOfWork.Users.AddAsync(user);
+                }
+
                 // Auto-verify OAuth accounts just in case they were registered locally but are logging in via Google
                 if (!user.IsEmailVerified)
                 {
