@@ -50,17 +50,23 @@
 
         /* ─── NAVBAR ─── */
         .dk-nav {
-            position: sticky; top: 0; z-index: 200;
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(40px) saturate(150%);
-            -webkit-backdrop-filter: blur(40px) saturate(150%);
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 4px 24px rgba(67, 40, 24, 0.03);
+            position: sticky; 
+            top: 16px; 
+            z-index: 1000;
+            margin: 16px auto;
+            max-width: 1340px;
+            width: calc(100% - 32px);
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            box-shadow: 0 12px 40px rgba(67, 40, 24, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .dk-nav-inner {
-            max-width: 1400px; margin: 0 auto;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 28px; height: 62px; gap: 16px;
+            padding: 0 24px; height: 64px; gap: 16px;
         }
         .dk-brand {
             font-size: 1.1rem; font-weight: 800; color: var(--text);
