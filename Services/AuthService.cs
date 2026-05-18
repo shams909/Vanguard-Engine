@@ -277,37 +277,37 @@ public class AuthService : IAuthService
         var user = await _unitOfWork.Users.GetByEmailAsync(email);
         if (user == null) return false;
 
-        // Generate a secure random reset token
-        var resetToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
-        var tokenExpiry = DateTime.UtcNow.AddHours(2);
+        // Generate a secure 6-digit OTP
+        var random = new Random();
+        var otp = random.Next(100000, 999999).ToString();
+        var tokenExpiry = DateTime.UtcNow.AddMinutes(15);
 
-        user.ResetToken = resetToken;
+        user.ResetToken = otp;
         user.ResetTokenExpiry = tokenExpiry;
 
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync();
 
-        var resetLink = $"{baseUrl.TrimEnd('/')}/auth/resetpassword?token={resetToken}";
-        await _emailService.SendPasswordResetEmailAsync(user.Email, user.Username, resetLink);
+        await _emailService.SendPasswordResetOtpEmailAsync(user.Email, user.Username, otp);
 
         return true;
     }
 
-    public async Task<bool> ValidateResetTokenAsync(string token)
+    public async Task<bool> ValidateResetOtpAsync(string email, string otp)
     {
-        var user = await _unitOfWork.Users.GetByResetTokenAsync(token);
+        var user = await _unitOfWork.Users.GetByEmailAsync(email);
         if (user == null) return false;
-        if (user.ResetToken != token) return false;
+        if (string.IsNullOrEmpty(user.ResetToken) || user.ResetToken != otp) return false;
         if (user.ResetTokenExpiry == null || user.ResetTokenExpiry.Value < DateTime.UtcNow) return false;
 
         return true;
     }
 
-    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    public async Task<bool> ResetPasswordAsync(string email, string otp, string newPassword)
     {
-        var user = await _unitOfWork.Users.GetByResetTokenAsync(token);
+        var user = await _unitOfWork.Users.GetByEmailAsync(email);
         if (user == null) return false;
-        if (user.ResetToken != token) return false;
+        if (string.IsNullOrEmpty(user.ResetToken) || user.ResetToken != otp) return false;
         if (user.ResetTokenExpiry == null || user.ResetTokenExpiry.Value < DateTime.UtcNow) return false;
 
         // Hash the new password using the existing hasher

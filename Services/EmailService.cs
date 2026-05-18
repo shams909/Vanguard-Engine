@@ -96,7 +96,7 @@ public class EmailService : IEmailService
         await smtpClient.SendMailAsync(mailMessage);
     }
 
-    public async Task SendPasswordResetEmailAsync(string toEmail, string username, string resetLink)
+    public async Task SendPasswordResetOtpEmailAsync(string toEmail, string username, string otpCode)
     {
         var host = _configuration["SmtpSettings:Host"] ?? "smtp.gmail.com";
         var port = int.Parse(_configuration["SmtpSettings:Port"] ?? "587");
@@ -108,7 +108,7 @@ public class EmailService : IEmailService
         var mailMessage = new MailMessage
         {
             From = new MailAddress(senderEmail, senderName),
-            Subject = "Reset Your Vanguard Engine Password",
+            Subject = "Your Vanguard Engine Password Reset Code",
             Body = $@"
             <div style=""font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f6f9fc; padding: 40px 20px; color: #333333; line-height: 1.6;"">
                 <div style=""max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border-top: 5px solid #b45309;"">
@@ -123,34 +123,27 @@ public class EmailService : IEmailService
                     <div style=""padding: 40px 30px;"">
                         <h2 style=""margin-top: 0; color: #1e293b; font-size: 20px; font-weight: 600;"">Password Reset Request</h2>
                         <p style=""color: #475569; font-size: 16px;"">
-                            Hello, {username}. We received a request to reset the password for your Vanguard Engine account. Click the button below to create a new secure password.
+                            Hello, {username}. We received a request to reset the password for your Vanguard Engine account. Enter the following 6-digit code to verify your identity.
                         </p>
                         
-                        <!-- CTA Button -->
-                        <div style=""text-align: center; margin: 35px 0;"">
-                            <a href=""{resetLink}"" style=""background-color: #b45309; color: #ffffff; padding: 14px 30px; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 6px; display: inline-block; box-shadow: 0 4px 6px rgba(180, 83, 9, 0.2);"">
-                                Reset Password
-                            </a>
+                        <!-- OTP Box -->
+                        <div style=""text-align: center; margin: 40px 0;"">
+                            <div style=""background-color: #f8fafc; border: 2px dashed #b45309; padding: 20px; border-radius: 8px; display: inline-block;"">
+                                <span style=""font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #b45309; font-family: monospace;"">{otpCode}</span>
+                            </div>
                         </div>
-
-                        <!-- Link Fallback -->
-                        <p style=""color: #64748b; font-size: 13px; margin-top: 30px;"">
-                            If the button above does not work, copy and paste the following URL into your browser:
-                            <br />
-                            <a href=""{resetLink}"" style=""color: #b45309; text-decoration: underline; word-break: break-all;"">{resetLink}</a>
-                        </p>
 
                         <!-- Expiration Notice -->
                         <div style=""margin-top: 30px; padding: 15px; background-color: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px;"">
                             <p style=""margin: 0; font-size: 14px; color: #b45309; font-weight: 500;"">
-                                <strong>Notice:</strong> This password reset link will expire in <strong>2 hours</strong>. After expiry, you will need to request a new link.
+                                <strong>Notice:</strong> This verification code will expire in <strong>15 minutes</strong>. Do not share this code with anyone.
                             </p>
                         </div>
 
                         <!-- Security Note -->
                         <hr style=""border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;"" />
                         <p style=""color: #94a3b8; font-size: 12px; margin: 0;"">
-                            <strong>Security Notice:</strong> If you did not request a password reset for your Vanguard Engine account, you can safely ignore this email. Your password will not be changed unless you click the link above. If you believe this is unauthorized activity, please contact support immediately.
+                            <strong>Security Notice:</strong> If you did not request a password reset for your Vanguard Engine account, you can safely ignore this email. Your password will not be changed. If you believe this is unauthorized activity, please contact support immediately.
                         </p>
                     </div>
 

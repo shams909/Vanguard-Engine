@@ -388,33 +388,85 @@ public class AuthController : Controller
         if (!ModelState.IsValid) return View(model);
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}";
-        // Always show success to avoid email enumeration attacks
         await _authService.ForgotPasswordAsync(model.Email, baseUrl);
 
-        TempData["SuccessMessage"] = "If that email is registered, we've sent a secure password reset link. Please check your inbox (and spam folder).";
-        return View(model);
+        TempData["ResetEmail"] = model.Email;
+        return RedirectToAction(nameof(VerifyOtp));
+    }
+
+    // ─── Verify OTP ─────────────────────────────────────────────────────────────
+
+    [HttpGet]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public IActionResult VerifyOtp()
+    {
+        var email = TempData["ResetEmail"] as string;
+        if (string.IsNullOrEmpty(email))
+        {
+            return RedirectToAction(nameof(ForgotPassword));
+        }
+
+        // Keep it in TempData in case they refresh or validation fails
+        TempData.Keep("ResetEmail");
+        return View(new VerifyOtpViewModel { Email = email });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> VerifyOtp(VerifyOtpViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData.Keep("ResetEmail");
+            return View(model);
+        }
+
+        var isValid = await _authService.ValidateResetOtpAsync(model.Email, model.Otp);
+        if (!isValid)
+        {
+            TempData.Keep("ResetEmail");
+            ModelState.AddModelError("Otp", "Invalid or expired OTP code.");
+            return View(model);
+        }
+
+        // Securely pass email and OTP to the reset password screen
+        TempData["AuthorizedEmail"] = model.Email;
+        TempData["AuthorizedOtp"] = model.Otp;
+        return RedirectToAction(nameof(ResetPassword));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> ResendOtp(string email)
+    {
+        if (string.IsNullOrEmpty(email)) return RedirectToAction(nameof(ForgotPassword));
+
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        await _authService.ForgotPasswordAsync(email, baseUrl);
+
+        TempData["SuccessMessage"] = "A new verification code has been sent to your email.";
+        TempData["ResetEmail"] = email;
+        return RedirectToAction(nameof(VerifyOtp));
     }
 
     // ─── Reset Password ─────────────────────────────────────────────────────────
 
     [HttpGet]
     [Microsoft.AspNetCore.Authorization.AllowAnonymous]
-    public async Task<IActionResult> ResetPassword(string? token)
+    public IActionResult ResetPassword()
     {
-        if (string.IsNullOrEmpty(token))
+        var email = TempData["AuthorizedEmail"] as string;
+        var otp = TempData["AuthorizedOtp"] as string;
+
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(otp))
         {
-            TempData["ErrorMessage"] = "Invalid password reset link.";
+            TempData["ErrorMessage"] = "Unauthorized password reset attempt.";
             return RedirectToAction(nameof(Login));
         }
 
-        var isValid = await _authService.ValidateResetTokenAsync(token);
-        if (!isValid)
-        {
-            TempData["ErrorMessage"] = "This password reset link is invalid or has expired. Please request a new one.";
-            return RedirectToAction(nameof(ForgotPassword));
-        }
-
-        return View(new ResetPasswordViewModel { Token = token });
+        return View(new ResetPasswordViewModel { Email = email, Otp = otp });
     }
 
     [HttpPost]
@@ -424,10 +476,10 @@ public class AuthController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var success = await _authService.ResetPasswordAsync(model.Token, model.Password);
+        var success = await _authService.ResetPasswordAsync(model.Email, model.Otp, model.Password);
         if (!success)
         {
-            TempData["ErrorMessage"] = "This password reset link is invalid or has expired. Please request a new one.";
+            TempData["ErrorMessage"] = "Your session expired or the OTP is no longer valid. Please start again.";
             return RedirectToAction(nameof(ForgotPassword));
         }
 
