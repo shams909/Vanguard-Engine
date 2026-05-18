@@ -1,0 +1,94 @@
+@model Vanguard_Engine.Entities.ClientRequest
+@{
+    ViewData["Title"] = "Assign Tactical Guards";
+    var availableGuards = ViewBag.AvailableGuards as List<Vanguard_Engine.Entities.GuardApplication> ?? new List<Vanguard_Engine.Entities.GuardApplication>();
+}
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header" style="justify-content: center; text-align: center; margin-bottom: 32px;">
+        <div>
+            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Tactical Deployment operations</div>
+            <h1 class="page-header-title">Assign Tactical Guards</h1>
+            <p class="page-header-sub">Allocate approved security officers to fulfill client security parameters.</p>
+        </div>
+    </div>
+
+    <!-- Request Details Card -->
+    <div class="dk-card dk-card-pad" style="margin-bottom: 24px; border-color: rgba(180, 83, 9, 0.25); background: linear-gradient(135deg, rgba(180, 83, 9, 0.03), rgba(255,255,255,0.45));">
+        <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 0 0 12px;"><i data-lucide="file-text" style="width:18px; height:18px; display:inline-block; vertical-align:-2px; margin-right:4px; color:var(--accent);"></i> Deployment Request Details</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 0.86rem; line-height: 1.5;">
+            <div>
+                <span style="color: var(--text-muted);">Deployment Target Location:</span>
+                <strong style="color: var(--text); display: block; font-size: 0.95rem;">@Model.Location</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted);">Operators Required:</span>
+                <strong style="color: var(--text); display: block; font-size: 0.95rem;">@Model.NumberOfGuards Tactical Guards</strong>
+            </div>
+            <div>
+                <span style="color: var(--text-muted);">Shift Option:</span>
+                <strong style="color: var(--text); display: block; font-size: 0.95rem;">@Model.Duration</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Form -->
+    <div class="dk-card dk-card-pad">
+        <form asp-action="Assign" method="post" class="app-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="shield" style="width: 20px; height: 20px; color: var(--green);"></i> Available Security Officers
+            </div>
+
+            @if (!availableGuards.Any())
+            {
+                <div class="empty-state" style="padding: 30px; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.1);">
+                    <div class="empty-icon"><i data-lucide="shield-alert" style="width: 32px; height: 32px; color: var(--text-muted);"></i></div>
+                    <div class="empty-title">No Available Guard Force</div>
+                    <div class="empty-sub">There are currently no approved guard profiles in the registry. Vetting and approve applications inside the <a href="/Guard/Applications" style="color:var(--accent); font-weight:700;">Recruitment Desk</a> first.</div>
+                </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                    @foreach (var guard in availableGuards)
+                    {
+                        var isChecked = Model.AssignedGuardIds != null && Model.AssignedGuardIds.Contains(guard.UserId);
+                        
+                        <label style="display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.3); padding: 16px 20px; border-radius: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.5)'; this.style.borderColor='rgba(180, 83, 9, 0.35)';" onmouseout="this.style.background='rgba(255,255,255,0.3)'; this.style.borderColor='var(--border)';">
+                            <div style="display: flex; gap: 16px; align-items: center;">
+                                <input type="checkbox" name="guardIds" value="@guard.UserId" @(isChecked ? "checked" : "") style="width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer;" />
+                                <div>
+                                    <div style="font-weight: 700; color: var(--text); font-size: 0.95rem;">@guard.FullName</div>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                                        Station: <strong>@guard.PreferredLocation</strong> &bull; Experience: <strong>@guard.YearsOfExperience Years</strong> &bull; License: <strong>@(guard.ArmedLicense ? "Armed State" : "Standard")</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                @if (guard.ArmedLicense)
+                                {
+                                    <span style="font-size: 0.72rem; font-weight: 700; background: rgba(180, 83, 9, 0.1); color: var(--accent); padding: 4px 10px; border-radius: 8px;">Elite Armed Force</span>
+                                }
+                                else
+                                {
+                                    <span style="font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.4); color: var(--text-sub); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border);">Active Regular</span>
+                                }
+                            </div>
+                        </label>
+                    }
+                </div>
+            }
+
+            <div class="form-section" style="display: flex; gap: 12px; justify-content: flex-end; padding: 24px 0 0; border-top: 1px solid var(--border);">
+                <a asp-action="AdminRequests" class="dk-btn dk-btn-ghost">Cancel</a>
+                <button type="submit" class="dk-btn dk-btn-primary" @(availableGuards.Any() ? "" : "disabled")>
+                    <i data-lucide="check-square" style="width:18px; height:18px;"></i> Save Assignments
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

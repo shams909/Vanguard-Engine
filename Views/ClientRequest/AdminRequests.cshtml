@@ -1,0 +1,140 @@
+@model List<Vanguard_Engine.Entities.ClientRequest>
+@{
+    ViewData["Title"] = "Operations Center - Client Requests";
+    var guardMap = ViewBag.GuardNames as Dictionary<string, string> ?? new Dictionary<string, string>();
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Vanguard Engine</div>
+        <h1 class="page-header-title">Client Deployment Petitions</h1>
+        <p class="page-header-sub">Review guard requests, perform personnel assignments, and track active security detachments.</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dk-alert dk-alert-success" style="margin-bottom: 24px;">
+        @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="dk-alert dk-alert-error" style="margin-bottom: 24px;">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="dk-card" style="margin-top: 12px;">
+    <div style="padding: 24px 28px; border-bottom: 1px solid var(--border);">
+        <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0;">
+            <i data-lucide="inbox" style="width: 20px; height: 20px; color: var(--accent);"></i> Live Deployment Petitions Queue
+        </h2>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon"><i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--green);"></i></div>
+            <div class="empty-title">Queue Clear</div>
+            <div class="empty-sub">No pending or active client security requests found.</div>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.15);">
+                        <th style="padding: 14px 28px; font-weight: 700; color: var(--text-sub);">Client Reference</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Deployment Location</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Personnel Req.</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Shift Duration</th>
+                        <th style="padding: 14px 20px; font-weight: 700; color: var(--text-sub);">Status</th>
+                        <th style="padding: 14px 28px; font-weight: 700; color: var(--text-sub); text-align: right;">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr style="border-bottom: 1px solid var(--border); transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 14px 28px; font-weight: 600; color: var(--text);">
+                                Client #@request.ClientId.Substring(0, Math.Min(request.ClientId.Length, 6))...
+                            </td>
+                            <td style="padding: 14px 20px; color: var(--text-sub);">
+                                @request.Location
+                            </td>
+                            <td style="padding: 14px 20px; font-weight: 700; color: var(--text);">
+                                @request.NumberOfGuards Guards
+                            </td>
+                            <td style="padding: 14px 20px; color: var(--text-sub);">
+                                @request.Duration
+                            </td>
+                            <td style="padding: 14px 20px;">
+                                @if (request.Status == "Approved")
+                                {
+                                    <span class="badge-approved" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2);">
+                                        Approved
+                                    </span>
+                                }
+                                else if (request.Status == "Rejected")
+                                {
+                                    <span class="badge-rejected" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2);">
+                                        Declined
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-pending" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(217, 119, 6, 0.1); color: var(--yellow); border: 1px solid rgba(217, 119, 6, 0.2);">
+                                        Pending
+                                    </span>
+                                }
+                            </td>
+                            <td style="padding: 14px 28px; text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                                <a asp-action="Assign" asp-route-id="@request.Id" class="dk-btn dk-btn-primary dk-btn-sm" style="box-shadow: none;">
+                                    <i data-lucide="user-check" style="width: 14px; height: 14px; margin-right: 4px;"></i> Assign Guards
+                                </a>
+                                
+                                <form asp-action="UpdateStatus" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@request.Id" />
+                                    @if (request.Status != "Approved")
+                                    {
+                                        <input type="hidden" name="status" value="Approved" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--green); border-color: rgba(52, 211, 153, 0.25);">
+                                            Approve
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" name="status" value="Pending" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm">
+                                            Reset Pending
+                                        </button>
+                                    }
+                                </form>
+
+                                <form asp-action="UpdateStatus" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@request.Id" />
+                                    <input type="hidden" name="status" value="Rejected" />
+                                    <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25);">
+                                        Decline
+                                    </button>
+                                </form>
+
+                                <form asp-action="Delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete this deployment request?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@request.Id" />
+                                    <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25); box-shadow: none; padding: 6px 8px;">
+                                        <i data-lucide="trash" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px;"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

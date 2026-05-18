@@ -37,9 +37,14 @@
         <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0;">
             <i data-lucide="inbox" style="width: 20px; height: 20px; color: var(--accent);"></i> New Applications Pending Vetting
         </h2>
-        <a asp-controller="Guard" asp-action="Applications" class="dk-btn dk-btn-ghost dk-btn-sm">
-            <i data-lucide="eye" style="width: 14px; height: 14px;"></i> View All Applications
-        </a>
+        <div style="display: flex; gap: 8px;">
+            <a asp-controller="ClientRequest" asp-action="AdminRequests" class="dk-btn dk-btn-primary dk-btn-sm">
+                <i data-lucide="shield-alert" style="width: 14px; height: 14px; margin-right: 4px;"></i> Client Petitions Queue
+            </a>
+            <a asp-controller="Guard" asp-action="Applications" class="dk-btn dk-btn-ghost dk-btn-sm">
+                <i data-lucide="eye" style="width: 14px; height: 14px; margin-right: 4px;"></i> View Applications
+            </a>
+        </div>
     </div>
 
     @if (Model == null || !Model.Any())

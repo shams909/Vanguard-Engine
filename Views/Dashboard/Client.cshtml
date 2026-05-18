@@ -25,7 +25,7 @@
                     <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin: 0 0 18px;">
                         Instantly submit deployment parameters including target patrol locations, required guard counts, shift durations, and tactical requirements.
                     </p>
-                    <a href="#build-request" class="dk-btn dk-btn-primary">
+                    <a asp-controller="ClientRequest" asp-action="Create" class="dk-btn dk-btn-primary">
                         <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i> Draft Security Request
                     </a>
                 </div>
@@ -38,11 +38,14 @@
                 <i data-lucide="activity" style="width: 18px; height: 18px; color: var(--accent);"></i> Active Security Roster
             </h3>
 
-            <!-- Placeholder for active services -->
+            <!-- Active services shortcut -->
             <div class="empty-state" style="padding: 40px 20px; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.1);">
-                <div class="empty-icon"><i data-lucide="users-2" style="width: 36px; height: 36px; color: var(--text-muted);"></i></div>
-                <div class="empty-title">No Active Detachments</div>
-                <div class="empty-sub">Once an Admin approves your drafted requests, your assigned guards will appear here in real-time.</div>
+                <div class="empty-icon"><i data-lucide="clipboard-list" style="width: 36px; height: 36px; color: var(--accent);"></i></div>
+                <div class="empty-title">Track Guard Deployments</div>
+                <div class="empty-sub" style="margin-bottom: 20px;">Review all active guard assignments, request schedules, and tactical updates.</div>
+                <a asp-controller="ClientRequest" asp-action="MyRequests" class="dk-btn dk-btn-ghost">
+                    <i data-lucide="eye" style="width: 16px; height: 16px;"></i> View My Requests Queue
+                </a>
             </div>
         </div>
 

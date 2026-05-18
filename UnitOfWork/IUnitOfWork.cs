@@ -8,5 +8,6 @@ public interface IUnitOfWork
     IUserRepository Users { get; }
     IGuardApplicationRepository GuardApplications { get; }
     IHiringNoticeRepository HiringNotices { get; }
+    IClientRequestRepository ClientRequests { get; }
     Task<int> SaveChangesAsync();
 }

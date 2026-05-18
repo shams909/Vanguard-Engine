@@ -1,0 +1,69 @@
+@model Vanguard_Engine.Models.ClientRequestViewModel
+@{
+    ViewData["Title"] = "Draft Security Deployment Petition";
+}
+
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header" style="justify-content: center; text-align: center; margin-bottom: 32px;">
+        <div>
+            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Client Service Portal</div>
+            <h1 class="page-header-title">Request Security Force</h1>
+            <p class="page-header-sub">Submit deployment specifications for our tactical security operators.</p>
+        </div>
+    </div>
+
+    <div class="dk-card">
+        <form asp-action="Create" method="post" class="app-form">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error"></div>
+
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="shield-plus"></i></span>
+                    <span>Deployment Parameters</span>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label asp-for="NumberOfGuards" class="dk-label">Required Guard Personnel <span class="req">*</span></label>
+                        <input asp-for="NumberOfGuards" type="number" class="dk-input" min="1" max="100" placeholder="e.g. 5" />
+                        <span asp-validation-for="NumberOfGuards" class="field-err"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Duration" class="dk-label">Deployment Duration <span class="req">*</span></label>
+                        <select asp-for="Duration" class="dk-input">
+                            <option value="">Select Duration Option...</option>
+                            <option value="Day Shift (8 Hours)">Day Shift (8 Hours)</option>
+                            <option value="Night Shift (8 Hours)">Night Shift (8 Hours)</option>
+                            <option value="Double Shift (16 Hours)">Double Shift (16 Hours)</option>
+                            <option value="24-Hour Active Guard">24-Hour Active Guard</option>
+                            <option value="Temporary Escort Details">Temporary Escort Details</option>
+                        </select>
+                        <span asp-validation-for="Duration" class="field-err"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="map-pin"></i></span>
+                    <span>Deployment Location</span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Location" class="dk-label">Deployment / Patrol Address <span class="req">*</span></label>
+                    <input asp-for="Location" class="dk-input" placeholder="e.g. Commercial Area Block C, Sector 3, Dhaka" />
+                    <span asp-validation-for="Location" class="field-err"></span>
+                </div>
+            </div>
+
+            <div class="form-section" style="background: rgba(180, 83, 9, 0.02); display: flex; gap: 12px; justify-content: flex-end; padding: 24px;">
+                <a asp-action="MyRequests" class="dk-btn dk-btn-ghost">Cancel</a>
+                <button type="submit" class="dk-btn dk-btn-primary">
+                    <i data-lucide="send" style="width:18px; height:18px;"></i> File Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

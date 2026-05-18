@@ -9,6 +9,7 @@ public class AppwriteUnitOfWork : IUnitOfWork
     public IUserRepository Users { get; }
     public IGuardApplicationRepository GuardApplications { get; }
     public IHiringNoticeRepository HiringNotices { get; }
+    public IClientRequestRepository ClientRequests { get; }
 
     public AppwriteUnitOfWork(IAppwriteService appwriteService)
     {
@@ -16,6 +17,7 @@ public class AppwriteUnitOfWork : IUnitOfWork
         Users = new AppwriteUserRepository(appwriteService);
         GuardApplications = new GuardApplicationRepository(appwriteService);
         HiringNotices = new HiringNoticeRepository(appwriteService);
+        ClientRequests = new ClientRequestRepository(appwriteService);
     }
 
     public Task<int> SaveChangesAsync()
