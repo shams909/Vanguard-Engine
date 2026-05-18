@@ -171,3 +171,9 @@ Controllers/*ApiController.cs
 DTOs/
 Migrations/
 
+# Environments and Local Secrets
+.env
+.env.*
+.env.local
+
+
