@@ -17,9 +17,15 @@ public class AuthController : Controller
     }
 
     [HttpGet]
-    public IActionResult Login(string? returnUrl = null)
+    public IActionResult Login(string? returnUrl = null, string? error = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
+
+        if (error == "no_session")
+        {
+            TempData["ErrorMessage"] = "Secure Google connection could not be established. Please run the application over HTTPS (https://localhost:7012) to allow secure session cookies, or ensure third-party cookies are enabled in your browser.";
+        }
+
         return View();
     }
 
