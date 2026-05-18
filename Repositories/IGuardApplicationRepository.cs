@@ -8,5 +8,7 @@ public interface IGuardApplicationRepository : IGenericRepository<GuardApplicati
     Task<List<GuardApplication>> GetAllAsync();
     Task UpdateAsync(GuardApplication application);
     Task UpdateStatusAsync(string id, string status);
+    Task UpdateGuardStatusAsync(string id, string status);
+    Task<List<GuardApplication>> GetByJobIdAsync(string jobId);
     Task DeleteAsync(string id);
 }

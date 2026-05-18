@@ -43,51 +43,90 @@ else
                         <i data-lucide="clock" style="width: 20px; height: 20px; color: var(--accent);"></i> Live Shift Status & Check-In
                     </h2>
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); background: rgba(255,255,255,0.4); padding: 18px 24px; border-radius: 14px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-                        <div>
-                            <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">Current Assignment</div>
-                            <div style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-top: 4px;">Metropolitan Bank H.Q. (Day Shift)</div>
-                            <div style="font-size: 0.78rem; color: var(--text-sub); margin-top: 2px;"><i data-lucide="map-pin" style="width: 12px; height: 12px; display: inline-block; vertical-align: -2px; margin-right: 2px;"></i> Sector 4, Financial District</div>
+                    @if (ViewBag.ActiveAssignment != null)
+                    {
+                        var assignment = ViewBag.ActiveAssignment as Vanguard_Engine.Entities.ClientRequest;
+                        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); background: rgba(255,255,255,0.4); padding: 18px 24px; border-radius: 14px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                            <div>
+                                <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--accent);">Active Duty Assignment</div>
+                                <div style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-top: 4px;">@assignment.Location</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                                    Shift Option: <strong>@assignment.Duration</strong> &bull; Client ID: @assignment.ClientId
+                                </div>
+                            </div>
+                            <div>
+                                <span id="shiftStatusTag" class="badge-approved" style="padding: 4px 12px; border-radius: 100px; font-size: 0.74rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.25);">
+                                    Active / Deployed
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <span id="shiftStatusTag" class="badge-pending" style="padding: 4px 12px; border-radius: 100px; font-size: 0.74rem; font-weight: 700; background: rgba(180, 83, 9, 0.1); color: var(--accent); border: 1px solid rgba(180, 83, 9, 0.2);">
-                                Offline
-                            </span>
-                        </div>
-                    </div>
 
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <button id="btnCheckIn" class="dk-btn dk-btn-primary" style="flex: 1; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;" onclick="checkIn()">
-                            <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In for Shift
-                        </button>
-                        <button id="btnCheckOut" class="dk-btn dk-btn-danger" style="flex: 1; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem; display: none;" onclick="checkOut()">
-                            <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Check Out / End Duty
-                        </button>
-                    </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button id="btnCheckIn" class="dk-btn dk-btn-primary" style="flex: 1; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;" onclick="checkIn()">
+                                <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In for Shift
+                            </button>
+                            <button id="btnCheckOut" class="dk-btn dk-btn-danger" style="flex: 1; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem; display: none;" onclick="checkOut()">
+                                <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Check Out / End Duty
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="text-align: center; padding: 24px 0;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(180, 83, 9, 0.08); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                <i data-lucide="shield-alert" style="width: 22px; height: 22px;"></i>
+                            </div>
+                            <div style="font-weight: 700; color: var(--text); font-size: 0.94rem;">No Active Deployment Assignment</div>
+                            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 6px auto 16px; max-width: 320px;">
+                                You are currently on the backup registry. Search for open security patrols and apply to active shifts.
+                            </p>
+                            <a href="/clientrequest/openjobs" class="dk-btn dk-btn-primary dk-btn-sm" style="display: inline-flex;">
+                                <i data-lucide="search" style="width: 14px; height: 14px;"></i> Browse Open Patrols
+                            </a>
+                        </div>
+                    }
                 </div>
 
-                <!-- Assigned Duty Logs -->
+                <!-- Active Duty Logs -->
                 <div class="dk-card dk-card-pad">
                     <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">
-                        <i data-lucide="calendar-days" style="width: 20px; height: 20px; color: var(--accent);"></i> Duty Schedule (Week 2)
+                        <i data-lucide="calendar-days" style="width: 20px; height: 20px; color: var(--accent);"></i> Deployment Applications History
                     </h2>
 
                     <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <div style="padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                            <div>
-                                <div style="font-weight: 700; color: var(--text); font-size: 0.88rem;">Metro HQ - Static Patrol</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Monday - Wednesday &bull; 08:00 AM - 17:00 PM</div>
+                        @{
+                            var jobApps = Model.Where(a => !string.IsNullOrEmpty(a.JobId)).OrderByDescending(a => a.CreatedAt).ToList();
+                        }
+                        @if (!jobApps.Any())
+                        {
+                            <div style="font-size: 0.82rem; color: var(--text-muted); font-style: italic; text-align: center; padding: 12px 0;">
+                                No recruitment application history.
                             </div>
-                            <span style="font-size: 0.74rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 8px;">Active Contract</span>
-                        </div>
-
-                        <div style="padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                            <div>
-                                <div style="font-weight: 700; color: var(--text); font-size: 0.88rem;">City Mall V.I.P. Guard</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Thursday &bull; 10:00 AM - 20:00 PM</div>
-                            </div>
-                            <span style="font-size: 0.74rem; font-weight: 700; background: rgba(217, 119, 6, 0.1); color: var(--yellow); border: 1px solid rgba(217, 119, 6, 0.2); padding: 4px 10px; border-radius: 8px;">Pending Briefing</span>
-                        </div>
+                        }
+                        else
+                        {
+                            @foreach (var app in jobApps)
+                            {
+                                <div style="padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--text); font-size: 0.88rem;">Deployment Target ID: @app.JobId</div>
+                                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Applied: @app.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                    </div>
+                                    @if (app.Status == "Accepted")
+                                    {
+                                        <span style="font-size: 0.74rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 8px;">Accepted</span>
+                                    }
+                                    else if (app.Status == "Rejected")
+                                    {
+                                        <span style="font-size: 0.74rem; font-weight: 700; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px 10px; border-radius: 8px;">Declined</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size: 0.74rem; font-weight: 700; background: rgba(217, 119, 6, 0.1); color: var(--yellow); border: 1px solid rgba(217, 119, 6, 0.2); padding: 4px 10px; border-radius: 8px;">Pending Review</span>
+                                    }
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
             }

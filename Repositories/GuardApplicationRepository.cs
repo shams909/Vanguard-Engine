@@ -53,6 +53,31 @@ public class GuardApplicationRepository : AppwriteRepository<GuardApplication>, 
         );
     }
 
+    public async Task UpdateGuardStatusAsync(string id, string status)
+    {
+        await _databases.UpdateDocument(
+            databaseId: _databaseId,
+            collectionId: _collectionId,
+            documentId: id,
+            data: new Dictionary<string, object> { { "guardStatus", status } }
+        );
+    }
+
+    public async Task<List<GuardApplication>> GetByJobIdAsync(string jobId)
+    {
+        var result = await _databases.ListDocuments(
+            databaseId: _databaseId,
+            collectionId: _collectionId,
+            queries: new List<string>
+            {
+                Query.Equal("jobId", jobId),
+                Query.OrderDesc("$createdAt"),
+                Query.Limit(100)
+            }
+        );
+        return result.Documents.Select(d => MapToEntity(d)!).ToList();
+    }
+
     public async Task DeleteAsync(string id)
     {
         await _databases.DeleteDocument(_databaseId, _collectionId, id);
@@ -75,6 +100,8 @@ public class GuardApplicationRepository : AppwriteRepository<GuardApplication>, 
         { "skills", e.Skills },
         { "preferredLocation", e.PreferredLocation },
         { "armedLicense", e.ArmedLicense },
-        { "status", e.Status }
+        { "status", e.Status },
+        { "jobId", e.JobId ?? "" },
+        { "guardStatus", e.GuardStatus }
     };
 }

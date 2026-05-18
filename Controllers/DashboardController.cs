@@ -11,15 +11,18 @@ public class DashboardController : Controller
     private readonly IUserService _userService;
     private readonly IGuardApplicationService _guardService;
     private readonly IHiringService _hiringService;
+    private readonly IClientRequestService _requestService;
 
     public DashboardController(
         IUserService userService,
         IGuardApplicationService guardService,
-        IHiringService hiringService)
+        IHiringService hiringService,
+        IClientRequestService requestService)
     {
         _userService = userService;
         _guardService = guardService;
         _hiringService = hiringService;
+        _requestService = requestService;
     }
 
     [HttpGet]
@@ -76,6 +79,16 @@ public class DashboardController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         var myApps = await _guardService.GetMyApplicationsAsync(userId);
+        
+        // Find general registration profile status
+        var generalProfile = myApps.FirstOrDefault(a => string.IsNullOrEmpty(a.JobId) || a.JobId == "");
+        ViewBag.GuardStatus = generalProfile?.GuardStatus ?? "Available";
+
+        // Fetch active assignment (ClientRequest where this guard is assigned and status is Approved)
+        var allRequests = await _requestService.GetAllRequestsAsync();
+        var activeAssignment = allRequests.FirstOrDefault(r => r.Status == "Approved" && r.AssignedGuardIds != null && r.AssignedGuardIds.Contains(userId));
+        ViewBag.ActiveAssignment = activeAssignment;
+
         return View(myApps);
     }
 

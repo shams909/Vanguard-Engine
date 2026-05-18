@@ -341,13 +341,15 @@
                 <li><a asp-controller="Dashboard" asp-action="Index"><i data-lucide="layout-dashboard" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Dashboard</a></li>
                 @if (currentRole == "Guard")
                 {
-                    <li><a asp-controller="Guard" asp-action="Apply"><i data-lucide="shield-check" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Apply</a></li>
-                    <li><a asp-controller="Guard" asp-action="MyApplications"><i data-lucide="clipboard-list" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> My Applications</a></li>
+                    <li><a asp-controller="ClientRequest" asp-action="OpenJobs"><i data-lucide="search" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Open Deployments</a></li>
+                    <li><a asp-controller="Guard" asp-action="Apply"><i data-lucide="shield-check" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistment</a></li>
+                    <li><a asp-controller="Guard" asp-action="MyApplications"><i data-lucide="clipboard-list" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistment History</a></li>
                 }
                 @if (currentRole == "Admin" || currentRole == "Recruiter")
                 {
-                    <li><a asp-controller="Guard" asp-action="Applications"><i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Applications</a></li>
-                    <li><a asp-controller="Recruitment" asp-action="Manage"><i data-lucide="file-edit" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Manage Hiring</a></li>
+                    <li><a asp-controller="ClientRequest" asp-action="AdminRequests"><i data-lucide="shield-alert" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Client Petitions</a></li>
+                    <li><a asp-controller="Guard" asp-action="Applications"><i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistments Queue</a></li>
+                    <li><a asp-controller="Recruitment" asp-action="Manage"><i data-lucide="file-edit" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers Board</a></li>
                 }
                 @if (currentRole == "Admin")
                 {
@@ -356,7 +358,8 @@
                 }
                 @if (currentRole == "Client")
                 {
-                    <li><a href="#requests"><i data-lucide="file-text" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Security Requests</a></li>
+                    <li><a asp-controller="ClientRequest" asp-action="MyRequests"><i data-lucide="file-text" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> My Requests</a></li>
+                    <li><a asp-controller="ClientRequest" asp-action="Create"><i data-lucide="shield-alert" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Request Patrol</a></li>
                 }
                 @if (currentRole == "VIP Client" || currentRole == "VIP")
                 {

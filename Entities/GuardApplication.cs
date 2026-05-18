@@ -43,6 +43,9 @@ public class GuardApplication
     [JsonProperty("status")]
     public string Status { get; set; } = "Pending";
 
+    [JsonProperty("guardStatus")]
+    public string GuardStatus { get; set; } = "Available";
+
     [JsonProperty("$createdAt")]
     public DateTime CreatedAt { get; set; }
 }

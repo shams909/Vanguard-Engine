@@ -34,8 +34,16 @@ public class ClientRequestController : Controller
         
         // Lookup approved guards to resolve names
         var allApps = await _guardService.GetAllApplicationsAsync();
-        var guardMap = allApps.ToDictionary(a => a.UserId, a => a.FullName);
+        var guardMap = allApps
+            .Where(a => !string.IsNullOrEmpty(a.UserId))
+            .GroupBy(a => a.UserId)
+            .ToDictionary(g => g.Key, g => g.First().FullName);
         ViewBag.GuardNames = guardMap;
+
+        // Fetch all job applications for this client's requests
+        var requestIds = myRequests.Select(r => r.Id).ToList();
+        var clientJobApplications = allApps.Where(a => !string.IsNullOrEmpty(a.JobId) && requestIds.Contains(a.JobId)).ToList();
+        ViewBag.JobApplications = clientJobApplications;
 
         return View(myRequests);
     }
@@ -122,7 +130,10 @@ public class ClientRequestController : Controller
         
         // Resolve guard names for admin view
         var allApps = await _guardService.GetAllApplicationsAsync();
-        var guardMap = allApps.ToDictionary(a => a.UserId, a => a.FullName);
+        var guardMap = allApps
+            .Where(a => !string.IsNullOrEmpty(a.UserId))
+            .GroupBy(a => a.UserId)
+            .ToDictionary(g => g.Key, g => g.First().FullName);
         ViewBag.GuardNames = guardMap;
 
         return View(allRequests);
@@ -203,6 +214,107 @@ public class ClientRequestController : Controller
         else
         {
             TempData["Success"] = "Deployment request successfully deleted!";
+        }
+        return RedirectToAction(nameof(AdminRequests));
+    }
+
+    // ==========================================
+    // RECRUITMENT WORKFLOW ENDPOINTS
+    // ==========================================
+
+    [HttpGet]
+    [Authorize(Roles = "Guard,Admin")]
+    public async Task<IActionResult> OpenJobs()
+    {
+        var allRequests = await _requestService.GetAllRequestsAsync();
+        // Open jobs are approved client requests
+        var openRequests = allRequests.Where(r => r.Status == "Approved" || r.Status == "Open").ToList();
+
+        var guardUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var allApps = await _guardService.GetAllApplicationsAsync();
+        
+        // Find if this guard is busy
+        var generalProfile = allApps.FirstOrDefault(a => a.UserId == guardUserId && (string.IsNullOrEmpty(a.JobId) || a.JobId == ""));
+        ViewBag.GuardStatus = generalProfile?.GuardStatus ?? "Available";
+
+        // Find list of Request IDs this guard already applied to
+        var appliedRequestIds = allApps.Where(a => a.UserId == guardUserId && !string.IsNullOrEmpty(a.JobId)).Select(a => a.JobId).ToList();
+        ViewBag.AppliedRequestIds = appliedRequestIds;
+
+        return View(openRequests);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Guard")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Apply(string id)
+    {
+        var guardUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _guardService.ApplyToJobAsync(guardUserId, id);
+        
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Error;
+        }
+        else
+        {
+            TempData["Success"] = "Application successfully submitted to the Client!";
+        }
+        return RedirectToAction(nameof(OpenJobs));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Client")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AcceptApplication(string id)
+    {
+        var clientId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _guardService.AcceptJobApplicationAsync(id, clientId);
+        
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Error;
+        }
+        else
+        {
+            TempData["Success"] = "Guard application successfully accepted! Guard is now deployed to this perimeter.";
+        }
+        return RedirectToAction(nameof(MyRequests));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Client")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RejectApplication(string id)
+    {
+        var clientId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _guardService.RejectJobApplicationAsync(id, clientId);
+        
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Error;
+        }
+        else
+        {
+            TempData["Success"] = "Guard application successfully declined.";
+        }
+        return RedirectToAction(nameof(MyRequests));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin,Recruiter")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Complete(string id)
+    {
+        var result = await _guardService.CompleteJobAsync(id);
+        
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Error;
+        }
+        else
+        {
+            TempData["Success"] = "Deployment contract successfully completed! Assigned guard operators have been released to active duty registry.";
         }
         return RedirectToAction(nameof(AdminRequests));
     }

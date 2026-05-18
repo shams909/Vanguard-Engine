@@ -114,6 +114,17 @@
                                     }
                                 </form>
 
+                                @if (request.Status == "Approved")
+                                {
+                                    <form asp-action="Complete" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@request.Id" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--accent); border-color: rgba(180, 83, 9, 0.25); font-weight: 700;">
+                                            Complete Contract
+                                        </button>
+                                    </form>
+                                }
+
                                 <form asp-action="UpdateStatus" method="post" style="display: inline;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@request.Id" />
