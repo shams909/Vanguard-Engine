@@ -1,0 +1,219 @@
+@model List<Vanguard_Engine.Entities.VIPRequest>
+@{
+    ViewData["Title"] = "VIP Requests — Admin Panel";
+    var counts       = ViewBag.StatusCounts as Dictionary<string, int> ?? new();
+    var activeFilter = ViewBag.StatusFilter as string ?? "All";
+
+    var filters = new[] { "All", "Pending", "Approved", "Assigned", "Active", "Completed", "Rejected", "Cancelled" };
+}
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Admin Control &bull; VIP Operations
+        </div>
+        <h1 class="page-header-title" style="display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="crown" style="width: 24px; height: 24px; color: var(--accent);"></i>
+            VIP Request Management
+        </h1>
+        <p class="page-header-sub">Review, approve, reject, and track all elite client protection requests.</p>
+    </div>
+    <div>
+        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.2); border-radius: 100px; font-size: 0.8rem; font-weight: 700;">
+            <i data-lucide="shield-alert" style="width: 14px; height: 14px;"></i> Admin Access
+        </span>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dk-alert dk-alert-success" style="margin-bottom: 20px;">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">@TempData["Error"]</div>
+}
+
+<!-- STATUS SUMMARY CARDS -->
+<div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); margin-bottom: 24px;">
+    <div class="stat-card stat-total">
+        <div class="stat-label">Total</div>
+        <div class="stat-value">@counts.GetValueOrDefault("Total")</div>
+    </div>
+    <div class="stat-card stat-pending">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value">@counts.GetValueOrDefault("Pending")</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value">@counts.GetValueOrDefault("Approved")</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Active</div>
+        <div class="stat-value" style="color: var(--accent);">@(counts.GetValueOrDefault("Active") + counts.GetValueOrDefault("Assigned"))</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" style="font-size: 1.6rem;">@counts.GetValueOrDefault("Completed")</div>
+    </div>
+    <div class="stat-card stat-rejected">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value">@counts.GetValueOrDefault("Rejected")</div>
+    </div>
+</div>
+
+<!-- STATUS FILTER TABS -->
+<div class="dk-card" style="overflow: visible; margin-bottom: 20px;">
+    <div style="display: flex; gap: 6px; flex-wrap: wrap; padding: 14px 20px; border-bottom: 1px solid var(--border);">
+        @foreach (var f in filters)
+        {
+            var isActive = activeFilter == f;
+            var count = f == "All" ? counts.GetValueOrDefault("Total") : counts.GetValueOrDefault(f);
+            <a asp-action="AdminRequests" asp-route-status="@f"
+               style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; text-decoration: none; transition: all 0.15s;
+                      @(isActive ? "background: rgba(180,83,9,0.12); color: var(--accent); border: 1px solid rgba(180,83,9,0.3);" : "background: var(--surface); color: var(--text-sub); border: 1px solid var(--border);")">
+                @f
+                @if (count > 0)
+                {
+                    <span style="font-size: 0.7rem; background: @(isActive ? "rgba(180,83,9,0.15)" : "rgba(100,116,139,0.1)"); padding: 1px 6px; border-radius: 100px;">@count</span>
+                }
+            </a>
+        }
+    </div>
+
+    <!-- REQUESTS TABLE -->
+    @if (Model == null || !Model.Any())
+    {
+        <div style="text-align: center; padding: 64px 24px;">
+            <i data-lucide="inbox" style="width: 36px; height: 36px; color: var(--text-muted); margin-bottom: 12px;"></i>
+            <div style="font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">No Requests Found</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted);">
+                @(activeFilter == "All" ? "No VIP protection requests have been submitted yet." : $"No {activeFilter} requests at this time.")
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table class="dk-table">
+                <thead>
+                    <tr>
+                        <th>Protection Type</th>
+                        <th>Client ID</th>
+                        <th>Officers</th>
+                        <th>Duration</th>
+                        <th>Service Level</th>
+                        <th>Filed</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var req in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i data-lucide="crown" style="width: 14px; height: 14px; color: var(--accent); flex-shrink: 0;"></i>
+                                    <span style="font-weight: 700; color: var(--text); font-size: 0.88rem;">@req.ProtectionType</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="mono" style="font-size: 0.74rem;">@req.VipClientId.Substring(0, Math.Min(req.VipClientId.Length, 12))…</span>
+                            </td>
+                            <td>
+                                <span style="font-weight: 700; color: var(--text);">@req.NumberOfGuards</span>
+                            </td>
+                            <td style="font-size: 0.82rem; color: var(--text-sub);">@req.Duration</td>
+                            <td>
+                                @if (req.ArmedRequired)
+                                {
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.15);">
+                                        <i data-lucide="shield-alert" style="width:11px; height:11px;"></i> Armed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(52,211,153,0.08); color: var(--green); border: 1px solid rgba(52,211,153,0.15);">
+                                        <i data-lucide="shield" style="width:11px; height:11px;"></i> Unarmed
+                                    </span>
+                                }
+                            </td>
+                            <td style="font-size: 0.78rem; color: var(--text-muted);">@req.CreatedAt.ToString("dd MMM yy")</td>
+                            <td>
+                                @{
+                                    var (sBg, sFg) = req.Status switch
+                                    {
+                                        "Approved"  => ("rgba(52,211,153,0.1)",  "var(--green)"),
+                                        "Active"    => ("rgba(52,211,153,0.1)",  "var(--green)"),
+                                        "Assigned"  => ("rgba(180,83,9,0.1)",    "var(--accent)"),
+                                        "Completed" => ("rgba(100,116,139,0.1)", "var(--text-muted)"),
+                                        "Rejected"  => ("rgba(239,68,68,0.1)",   "var(--red)"),
+                                        "Cancelled" => ("rgba(100,116,139,0.1)", "var(--text-muted)"),
+                                        _           => ("rgba(217,119,6,0.1)",   "var(--yellow)")
+                                    };
+                                }
+                                <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: @sBg; color: @sFg; border: 1px solid @sBg;">
+                                    <span style="width:5px; height:5px; border-radius:50%; background: @sFg; display:inline-block;"></span>
+                                    @req.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
+                                    @if (req.Status == "Pending")
+                                    {
+                                        <form asp-action="Approve" method="post" style="display:inline;" onsubmit="return confirm('Approve this VIP protection request?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@req.Id" />
+                                            <button type="submit" class="dk-btn dk-btn-success dk-btn-sm">
+                                                <i data-lucide="check" style="width:13px; height:13px;"></i> Approve
+                                            </button>
+                                        </form>
+                                        <form asp-action="Reject" method="post" style="display:inline;" onsubmit="return confirm('Reject this VIP request?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@req.Id" />
+                                            <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">
+                                                <i data-lucide="x" style="width:13px; height:13px;"></i> Reject
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (req.Status == "Approved")
+                                    {
+                                        <a asp-action="AssignGuards" asp-route-id="@req.Id" class="dk-btn dk-btn-primary dk-btn-sm">
+                                            <i data-lucide="users" style="width:13px; height:13px;"></i> Assign Guards
+                                        </a>
+                                    }
+                                    @if (req.Status == "Assigned")
+                                    {
+                                        <form asp-action="StartProtection" method="post" style="display:inline;" onsubmit="return confirm('Start active protection for this VIP service?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@req.Id" />
+                                            <button type="submit" class="dk-btn dk-btn-primary dk-btn-sm">
+                                                <i data-lucide="shield-check" style="width:13px; height:13px;"></i> Start Protection
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (req.Status is "Assigned" or "Active")
+                                    {
+                                        <form asp-action="Complete" method="post" style="display:inline;" onsubmit="return confirm('Mark this VIP service as completed? All guards will be released.')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@req.Id" />
+                                            <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--green); border-color: rgba(52,211,153,0.3);">
+                                                <i data-lucide="check-check" style="width:13px; height:13px;"></i> Complete
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (req.Status is "Completed" or "Rejected" or "Cancelled")
+                                    {
+                                        <span style="font-size: 0.74rem; color: var(--text-muted); padding: 6px 10px; font-style: italic;">—</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

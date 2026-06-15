@@ -12,17 +12,23 @@ public class DashboardController : Controller
     private readonly IGuardApplicationService _guardService;
     private readonly IHiringService _hiringService;
     private readonly IClientRequestService _requestService;
+    private readonly IVIPRequestService _vipRequestService;
+    private readonly IGuardShiftService _shiftService;
 
     public DashboardController(
         IUserService userService,
         IGuardApplicationService guardService,
         IHiringService hiringService,
-        IClientRequestService requestService)
+        IClientRequestService requestService,
+        IVIPRequestService vipRequestService,
+        IGuardShiftService shiftService)
     {
         _userService = userService;
         _guardService = guardService;
         _hiringService = hiringService;
         _requestService = requestService;
+        _vipRequestService = vipRequestService;
+        _shiftService = shiftService;
     }
 
     [HttpGet]
@@ -79,15 +85,27 @@ public class DashboardController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         var myApps = await _guardService.GetMyApplicationsAsync(userId);
-        
-        // Find general registration profile status
+
+        // Guard profile status
         var generalProfile = myApps.FirstOrDefault(a => string.IsNullOrEmpty(a.JobId) || a.JobId == "");
         ViewBag.GuardStatus = generalProfile?.GuardStatus ?? "Available";
 
-        // Fetch active assignment (ClientRequest where this guard is assigned and status is Approved)
+        // Active ClientRequest assignment
         var allRequests = await _requestService.GetAllRequestsAsync();
-        var activeAssignment = allRequests.FirstOrDefault(r => r.Status == "Approved" && r.AssignedGuardIds != null && r.AssignedGuardIds.Contains(userId));
+        var activeAssignment = allRequests.FirstOrDefault(r =>
+            r.Status == "Approved" && r.AssignedGuardIds != null && r.AssignedGuardIds.Contains(userId));
         ViewBag.ActiveAssignment = activeAssignment;
+
+        // Active VIP Mission assignment
+        var allVipRequests = await _vipRequestService.GetAllRequestsAsync();
+        var vipMission = allVipRequests.FirstOrDefault(r =>
+            (r.Status == "Assigned" || r.Status == "Active") &&
+            r.AssignedGuardIds != null && r.AssignedGuardIds.Contains(userId));
+        ViewBag.VipMission = vipMission;
+
+        // Current shift (for real check-in/out widget)
+        var activeShift = await _shiftService.GetActiveShiftAsync(userId);
+        ViewBag.ActiveShift = activeShift;
 
         return View(myApps);
     }
@@ -101,8 +119,17 @@ public class DashboardController : Controller
 
     [HttpGet]
     [Authorize(Roles = "VIP Client,VIP")]
-    public IActionResult Vip()
+    public async Task<IActionResult> Vip()
     {
+        var clientId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var allRequests = await _vipRequestService.GetRequestsByClientAsync(clientId);
+        var counts = await _vipRequestService.GetStatusCountsAsync(clientId);
+
+        ViewBag.StatusCounts = counts;
+        ViewBag.ActiveRequests  = allRequests.Where(r => r.Status is "Approved" or "Assigned" or "Active").ToList();
+        ViewBag.PendingRequests = allRequests.Where(r => r.Status == "Pending").ToList();
+        ViewBag.RecentHistory   = allRequests.Where(r => r.Status is "Completed" or "Rejected" or "Cancelled")
+                                             .OrderByDescending(r => r.CreatedAt).Take(5).ToList();
         return View();
     }
 }

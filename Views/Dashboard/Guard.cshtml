@@ -37,52 +37,125 @@ else
             
             @if (isApproved)
             {
-                <!-- Interactive Duty Attendance Check-in Widget -->
+                <!-- Live Shift Status & Check-In Widget -->
                 <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.04), rgba(255,255,255,0.4)); border-color: rgba(180, 83, 9, 0.25);">
                     <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 20px;">
-                        <i data-lucide="clock" style="width: 20px; height: 20px; color: var(--accent);"></i> Live Shift Status & Check-In
+                        <i data-lucide="clock" style="width: 20px; height: 20px; color: var(--accent);"></i> Live Shift Status &amp; Check-In
                     </h2>
 
-                    @if (ViewBag.ActiveAssignment != null)
+                    @if (TempData["Success"] != null)
                     {
-                        var assignment = ViewBag.ActiveAssignment as Vanguard_Engine.Entities.ClientRequest;
-                        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); background: rgba(255,255,255,0.4); padding: 18px 24px; border-radius: 14px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                        <div class="dk-alert dk-alert-success" style="margin-bottom: 16px;">@TempData["Success"]</div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="dk-alert dk-alert-error" style="margin-bottom: 16px;">@TempData["Error"]</div>
+                    }
+
+                    @{
+                        var activeShift = ViewBag.ActiveShift as Vanguard_Engine.Entities.GuardShift;
+                    }
+                    @if (activeShift != null)
+                    {
+                        <!-- Checked In State -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(52,211,153,0.25); background: rgba(52,211,153,0.05); padding: 18px 24px; border-radius: 14px; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
                             <div>
-                                <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--accent);">Active Duty Assignment</div>
-                                <div style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-top: 4px;">@assignment.Location</div>
+                                <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--green);">Shift Active</div>
+                                <div style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-top: 4px;">
+                                    Checked in at <strong>@activeShift.CheckInDateTime.ToLocalTime().ToString("HH:mm")</strong>
+                                </div>
                                 <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
-                                    Shift Option: <strong>@assignment.Duration</strong> &bull; Client ID: @assignment.ClientId
+                                    Elapsed: <strong id="elapsedTimer">calculating...</strong>
                                 </div>
                             </div>
-                            <div>
-                                <span id="shiftStatusTag" class="badge-approved" style="padding: 4px 12px; border-radius: 100px; font-size: 0.74rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.25);">
-                                    Active / Deployed
-                                </span>
-                            </div>
+                            <span style="padding: 4px 12px; border-radius: 100px; font-size: 0.74rem; font-weight: 700; background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.25);">
+                                On Duty / Active
+                            </span>
                         </div>
-
-                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <button id="btnCheckIn" class="dk-btn dk-btn-primary" style="flex: 1; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;" onclick="checkIn()">
-                                <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In for Shift
-                            </button>
-                            <button id="btnCheckOut" class="dk-btn dk-btn-danger" style="flex: 1; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem; display: none;" onclick="checkOut()">
+                        <form asp-controller="GuardShift" asp-action="CheckOut" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="shiftId" value="@activeShift.Id" />
+                            <button type="submit" class="dk-btn dk-btn-danger" style="width: 100%; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;"
+                                    onclick="return confirm('End your shift and save duration to history?')">
                                 <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Check Out / End Duty
                             </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- Not Checked In State -->
+                        <div style="text-align: center; padding: 20px 0 24px;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(180, 83, 9, 0.08); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                <i data-lucide="shield-alert" style="width: 22px; height: 22px;"></i>
+                            </div>
+                            <div style="font-weight: 700; color: var(--text); font-size: 0.94rem;">Not Currently On Shift</div>
+                            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 6px auto 20px; max-width: 320px;">
+                                Start your shift to log attendance and track working hours.
+                            </p>
+                        </div>
+                        <form asp-controller="GuardShift" asp-action="CheckIn" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dk-btn dk-btn-primary" style="width: 100%; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;">
+                                <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In for Shift
+                            </button>
+                        </form>
+                    }
+                </div>
+
+                <!-- Current VIP Mission -->
+                <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180,83,9,0.04), rgba(255,255,255,0.4)); border-color: rgba(180,83,9,0.2);">
+                    <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">
+                        <i data-lucide="crown" style="width: 18px; height: 18px; color: var(--accent);"></i> Current VIP Mission
+                    </h2>
+
+                    @{
+                        var vipMission = ViewBag.VipMission as Vanguard_Engine.Entities.VIPRequest;
+                    }
+                    @if (vipMission != null)
+                    {
+                        var (mBg, mFg) = vipMission.Status == "Active"
+                            ? ("rgba(52,211,153,0.1)", "var(--green)")
+                            : ("rgba(180,83,9,0.1)", "var(--accent)");
+                        <div style="border: 1px solid rgba(180,83,9,0.2); border-radius: 14px; padding: 18px 20px; background: rgba(255,255,255,0.4);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+                                <div>
+                                    <div style="font-weight: 800; font-size: 1rem; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                                        <i data-lucide="crown" style="width:14px; height:14px; color: var(--accent);"></i>
+                                        @vipMission.ProtectionType
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                                        @vipMission.NumberOfGuards-officer elite detail &bull; @vipMission.Duration
+                                    </div>
+                                </div>
+                                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: @mBg; color: @mFg; border: 1px solid @mBg;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: @mFg; display: inline-block;"></span>
+                                    @vipMission.Status
+                                </span>
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                @if (vipMission.ArmedRequired)
+                                {
+                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.15); display: inline-flex; align-items: center; gap: 4px;">
+                                        <i data-lucide="shield-alert" style="width:11px; height:11px;"></i> Armed Detail
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(52,211,153,0.08); color: var(--green); border: 1px solid rgba(52,211,153,0.15); display: inline-flex; align-items: center; gap: 4px;">
+                                        <i data-lucide="shield" style="width:11px; height:11px;"></i> Unarmed Detail
+                                    </span>
+                                }
+                                <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(180,83,9,0.06); color: var(--accent); border: 1px solid rgba(180,83,9,0.12);">
+                                    Team: @vipMission.AssignedGuardIds?.Count officer(s)
+                                </span>
+                            </div>
                         </div>
                     }
                     else
                     {
-                        <div style="text-align: center; padding: 24px 0;">
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(180, 83, 9, 0.08); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                                <i data-lucide="shield-alert" style="width: 22px; height: 22px;"></i>
-                            </div>
-                            <div style="font-weight: 700; color: var(--text); font-size: 0.94rem;">No Active Deployment Assignment</div>
-                            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 6px auto 16px; max-width: 320px;">
-                                You are currently on the backup registry. Search for open security patrols and apply to active shifts.
-                            </p>
-                            <a href="/clientrequest/openjobs" class="dk-btn dk-btn-primary dk-btn-sm" style="display: inline-flex;">
-                                <i data-lucide="search" style="width: 14px; height: 14px;"></i> Browse Open Patrols
-                            </a>
+                        <div style="text-align: center; padding: 24px 0; border: 1px dashed rgba(180,83,9,0.2); border-radius: 12px;">
+                            <i data-lucide="crown" style="width: 28px; height: 28px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                            <div style="font-size: 0.86rem; font-weight: 600; color: var(--text-muted);">No active VIP deployment.</div>
                         </div>
                     }
                 </div>
@@ -193,60 +266,31 @@ else
 
     @section Scripts {
         <script>
-            function checkIn() {
-                var btnIn = document.getElementById("btnCheckIn");
-                var btnOut = document.getElementById("btnCheckOut");
-                var tag = document.getElementById("shiftStatusTag");
-
-                // Micro-animations and State Changes
-                btnIn.style.transform = "scale(0.96)";
-                setTimeout(() => {
-                    btnIn.style.display = "none";
-                    btnOut.style.display = "flex";
-                    btnOut.style.transform = "none";
-                    
-                    tag.innerHTML = "On Duty / Active";
-                    tag.style.background = "rgba(52, 211, 153, 0.1)";
-                    tag.style.color = "var(--green)";
-                    tag.style.borderColor = "rgba(52, 211, 153, 0.25)";
-                    
-                    // Create floating success check
-                    const banner = document.createElement("div");
-                    banner.innerHTML = "🎯 Check-In logged successfully. Operator is Active.";
-                    banner.style.position = "fixed";
-                    banner.style.bottom = "24px";
-                    banner.style.right = "24px";
-                    banner.style.background = "var(--surface)";
-                    banner.style.border = "1px solid var(--green)";
-                    banner.style.padding = "12px 20px";
-                    banner.style.borderRadius = "12px";
-                    banner.style.color = "var(--green)";
-                    banner.style.fontWeight = "700";
-                    banner.style.boxShadow = "var(--shadow)";
-                    banner.style.zIndex = "9999";
-                    banner.style.transition = "opacity 0.5s";
-                    document.body.appendChild(banner);
-                    setTimeout(() => { banner.style.opacity = "0"; setTimeout(() => banner.remove(), 500); }, 3000);
-                }, 200);
-            }
-
-            function checkOut() {
-                var btnIn = document.getElementById("btnCheckIn");
-                var btnOut = document.getElementById("btnCheckOut");
-                var tag = document.getElementById("shiftStatusTag");
-
-                btnOut.style.transform = "scale(0.96)";
-                setTimeout(() => {
-                    btnOut.style.display = "none";
-                    btnIn.style.display = "flex";
-                    btnIn.style.transform = "none";
-                    
-                    tag.innerHTML = "Offline";
-                    tag.style.background = "rgba(180, 83, 9, 0.1)";
-                    tag.style.color = "var(--accent)";
-                    tag.style.borderColor = "rgba(180, 83, 9, 0.25)";
-                }, 200);
-            }
+            // Live elapsed timer — counts up from server-side check-in time
+            (function () {
+                var el = document.getElementById('elapsedTimer');
+                if (!el) return;
+                @if (ViewBag.ActiveShift != null)
+                {
+                    var shift = ViewBag.ActiveShift as Vanguard_Engine.Entities.GuardShift;
+                    <text>
+                    var checkInMs = new Date('@shift.CheckInDateTime.ToString("o")').getTime();
+                    </text>
+                }
+                else
+                {
+                    <text>var checkInMs = Date.now();</text>
+                }
+                function tick() {
+                    var elapsed = Math.floor((Date.now() - checkInMs) / 1000);
+                    var h = Math.floor(elapsed / 3600);
+                    var m = Math.floor((elapsed % 3600) / 60);
+                    var s = elapsed % 60;
+                    el.textContent = (h > 0 ? h + 'h ' : '') + m + 'm ' + s + 's';
+                }
+                tick();
+                setInterval(tick, 1000);
+            })();
         </script>
     }
 }

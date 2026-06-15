@@ -1,0 +1,160 @@
+@model List<Vanguard_Engine.Entities.GuardShift>
+@{
+    ViewData["Title"] = "Guard Attendance Panel";
+    var filter = ViewBag.Filter as string ?? "All";
+    int activeCount    = ViewBag.ActiveCount;
+    int completedToday = ViewBag.CompletedToday;
+    double avgDuration = ViewBag.AvgDuration;
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Admin Panel &bull; Guard Attendance
+        </div>
+        <h1 class="page-header-title" style="display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="activity" style="width: 24px; height: 24px; color: var(--accent);"></i> Attendance Panel
+        </h1>
+        <p class="page-header-sub">Monitor guard check-ins, active shifts, and daily working hours.</p>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="stat-grid" style="margin-bottom: 28px;">
+    <div class="stat-card stat-approved">
+        <div class="stat-label">Currently On Duty</div>
+        <div class="stat-value">@activeCount</div>
+    </div>
+    <div class="stat-card stat-total">
+        <div class="stat-label">Completed Today</div>
+        <div class="stat-value">@completedToday</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Avg Shift Length (Today)</div>
+        <div class="stat-value" style="font-size: 1.6rem; color: var(--accent);">
+            @{
+                var aH = (int)(avgDuration / 60);
+                var aM = (int)(avgDuration % 60);
+            }
+            @(avgDuration > 0 ? $"{aH}h {aM}m" : "—")
+        </div>
+    </div>
+    <div class="stat-card" style="border-color: rgba(180,83,9,0.2);">
+        <div class="stat-label">Total Records Shown</div>
+        <div class="stat-value" style="color: var(--accent);">@Model.Count</div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+    @foreach (var f in new[] { "All", "Active", "Completed" })
+    {
+        var isActive = filter == f;
+        <a asp-action="AdminPanel" asp-route-filter="@f"
+           style="padding: 8px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; text-decoration: none; border: 1px solid @(isActive ? "rgba(180,83,9,0.3)" : "rgba(215,200,180,0.6)"); background: @(isActive ? "rgba(180,83,9,0.1)" : "rgba(245,235,220,0.5)"); color: @(isActive ? "var(--accent)" : "var(--text-muted)"); transition: all 0.15s;">
+            @f
+        </a>
+    }
+</div>
+
+<!-- Attendance Table -->
+<div class="dk-card">
+    <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="font-weight: 800; font-size: 1rem; color: var(--text);">
+            @(filter == "Active" ? "Officers Currently On Shift" : filter == "Completed" ? "Completed Shifts" : "All Shift Records")
+        </div>
+        @if (activeCount > 0 && filter != "Completed")
+        {
+            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2);">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite;"></span>
+                @activeCount active
+            </span>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; padding: 56px 24px;">
+            <i data-lucide="calendar-off" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 12px;"></i>
+            <div style="font-size: 0.94rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">No Records Found</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">No shift records match the current filter.</p>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border); background: rgba(180,83,9,0.03);">
+                        <th style="padding: 12px 24px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Officer</th>
+                        <th style="padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Date</th>
+                        <th style="padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Check In</th>
+                        <th style="padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Check Out</th>
+                        <th style="padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Duration</th>
+                        <th style="padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var shift in Model)
+                    {
+                        var isOnDuty = shift.Status == "Active";
+                        <tr style="border-bottom: 1px solid rgba(215,200,180,0.4); transition: background 0.1s;"
+                            onmouseover="this.style.background='rgba(180,83,9,0.02)'" onmouseout="this.style.background=''">
+                            <td style="padding: 14px 24px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #78350f); display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 800; color: #fff; flex-shrink: 0;">
+                                        @(shift.GuardName.Length > 0 ? shift.GuardName.Substring(0, 1).ToUpper() : "?")
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--text); font-size: 0.86rem;">@shift.GuardName</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted);">ID: @shift.GuardId.Substring(0, Math.Min(shift.GuardId.Length, 10))…</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 14px 16px; color: var(--text-sub); font-weight: 600;">
+                                @shift.CheckInDateTime.ToLocalTime().ToString("dd MMM yyyy")
+                            </td>
+                            <td style="padding: 14px 16px; color: var(--text-sub);">
+                                @shift.CheckInDateTime.ToLocalTime().ToString("HH:mm")
+                            </td>
+                            <td style="padding: 14px 16px; color: var(--text-sub);">
+                                @(shift.CheckOutDateTime.HasValue ? shift.CheckOutDateTime.Value.ToLocalTime().ToString("HH:mm") : "—")
+                            </td>
+                            <td style="padding: 14px 16px;">
+                                @if (isOnDuty)
+                                {
+                                    <span style="font-weight: 700; font-size: 0.82rem; color: var(--green);">In Progress</span>
+                                }
+                                else
+                                {
+                                    <span style="font-weight: 700; color: var(--accent);">@shift.DurationDisplay</span>
+                                }
+                            </td>
+                            <td style="padding: 14px 16px;">
+                                @if (isOnDuty)
+                                {
+                                    <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(52,211,153,0.08); color: var(--green); border: 1px solid rgba(52,211,153,0.15);">
+                                        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block;"></span> Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(100,116,139,0.08); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.15);">
+                                        Completed
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.4; }
+    }
+</style>

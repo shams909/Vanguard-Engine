@@ -1,0 +1,83 @@
+@model Vanguard_Engine.Entities.VipApplication
+@{
+    ViewData["Title"] = "My VIP Application";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Elite Services
+        </div>
+        <h1 class="page-header-title" style="display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="file-text" style="width: 24px; height: 24px; color: var(--accent);"></i> VIP Application Status
+        </h1>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dk-alert dk-alert-success" style="margin-bottom: 24px;">@TempData["SuccessMessage"]</div>
+}
+
+<div class="dk-card dk-card-pad" style="max-width: 600px; margin: 0 auto; text-align: center; padding: 48px 24px;">
+    @if (Model == null)
+    {
+        <i data-lucide="help-circle" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 8px;">No Application Found</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">You have not applied for VIP services yet.</p>
+        <a asp-action="Apply" class="dk-btn dk-btn-primary" style="display: inline-flex;">Apply Now</a>
+    }
+    else if (Model.Status == "Pending")
+    {
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(180, 83, 9, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i data-lucide="clock" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text); margin-bottom: 8px;">Application Under Review</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.6;">
+            Your application for VIP services was submitted on <strong>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</strong>. 
+            Our executive team is currently reviewing your details.
+        </p>
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 100px; background: rgba(180, 83, 9, 0.05); border: 1px solid rgba(180, 83, 9, 0.2); color: var(--accent); font-weight: 700; font-size: 0.85rem;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite;"></span>
+            Status: Pending
+        </div>
+    }
+    else if (Model.Status == "Rejected")
+    {
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(248, 113, 113, 0.1); color: var(--red); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i data-lucide="x-circle" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text); margin-bottom: 8px;">Application Declined</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+            Unfortunately, your application for VIP services was not approved at this time.
+        </p>
+        <a asp-action="Apply" class="dk-btn dk-btn-primary" style="display: inline-flex;">Submit New Application</a>
+    }
+    else if (Model.Status == "Approved")
+    {
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(52, 211, 153, 0.1); color: var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i data-lucide="check-circle" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text); margin-bottom: 8px;">VIP Status Approved!</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+            Your account has been upgraded. Please sign out and sign back in to access the VIP Console.
+        </p>
+        <form asp-controller="Auth" asp-action="Logout" method="post" style="display: inline-block;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="dk-btn dk-btn-success">Sign Out Now</button>
+        </form>
+    }
+</div>
+
+<div style="text-align: center; margin-top: 24px;">
+    <a asp-controller="Dashboard" asp-action="Client" class="dk-btn dk-btn-ghost">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Return to Dashboard
+    </a>
+</div>
+
+<style>
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+</style>

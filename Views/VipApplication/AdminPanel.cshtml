@@ -1,0 +1,99 @@
+@model List<Vanguard_Engine.Entities.VipApplication>
+@{
+    ViewData["Title"] = "VIP Applications";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Admin Panel
+        </div>
+        <h1 class="page-header-title" style="display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="award" style="width: 24px; height: 24px; color: var(--accent);"></i> VIP Applications
+        </h1>
+        <p class="page-header-sub">Review and approve clients requesting VIP Elite Status.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="dk-alert dk-alert-success" style="margin-bottom: 24px;">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="dk-alert dk-alert-error" style="margin-bottom: 24px;">@TempData["ErrorMessage"]</div>
+}
+
+<div class="dk-card">
+    <div style="padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="font-weight: 800; font-size: 1rem; color: var(--text);">Pending Applications</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">@Model.Count total</div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; padding: 56px 24px;">
+            <i data-lucide="check-square" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 12px;"></i>
+            <div style="font-size: 0.94rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">All Caught Up</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">There are no pending VIP applications to review.</p>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.86rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border); background: rgba(180,83,9,0.03);">
+                        <th style="padding: 14px 24px; text-align: left; font-weight: 700; color: var(--text-muted);">Client</th>
+                        <th style="padding: 14px 16px; text-align: left; font-weight: 700; color: var(--text-muted);">Company</th>
+                        <th style="padding: 14px 16px; text-align: left; font-weight: 700; color: var(--text-muted);">Details</th>
+                        <th style="padding: 14px 16px; text-align: left; font-weight: 700; color: var(--text-muted);">Date</th>
+                        <th style="padding: 14px 24px; text-align: right; font-weight: 700; color: var(--text-muted);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        <tr style="border-bottom: 1px solid rgba(215,200,180,0.4);">
+                            <td style="padding: 16px 24px;">
+                                <div style="font-weight: 700; color: var(--text);">@app.ClientName</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">ID: @app.ClientId.Substring(0, Math.Min(app.ClientId.Length, 8))…</div>
+                            </td>
+                            <td style="padding: 16px 16px; color: var(--text-sub);">
+                                @(string.IsNullOrEmpty(app.CompanyName) ? "—" : app.CompanyName)
+                            </td>
+                            <td style="padding: 16px 16px;">
+                                <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-sub);" title="@app.VerificationDetails">
+                                    @app.VerificationDetails
+                                </div>
+                            </td>
+                            <td style="padding: 16px 16px; color: var(--text-sub);">
+                                @app.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")
+                            </td>
+                            <td style="padding: 16px 24px; text-align: right;">
+                                <div style="display: inline-flex; gap: 8px;">
+                                    <form asp-action="Approve" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="applicationId" value="@app.Id" />
+                                        <button type="submit" class="dk-btn dk-btn-success dk-btn-sm" onclick="return confirm('Approve and upgrade this user to VIP Client?');">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form asp-action="Reject" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="applicationId" value="@app.Id" />
+                                        <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" onclick="return confirm('Reject this application?');">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

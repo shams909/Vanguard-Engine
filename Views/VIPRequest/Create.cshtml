@@ -1,0 +1,174 @@
+@model Vanguard_Engine.Models.VIPRequestViewModel
+@{
+    ViewData["Title"] = "Request Elite Protection Service";
+}
+
+<div style="max-width: 860px; margin: 0 auto;">
+    <div class="page-header" style="justify-content: center; text-align: center; margin-bottom: 32px;">
+        <div>
+            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+                Elite Tactical Command &bull; VIP Services
+            </div>
+            <h1 class="page-header-title" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i data-lucide="crown" style="width: 28px; height: 28px; color: var(--accent);"></i>
+                Request Elite Protection
+            </h1>
+            <p class="page-header-sub">Configure your personal close-protection deployment parameters. All elite officers are vetted and armed-qualified.</p>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="dk-card">
+        <form asp-action="Create" method="post" class="app-form">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="dk-alert dk-alert-error" style="margin: 0 0 0; border-radius: 16px 16px 0 0; border-bottom: 1px solid var(--border);"></div>
+
+            <!-- SECTION 1: Protection Type -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="shield-check"></i></span>
+                    <span>Protection Type</span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ProtectionType" class="dk-label">Select Protection Category <span class="req">*</span></label>
+                    <select asp-for="ProtectionType" class="dk-input" id="protectionTypeSelect">
+                        <option value="">— Select Protection Type —</option>
+                        <option value="Close Personal Protection">Close Personal Protection (CPP)</option>
+                        <option value="Residential Estate Security">Residential Estate Security</option>
+                        <option value="Corporate Executive Protection">Corporate Executive Protection</option>
+                        <option value="Event VIP Security Detail">Event VIP Security Detail</option>
+                        <option value="Transit & Convoy Escort">Transit &amp; Convoy Escort</option>
+                        <option value="Armed Asset Escort">Armed Asset Escort</option>
+                    </select>
+                    <span asp-validation-for="ProtectionType" class="field-err"></span>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Armed / Unarmed Selection -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="crosshair"></i></span>
+                    <span>Service Level</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="dk-label">Armed Service Required <span class="req">*</span></label>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;">
+                        <label id="armed-option" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 14px; padding: 18px 20px; border: 2px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.3);">
+                            <input type="radio" asp-for="ArmedRequired" value="true" id="armedTrue" style="display:none;" />
+                            <span style="width: 44px; height: 44px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i data-lucide="shield-alert" style="width: 20px; height: 20px; color: var(--red);"></i>
+                            </span>
+                            <div>
+                                <div style="font-weight: 800; color: var(--text); font-size: 0.95rem;">Armed Detail</div>
+                                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Officers carry licensed firearms. Highest threat deterrence.</div>
+                            </div>
+                        </label>
+
+                        <label id="unarmed-option" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 14px; padding: 18px 20px; border: 2px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.3);">
+                            <input type="radio" asp-for="ArmedRequired" value="false" id="armedFalse" style="display:none;" />
+                            <span style="width: 44px; height: 44px; border-radius: 50%; background: rgba(52, 211, 153, 0.1); border: 2px solid rgba(52, 211, 153, 0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i data-lucide="shield" style="width: 20px; height: 20px; color: var(--green);"></i>
+                            </span>
+                            <div>
+                                <div style="font-weight: 800; color: var(--text); font-size: 0.95rem;">Unarmed Detail</div>
+                                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">Trained close-protection officers. Discreet professional presence.</div>
+                            </div>
+                        </label>
+                    </div>
+                    <span asp-validation-for="ArmedRequired" class="field-err"></span>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Guard Count & Duration -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <span class="section-icon"><i data-lucide="users"></i></span>
+                    <span>Deployment Parameters</span>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label asp-for="NumberOfGuards" class="dk-label">Elite Officers Required <span class="req">*</span></label>
+                        <input asp-for="NumberOfGuards" type="number" class="dk-input" min="1" max="20" placeholder="e.g. 3" />
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">
+                            <i data-lucide="info" style="width: 12px; height: 12px; display: inline-block; vertical-align: -1px; margin-right: 2px;"></i>
+                            Elite tier allows up to 20 protection officers per deployment.
+                        </div>
+                        <span asp-validation-for="NumberOfGuards" class="field-err"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Duration" class="dk-label">Service Duration <span class="req">*</span></label>
+                        <select asp-for="Duration" class="dk-input">
+                            <option value="">— Select Duration —</option>
+                            <option value="Single Event (4–6 Hours)">Single Event (4–6 Hours)</option>
+                            <option value="Day Detail (8 Hours)">Day Detail (8 Hours)</option>
+                            <option value="Night Detail (8 Hours)">Night Detail (8 Hours)</option>
+                            <option value="Full-Day Cover (16 Hours)">Full-Day Cover (16 Hours)</option>
+                            <option value="24-Hour Personal Guard">24-Hour Personal Guard</option>
+                            <option value="Weekly Retainer (7 Days)">Weekly Retainer (7 Days)</option>
+                            <option value="Monthly Retainer (30 Days)">Monthly Retainer (30 Days)</option>
+                        </select>
+                        <span asp-validation-for="Duration" class="field-err"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Elite Disclaimer -->
+            <div class="form-section" style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.04), rgba(255,255,255,0.2)); border-top: 1px solid rgba(180, 83, 9, 0.1);">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <i data-lucide="info" style="width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; margin-top: 2px;"></i>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                        Your request will be reviewed by our Elite Tactical Operations team. All assigned officers undergo continuous psychological screening, advanced close-protection training, and hold valid operational licenses. Typical response time is <strong>under 4 hours</strong> for approved VIP accounts.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="form-section" style="display: flex; gap: 12px; justify-content: flex-end; padding: 24px;">
+                <a asp-action="MyRequests" class="dk-btn dk-btn-ghost">Cancel</a>
+                <button type="submit" class="dk-btn dk-btn-primary" id="submitBtn">
+                    <i data-lucide="crown" style="width: 16px; height: 16px;"></i> File Elite Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Visual radio card selection feedback
+    const armedTrue  = document.getElementById('armedTrue');
+    const armedFalse = document.getElementById('armedFalse');
+    const armedCard  = document.getElementById('armed-option');
+    const unarmedCard = document.getElementById('unarmed-option');
+
+    const SELECTED_STYLE = '2px solid var(--accent)';
+    const DEFAULT_STYLE  = '2px solid var(--border)';
+
+    function updateCards() {
+        if (armedTrue.checked) {
+            armedCard.style.border  = SELECTED_STYLE;
+            armedCard.style.background = 'rgba(180, 83, 9, 0.05)';
+            unarmedCard.style.border = DEFAULT_STYLE;
+            unarmedCard.style.background = 'rgba(255,255,255,0.3)';
+        } else if (armedFalse.checked) {
+            unarmedCard.style.border = SELECTED_STYLE;
+            unarmedCard.style.background = 'rgba(180, 83, 9, 0.05)';
+            armedCard.style.border  = DEFAULT_STYLE;
+            armedCard.style.background = 'rgba(255,255,255,0.3)';
+        }
+    }
+
+    armedTrue.addEventListener('change', updateCards);
+    armedFalse.addEventListener('change', updateCards);
+
+    // Clicking anywhere on the card label selects its radio
+    armedCard.addEventListener('click',  () => { armedTrue.checked  = true;  updateCards(); });
+    unarmedCard.addEventListener('click', () => { armedFalse.checked = true; updateCards(); });
+</script>

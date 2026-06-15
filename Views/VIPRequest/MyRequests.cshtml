@@ -1,0 +1,150 @@
+@model List<Vanguard_Engine.Entities.VIPRequest>
+@{
+    ViewData["Title"] = "My Elite Protection Requests";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Elite Tactical Command &bull; VIP Services
+        </div>
+        <h1 class="page-header-title">My Protection Requests</h1>
+        <p class="page-header-sub">Track your elite close-protection service orders and assigned tactical officers.</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="dk-btn dk-btn-primary">
+            <i data-lucide="plus-circle" style="width:16px; height:16px;"></i> New Elite Request
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dk-alert dk-alert-success" style="margin-bottom: 20px;">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="dk-card dk-card-pad" style="text-align: center; padding: 56px; border-style: dashed; border-color: rgba(180, 83, 9, 0.4);">
+        <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(180, 83, 9, 0.08); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i data-lucide="crown" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text); margin: 0 0 10px;">No Active Protection Orders</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 24px; line-height: 1.6;">
+            You have not submitted any elite protection requests yet. Configure and file your first deployment to have a dedicated tactical team assigned to your personal or business security needs.
+        </p>
+        <a asp-action="Create" class="dk-btn dk-btn-primary">
+            <i data-lucide="shield-plus" style="width: 16px; height: 16px;"></i> Request Elite Protection
+        </a>
+    </div>
+}
+else
+{
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        @foreach (var request in Model)
+        {
+            <div class="dk-card dk-card-pad" style="transition: all 0.25s;">
+
+                <!-- Request Header: Protection Type + Status Badge -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">Protection Category</div>
+                        <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 4px 0 0; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="crown" style="width: 16px; height: 16px; color: var(--accent);"></i>
+                            @request.ProtectionType
+                        </h2>
+                    </div>
+
+                    <div>
+                        @{
+                            var (sBg, sFg, sLabel) = request.Status switch
+                            {
+                                "Approved"  => ("rgba(52,211,153,0.1)",  "var(--green)",       "Approved"),
+                                "Assigned"  => ("rgba(180,83,9,0.1)",    "var(--accent)",      "Officers Assigned"),
+                                "Active"    => ("rgba(52,211,153,0.12)", "var(--green)",       "Protection Active"),
+                                "Completed" => ("rgba(100,116,139,0.1)", "var(--text-muted)",  "Completed"),
+                                "Rejected"  => ("rgba(239,68,68,0.1)",   "var(--red)",         "Declined"),
+                                "Cancelled" => ("rgba(100,116,139,0.1)", "var(--text-muted)",  "Cancelled"),
+                                _           => ("rgba(217,119,6,0.1)",   "var(--yellow)",      "Pending Review")
+                            };
+                        }
+                        <span style="padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; background: @sBg; color: @sFg; border: 1px solid @sBg;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: @sFg; display: inline-block; margin-right: 4px;"></span> @sLabel
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Request Details Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; font-size: 0.86rem; line-height: 1.5;">
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.76rem; text-transform: uppercase; font-weight: 600;">Officers Requested</span>
+                        <div style="font-weight: 700; color: var(--text); font-size: 1rem; margin-top: 2px;">
+                            <i data-lucide="users" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-right: 3px; color: var(--accent);"></i>
+                            @request.NumberOfGuards Elite Officer@(request.NumberOfGuards > 1 ? "s" : "")
+                        </div>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.76rem; text-transform: uppercase; font-weight: 600;">Service Duration</span>
+                        <div style="font-weight: 700; color: var(--text); font-size: 1rem; margin-top: 2px;">
+                            <i data-lucide="clock" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-right: 3px; color: var(--accent);"></i>
+                            @request.Duration
+                        </div>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.76rem; text-transform: uppercase; font-weight: 600;">Service Level</span>
+                        <div style="font-weight: 700; font-size: 0.9rem; margin-top: 4px;">
+                            @if (request.ArmedRequired)
+                            {
+                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; background: rgba(239, 68, 68, 0.08); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.78rem;">
+                                    <i data-lucide="shield-alert" style="width: 12px; height: 12px;"></i> Armed Detail
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; background: rgba(52, 211, 153, 0.08); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2); font-size: 0.78rem;">
+                                    <i data-lucide="shield" style="width: 12px; height: 12px;"></i> Unarmed Detail
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.76rem; text-transform: uppercase; font-weight: 600;">Filed On</span>
+                        <div style="font-weight: 600; color: var(--text-sub); font-size: 0.86rem; margin-top: 2px;">
+                            @request.CreatedAt.ToString("dd MMM yyyy, HH:mm")
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Guard Count (shown when officers are deployed) -->
+                @if ((request.Status == "Assigned" || request.Status == "Active") && request.AssignedGuardIds != null && request.AssignedGuardIds.Any())
+                {
+                    <div style="margin-top: 14px; padding: 12px 16px; border-radius: 12px; background: rgba(180,83,9,0.04); border: 1px solid rgba(180,83,9,0.15); display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="shield-check" style="width: 16px; height: 16px; color: var(--accent); flex-shrink: 0;"></i>
+                        <span style="font-size: 0.82rem; color: var(--text-sub);">
+                            <strong style="color: var(--accent); font-weight: 800;">@request.AssignedGuardIds.Count</strong>
+                            elite officer@(request.AssignedGuardIds.Count > 1 ? "s" : "") assigned to your protection detail.
+                        </span>
+                    </div>
+                }
+
+                <!-- Cancel button only for Pending requests -->
+                @if (request.Status == "Pending")
+                {
+                    <div style="display: flex; justify-content: flex-end; margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 12px;">
+                        <form asp-action="Cancel" method="post" onsubmit="return confirm('Are you sure you want to cancel this protection request?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@request.Id" />
+                            <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25); box-shadow: none;">
+                                <i data-lucide="x-circle" style="width: 14px; height: 14px; margin-right: 4px; display: inline-block; vertical-align: -2px;"></i> Cancel Request
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}

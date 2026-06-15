@@ -5,6 +5,7 @@ using Vanguard_Engine.Data;
 using Vanguard_Engine.Repositories;
 using Vanguard_Engine.Services;
 using Vanguard_Engine.UnitOfWork;
+using Vanguard_Engine.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,10 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IGuardApplicationService, GuardApplicationService>();
 builder.Services.AddScoped<IHiringService, HiringService>();
 builder.Services.AddScoped<IClientRequestService, ClientRequestService>();
+builder.Services.AddScoped<IVIPRequestService, VIPRequestService>();
+builder.Services.AddScoped<IGuardShiftService, GuardShiftService>();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -66,5 +71,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();

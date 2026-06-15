@@ -1,0 +1,189 @@
+@using Vanguard_Engine.Entities
+@{
+    ViewData["Title"] = "Assign Elite Officers";
+    var request        = ViewBag.Request as VIPRequest;
+    var guards         = ViewBag.EligibleGuards as List<GuardApplication> ?? new();
+}
+
+<div style="max-width: 900px; margin: 0 auto;">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header" style="justify-content: center; text-align: center; margin-bottom: 28px;">
+        <div>
+            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+                Admin &bull; Elite Guard Assignment
+            </div>
+            <h1 class="page-header-title" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i data-lucide="shield-plus" style="width: 26px; height: 26px; color: var(--accent);"></i>
+                Assign Elite Officers
+            </h1>
+            <p class="page-header-sub">Select available, approved officers to deploy on this VIP protection mission.</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">@TempData["Error"]</div>
+    }
+
+    <!-- REQUEST BRIEFING CARD -->
+    @if (request != null)
+    {
+        <div class="dk-card dk-card-pad" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(180,83,9,0.05), rgba(255,255,255,0.5)); border-color: rgba(180,83,9,0.2);">
+            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="crown" style="width:14px; height:14px; color: var(--accent);"></i> Mission Briefing
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; font-size: 0.86rem;">
+                <div>
+                    <div style="color: var(--text-muted); font-size: 0.74rem; text-transform: uppercase; font-weight: 600;">Protection Type</div>
+                    <div style="font-weight: 800; color: var(--text); margin-top: 2px;">@request.ProtectionType</div>
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 0.74rem; text-transform: uppercase; font-weight: 600;">Officers Required</div>
+                    <div style="font-weight: 800; color: var(--accent); margin-top: 2px;">@request.NumberOfGuards</div>
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 0.74rem; text-transform: uppercase; font-weight: 600;">Duration</div>
+                    <div style="font-weight: 700; color: var(--text); margin-top: 2px;">@request.Duration</div>
+                </div>
+                <div>
+                    <div style="color: var(--text-muted); font-size: 0.74rem; text-transform: uppercase; font-weight: 600;">Service Level</div>
+                    <div style="font-weight: 700; margin-top: 2px;">
+                        @if (request.ArmedRequired)
+                        {
+                            <span style="color: var(--red); display:flex; align-items:center; gap:4px;"><i data-lucide="shield-alert" style="width:13px; height:13px;"></i> Armed</span>
+                        }
+                        else
+                        {
+                            <span style="color: var(--green); display:flex; align-items:center; gap:4px;"><i data-lucide="shield" style="width:13px; height:13px;"></i> Unarmed</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- GUARD SELECTION FORM -->
+    <div class="dk-card">
+        <form asp-action="AssignGuards" asp-route-id="@request?.Id" method="post" id="assignForm">
+            @Html.AntiForgeryToken()
+
+            <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="users" style="width:18px; height:18px; color: var(--accent);"></i>
+                        Available Elite Officers
+                        <span id="selectedCount" style="font-size: 0.75rem; font-weight: 700; padding: 2px 8px; background: rgba(180,83,9,0.1); color: var(--accent); border-radius: 100px; border: 1px solid rgba(180,83,9,0.2); margin-left: 4px;">0 selected</span>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                        Only approved, available officers are shown. Busy officers are automatically excluded.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a asp-action="AdminRequests" class="dk-btn dk-btn-ghost dk-btn-sm">Cancel</a>
+                    <button type="submit" class="dk-btn dk-btn-primary dk-btn-sm" id="submitBtn" disabled>
+                        <i data-lucide="shield-check" style="width:14px; height:14px;"></i> Assign Selected Officers
+                    </button>
+                </div>
+            </div>
+
+            @if (!guards.Any())
+            {
+                <div style="text-align: center; padding: 56px 24px;">
+                    <i data-lucide="user-x" style="width: 36px; height: 36px; color: var(--text-muted); margin-bottom: 12px;"></i>
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">No Eligible Officers Available</div>
+                    <div style="font-size: 0.84rem; color: var(--text-muted); max-width: 400px; margin: 0 auto;">
+                        All approved officers are currently on active duty. Complete or release existing deployments to free up personnel.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column;">
+                    @foreach (var guard in guards)
+                    {
+                        <label class="guard-row" data-id="@guard.UserId" style="display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s;">
+                            <input type="checkbox" name="guardIds" value="@guard.UserId" class="guard-check"
+                                   style="width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer;" />
+
+                            <!-- Avatar -->
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #78350f); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 800; color: #fff; flex-shrink: 0;">
+                                @guard.FullName.Substring(0, 1).ToUpper()
+                            </div>
+
+                            <!-- Guard Info -->
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 800; color: var(--text); font-size: 0.92rem;">@guard.FullName</div>
+                                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">
+                                    @guard.YearsOfExperience yr experience
+                                    &bull; @guard.PreferredLocation
+                                </div>
+                            </div>
+
+                            <!-- Armed Badge -->
+                            <div>
+                                @if (guard.ArmedLicense)
+                                {
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.15);">
+                                        <i data-lucide="shield-alert" style="width:11px; height:11px;"></i> Armed Licensed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(52,211,153,0.08); color: var(--green); border: 1px solid rgba(52,211,153,0.15);">
+                                        <i data-lucide="shield" style="width:11px; height:11px;"></i> Standard
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Availability Badge -->
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: rgba(52,211,153,0.08); color: var(--green); border: 1px solid rgba(52,211,153,0.15);">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block;"></span> Available
+                            </span>
+                        </label>
+                    }
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+<style>
+    .guard-row:hover { background: rgba(180, 83, 9, 0.03); }
+    .guard-row.selected { background: rgba(180, 83, 9, 0.05); border-left: 3px solid var(--accent); }
+</style>
+
+<script>
+    const checkboxes = document.querySelectorAll('.guard-check');
+    const countLabel = document.getElementById('selectedCount');
+    const submitBtn  = document.getElementById('submitBtn');
+    const required   = @(request?.NumberOfGuards ?? 1);
+
+    function update() {
+        const checked = document.querySelectorAll('.guard-check:checked').length;
+        countLabel.textContent = checked + ' selected';
+        submitBtn.disabled = checked === 0;
+
+        if (checked > required) {
+            countLabel.style.background = 'rgba(239,68,68,0.1)';
+            countLabel.style.color = 'var(--red)';
+            countLabel.style.borderColor = 'rgba(239,68,68,0.2)';
+            countLabel.textContent = checked + ' selected (' + required + ' required — over limit)';
+        } else if (checked === required) {
+            countLabel.style.background = 'rgba(52,211,153,0.1)';
+            countLabel.style.color = 'var(--green)';
+            countLabel.style.borderColor = 'rgba(52,211,153,0.2)';
+        } else {
+            countLabel.style.background = 'rgba(180,83,9,0.1)';
+            countLabel.style.color = 'var(--accent)';
+            countLabel.style.borderColor = 'rgba(180,83,9,0.2)';
+        }
+
+        document.querySelectorAll('.guard-row').forEach(row => {
+            const cb = row.querySelector('.guard-check');
+            row.classList.toggle('selected', cb.checked);
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', update));
+</script>

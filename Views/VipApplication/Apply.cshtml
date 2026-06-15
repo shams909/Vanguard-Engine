@@ -1,0 +1,51 @@
+@model Vanguard_Engine.Entities.VipApplication
+@{
+    ViewData["Title"] = "Apply for VIP Services";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Elite Services
+        </div>
+        <h1 class="page-header-title" style="display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="crown" style="width: 24px; height: 24px; color: var(--accent);"></i> Apply for VIP Status
+        </h1>
+        <p class="page-header-sub">Upgrade your account to access exclusive VIP protection and armed escort services.</p>
+    </div>
+</div>
+
+<div class="dk-card dk-card-pad" style="max-width: 600px; margin: 0 auto;">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">@TempData["ErrorMessage"]</div>
+    }
+
+    <form asp-action="Apply" method="post">
+        <div style="margin-bottom: 20px;">
+            <label class="dk-label">Company Name (Optional)</label>
+            <input asp-for="CompanyName" class="dk-input" placeholder="e.g., Apex Global Industries" />
+        </div>
+
+        <div style="margin-bottom: 24px;">
+            <label class="dk-label">Verification Details <span style="color:var(--red);">*</span></label>
+            <textarea asp-for="VerificationDetails" class="dk-input" style="min-height: 120px; resize: vertical;" 
+                      placeholder="Please provide details to verify your identity or company status (e.g., Registration Number, specific protection needs, or public profile link)."></textarea>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                This information is securely reviewed by our executive team.
+            </div>
+            <span asp-validation-for="VerificationDetails" style="color: var(--red); font-size: 0.8rem; display: block; margin-top: 4px;"></span>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="dk-btn dk-btn-primary" style="flex: 1; justify-content: center;">
+                Submit Application
+            </button>
+            <a asp-controller="Dashboard" asp-action="Client" class="dk-btn dk-btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

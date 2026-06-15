@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+    <meta name="user-id" content="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Vanguard Engine</title>
@@ -366,11 +367,15 @@
                     <li><a asp-controller="ClientRequest" asp-action="OpenJobs"><i data-lucide="search" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Open Deployments</a></li>
                     <li><a asp-controller="Guard" asp-action="Apply"><i data-lucide="shield-check" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistment</a></li>
                     <li><a asp-controller="Guard" asp-action="MyApplications"><i data-lucide="clipboard-list" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistment History</a></li>
+                    <li><a asp-controller="GuardShift" asp-action="History"><i data-lucide="clock" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> My Shifts</a></li>
                 }
                 @if (currentRole == "Admin" || currentRole == "Recruiter")
                 {
                     <li><a asp-controller="ClientRequest" asp-action="AdminRequests"><i data-lucide="shield-alert" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Client Petitions</a></li>
+                    <li><a asp-controller="VIPRequest" asp-action="AdminRequests"><i data-lucide="crown" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> VIP Requests</a></li>
+                    <li><a asp-controller="VipApplication" asp-action="AdminPanel"><i data-lucide="award" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> VIP Applications</a></li>
                     <li><a asp-controller="Guard" asp-action="Applications"><i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistments Queue</a></li>
+                    <li><a asp-controller="GuardShift" asp-action="AdminPanel"><i data-lucide="activity" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Attendance</a></li>
                     <li><a asp-controller="Recruitment" asp-action="Manage"><i data-lucide="file-edit" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers Board</a></li>
                 }
                 @if (currentRole == "Admin")
@@ -385,7 +390,9 @@
                 }
                 @if (currentRole == "VIP Client" || currentRole == "VIP")
                 {
-                    <li><a href="#protection"><i data-lucide="shield-alert" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Elite Protection</a></li>
+                    <li><a asp-controller="VIPRequest" asp-action="Create"><i data-lucide="shield-plus" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> New Request</a></li>
+                    <li><a asp-controller="VIPRequest" asp-action="MyRequests"><i data-lucide="list" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> My Requests</a></li>
+                    <li><a asp-controller="Dashboard" asp-action="Vip"><i data-lucide="crown" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Elite Console</a></li>
                 }
             }
         </ul>
@@ -393,6 +400,16 @@
         <ul class="dk-nav-right">
             @if (isAuth)
             {
+                <li>
+                    <div class="notification-bell" style="position:relative; cursor:pointer;">
+                        <i data-lucide="bell" style="width:20px; height:20px;"></i>
+                        <span id="notificationBadge" class="badge" style="position:absolute; top:-5px; right:-10px; background:red; color:white; border-radius:50%; padding:2px 5px; font-size:0.7rem;">0</span>
+                    </div>
+                    <div id="notificationDropdown" class="dropdown-content" style="display:none; position:absolute; right:0; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow-sm); min-width:250px; max-height:300px; overflow-y:auto; z-index:1000;">
+                        <ul id="notificationList" style="list-style:none; margin:0; padding:0;">
+                        </ul>
+                    </div>
+                </li>
                 <li>
                     <div class="user-chip">
                         <div class="user-avatar">@initials</div>

@@ -6,10 +6,14 @@ namespace Vanguard_Engine.UnitOfWork;
 public class AppwriteUnitOfWork : IUnitOfWork
 {
     public IRoleRepository Roles { get; }
+    public INotificationRepository Notifications { get; }
     public IUserRepository Users { get; }
     public IGuardApplicationRepository GuardApplications { get; }
     public IHiringNoticeRepository HiringNotices { get; }
     public IClientRequestRepository ClientRequests { get; }
+    public IVIPRequestRepository VipRequests { get; }
+    public IGuardShiftRepository GuardShifts { get; }
+    public IVipApplicationRepository VipApplications { get; }
 
     public AppwriteUnitOfWork(IAppwriteService appwriteService)
     {
@@ -18,6 +22,10 @@ public class AppwriteUnitOfWork : IUnitOfWork
         GuardApplications = new GuardApplicationRepository(appwriteService);
         HiringNotices = new HiringNoticeRepository(appwriteService);
         ClientRequests = new ClientRequestRepository(appwriteService);
+        VipRequests = new VIPRequestRepository(appwriteService);
+        GuardShifts = new GuardShiftRepository(appwriteService);
+        VipApplications = new VipApplicationRepository(appwriteService);
+        Notifications = new NotificationRepository(appwriteService);
     }
 
     public Task<int> SaveChangesAsync()

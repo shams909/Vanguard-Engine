@@ -32,6 +32,21 @@
             </div>
         </div>
 
+        <!-- VIP Application Banner -->
+        <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.05), rgba(215, 200, 180, 0.1)); border-color: rgba(180, 83, 9, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+            <div>
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text); margin: 0 0 4px; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="crown" style="width: 18px; height: 18px; color: var(--accent);"></i> Unlock Elite Services
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0; max-width: 500px;">
+                    Apply for VIP Client status to access exclusive protection details, armed escorts, and priority deployment.
+                </p>
+            </div>
+            <a asp-controller="VipApplication" asp-action="Apply" class="dk-btn dk-btn-primary" style="background: var(--text); color: var(--surface);">
+                Apply for VIP Status
+            </a>
+        </div>
+
         <!-- Service History / Roster -->
         <div class="dk-card dk-card-pad">
             <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px; display: flex; align-items: center; gap: 6px;">

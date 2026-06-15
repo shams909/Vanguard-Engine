@@ -1,85 +1,252 @@
+@using Vanguard_Engine.Entities
 @{
-    ViewData["Title"] = "Elite Tactical Operations Portal";
+    ViewData["Title"] = "VIP Protection Console";
+    var counts        = ViewBag.StatusCounts as Dictionary<string, int> ?? new();
+    var activeList    = ViewBag.ActiveRequests  as List<VIPRequest> ?? new();
+    var pendingList   = ViewBag.PendingRequests as List<VIPRequest> ?? new();
+    var historyList   = ViewBag.RecentHistory   as List<VIPRequest> ?? new();
+
+    int total     = counts.GetValueOrDefault("Total");
+    int pending   = counts.GetValueOrDefault("Pending");
+    int approved  = counts.GetValueOrDefault("Approved");
+    int active    = counts.GetValueOrDefault("Active") + counts.GetValueOrDefault("Assigned");
+    int completed = counts.GetValueOrDefault("Completed");
 }
 
+<!-- PAGE HEADER -->
 <div class="page-header">
     <div>
-        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Tactical Command &bull; VIP Services</div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Tactical Command &bull; VIP Services
+        </div>
         <h1 class="page-header-title">VIP Protection Console</h1>
-        <p class="page-header-sub">Manage elite close-protection plans, view assigned tactical officers, and access priority secure services.</p>
+        <p class="page-header-sub">Elite close-protection services, service history, and priority tactical deployment.</p>
     </div>
-    <div>
-        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(180, 83, 9, 0.12); color: var(--accent); border: 1px solid rgba(180, 83, 9, 0.3); border-radius: 100px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.1);">
-            <i data-lucide="crown" style="width: 14px; height: 14px; color: var(--accent);"></i> Elite Tier Account
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <a asp-controller="VIPRequest" asp-action="MyRequests" class="dk-btn dk-btn-ghost">
+            <i data-lucide="list" style="width:15px; height:15px;"></i> All My Requests
+        </a>
+        <a asp-controller="VIPRequest" asp-action="Create" class="dk-btn dk-btn-primary">
+            <i data-lucide="plus-circle" style="width:15px; height:15px;"></i> New Request
+        </a>
+        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(180, 83, 9, 0.12); color: var(--accent); border: 1px solid rgba(180, 83, 9, 0.3); border-radius: 100px; font-size: 0.8rem; font-weight: 700;">
+            <i data-lucide="crown" style="width: 14px; height: 14px;"></i> Elite Tier
         </span>
     </div>
 </div>
 
+<!-- STATUS STAT CARDS -->
+<div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 28px;">
+    <div class="stat-card stat-total">
+        <div class="stat-label">Total Requests</div>
+        <div class="stat-value">@total</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted);">lifetime</div>
+    </div>
+    <div class="stat-card stat-pending">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value">@pending</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted);">awaiting approval</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value">@approved</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted);">ready to deploy</div>
+    </div>
+    <div class="stat-card" style="--sv: var(--accent);">
+        <div class="stat-label">Active Services</div>
+        <div class="stat-value" style="color: var(--accent);">@active</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted);">in operation</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" style="font-size: 1.6rem;">@completed</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted);">services delivered</div>
+    </div>
+</div>
+
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
-    <!-- VIP Services & Protection Details -->
+
+    <!-- LEFT COLUMN -->
     <div style="display: flex; flex-direction: column; gap: 24px;">
-        
-        <!-- Active Guard Attachment -->
-        <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.05), rgba(255,255,255,0.4)); border-color: rgba(180, 83, 9, 0.25);">
-            <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">
-                <i data-lucide="shield-check" style="width: 20px; height: 20px; color: var(--accent);"></i> Active Elite Protection Plan
+
+        <!-- ACTIVE & APPROVED SERVICES -->
+        <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.04), rgba(255,255,255,0.5));">
+            <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 18px;">
+                <i data-lucide="shield-check" style="width:18px; height:18px; color: var(--accent);"></i>
+                Active Protection Services
+                @if (activeList.Any())
+                {
+                    <span style="margin-left: 4px; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; background: rgba(180,83,9,0.1); color: var(--accent); border-radius: 100px; border: 1px solid rgba(180,83,9,0.2);">@activeList.Count</span>
+                }
             </h2>
 
-            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                <div style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(180, 83, 9, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; background: var(--surface);">👮‍♂️</div>
-                <div>
-                    <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">Primary Protection Commander</div>
-                    <div style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-top: 2px;">Captain Marcus Vance</div>
-                    <div style="font-size: 0.76rem; color: var(--text-sub); margin-top: 2px;">Vetted Armed Special Forces Vet &bull; Detachment 1</div>
+            @if (!activeList.Any())
+            {
+                <div style="text-align: center; padding: 32px; border: 1px dashed rgba(180,83,9,0.25); border-radius: 14px;">
+                    <i data-lucide="shield" style="width: 28px; height: 28px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">No active protection services at this time.</div>
+                    <a asp-controller="VIPRequest" asp-action="Create" class="dk-btn dk-btn-primary dk-btn-sm" style="margin-top: 14px;">
+                        <i data-lucide="plus" style="width:13px; height:13px;"></i> Request Protection
+                    </a>
                 </div>
-            </div>
-
-            <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                <span style="font-size: 0.8rem; color: var(--text-sub);">Current Deployment Sector: <strong>Metropolitan Sector A</strong></span>
-                <span style="font-size: 0.74rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 8px;">Active Surveillance On</span>
-            </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    @foreach (var req in activeList)
+                    {
+                        <div style="padding: 16px 20px; border-radius: 14px; border: 1px solid rgba(180,83,9,0.2); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <div style="font-weight: 800; color: var(--text); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+                                    <i data-lucide="crown" style="width:14px; height:14px; color: var(--accent);"></i>
+                                    @req.ProtectionType
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                                    @req.NumberOfGuards Officer@(req.NumberOfGuards > 1 ? "s" : "") &bull;
+                                    @req.Duration &bull;
+                                    @(req.ArmedRequired ? "Armed" : "Unarmed") Detail
+                                </div>
+                            </div>
+                            @{
+                                var (bg, fg, dot) = req.Status switch
+                                {
+                                    "Active"   => ("rgba(52,211,153,0.1)", "var(--green)", "var(--green)"),
+                                    "Assigned" => ("rgba(180,83,9,0.1)",   "var(--accent)", "var(--accent)"),
+                                    _          => ("rgba(52,211,153,0.08)", "var(--green)", "var(--green)")
+                                };
+                            }
+                            <span style="padding: 5px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: @bg; color: @fg; border: 1px solid @bg;">
+                                <span style="width:6px; height:6px; border-radius:50%; background: @dot; display:inline-block; margin-right:4px;"></span>
+                                @req.Status
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
         </div>
 
-        <!-- Premium VIP Requests History -->
-        <div class="dk-card dk-card-pad">
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="folder-heart" style="width: 18px; height: 18px; color: var(--accent);"></i> Elite Service Logs
-            </h3>
-            
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <div style="font-weight: 700; color: var(--text); font-size: 0.88rem;">Close Protection Transit (Armed)</div>
-                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Airport Transfer to Summit Centre &bull; May 14, 2026</div>
-                    </div>
-                    <span style="font-size: 0.74rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 8px;">Completed</span>
+        <!-- PENDING REQUESTS -->
+        @if (pendingList.Any())
+        {
+            <div class="dk-card dk-card-pad">
+                <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 18px;">
+                    <i data-lucide="clock" style="width:18px; height:18px; color: var(--yellow);"></i>
+                    Awaiting Approval
+                    <span style="margin-left: 4px; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; background: rgba(217,119,6,0.1); color: var(--yellow); border-radius: 100px; border: 1px solid rgba(217,119,6,0.2);">@pendingList.Count</span>
+                </h2>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    @foreach (var req in pendingList)
+                    {
+                        <div style="padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(217,119,6,0.2); background: rgba(217,119,6,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <div style="font-weight: 700; color: var(--text); font-size: 0.88rem;">@req.ProtectionType</div>
+                                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">
+                                    @req.NumberOfGuards Officer@(req.NumberOfGuards > 1 ? "s" : "") &bull; @req.Duration &bull; Filed @req.CreatedAt.ToString("dd MMM yyyy")
+                                </div>
+                            </div>
+                            <span style="padding: 4px 10px; border-radius: 100px; font-size: 0.74rem; font-weight: 700; background: rgba(217,119,6,0.1); color: var(--yellow); border: 1px solid rgba(217,119,6,0.2);">
+                                <span style="width:5px; height:5px; border-radius:50%; background: var(--yellow); display:inline-block; margin-right:3px;"></span>
+                                Pending Review
+                            </span>
+                        </div>
+                    }
                 </div>
             </div>
+        }
+
+        <!-- SERVICE HISTORY -->
+        <div class="dk-card dk-card-pad">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i data-lucide="history" style="width:18px; height:18px; color: var(--accent);"></i> Service History
+                </h2>
+                <a asp-controller="VIPRequest" asp-action="MyRequests" style="font-size: 0.78rem; color: var(--accent); text-decoration: none; font-weight: 600;">
+                    View All <i data-lucide="arrow-right" style="width:13px; height:13px; display:inline-block; vertical-align:-2px;"></i>
+                </a>
+            </div>
+
+            @if (!historyList.Any())
+            {
+                <div style="text-align: center; padding: 28px; color: var(--text-muted); font-size: 0.84rem; border: 1px dashed var(--border); border-radius: 12px;">
+                    No completed or cancelled services yet.
+                </div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    @foreach (var req in historyList)
+                    {
+                        var (hBg, hFg) = req.Status switch
+                        {
+                            "Completed" => ("rgba(52,211,153,0.08)", "var(--green)"),
+                            "Rejected"  => ("rgba(239,68,68,0.08)",  "var(--red)"),
+                            _           => ("rgba(100,116,139,0.08)","var(--text-muted)")
+                        };
+                        <div style="padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <div style="font-weight: 700; color: var(--text); font-size: 0.85rem;">@req.ProtectionType</div>
+                                <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                                    @req.Duration &bull; @req.CreatedAt.ToString("dd MMM yyyy")
+                                </div>
+                            </div>
+                            <span style="padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; background: @hBg; color: @hFg; border: 1px solid @hBg;">
+                                @req.Status
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
         </div>
 
     </div>
 
-    <!-- Right: Elite Support & Hotlines -->
-    <div style="display: flex; flex-direction: column; gap: 24px;">
-        <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(255,255,255,0.3)); border-color: rgba(239, 68, 68, 0.25);">
-            <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--text); margin: 0 0 8px; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="phone-forwarded" style="width: 16px; height: 16px; color: var(--red);"></i> Priority Tactical Support
+    <!-- RIGHT COLUMN -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+        <!-- QUICK ACTIONS -->
+        <div class="dk-card dk-card-pad">
+            <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--text); margin: 0 0 14px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="zap" style="width:16px; height:16px; color: var(--accent);"></i> Quick Actions
             </h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px;">
-                Elite accounts receive guaranteed sub-15 minute tactical response dispatch. Use the priority hotline for immediate security concerns.
-            </p>
-            <div style="font-size: 0.88rem; font-weight: 800; color: var(--red); display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="phone-call" style="width: 14px; height: 14px;"></i> Elite Hotline: +1 (800) Vanguard-VIP
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a asp-controller="VIPRequest" asp-action="Create" class="dk-btn dk-btn-primary" style="justify-content: flex-start; width: 100%;">
+                    <i data-lucide="shield-plus" style="width:15px; height:15px;"></i> Request Elite Protection
+                </a>
+                <a asp-controller="VIPRequest" asp-action="MyRequests" class="dk-btn dk-btn-ghost" style="justify-content: flex-start; width: 100%;">
+                    <i data-lucide="list" style="width:15px; height:15px;"></i> All My Requests
+                </a>
+                <a asp-controller="VIPRequest" asp-action="MyRequests" class="dk-btn dk-btn-ghost" style="justify-content: flex-start; width: 100%;">
+                    <i data-lucide="history" style="width:15px; height:15px;"></i> Service History
+                </a>
             </div>
         </div>
 
-        <div class="dk-card dk-card-pad">
-            <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--text); margin: 0 0 12px; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--accent);"></i> Tactical Guard Standard
+        <!-- PRIORITY SUPPORT -->
+        <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(255,255,255,0.3)); border-color: rgba(239,68,68,0.2);">
+            <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--text); margin: 0 0 8px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="phone-forwarded" style="width:16px; height:16px; color: var(--red);"></i> Priority Tactical Support
             </h3>
-            <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                All security officers assigned to elite details possess a minimum of 5 years tactical training, hold specialized close-protection licenses, and are subject to continuous psychological auditing.
+            <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 12px;">
+                Sub-15 minute tactical response dispatch guaranteed for elite accounts.
             </p>
+            <div style="font-size: 0.85rem; font-weight: 800; color: var(--red); display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="phone-call" style="width:14px; height:14px;"></i> +1 (800) VANGUARD-VIP
+            </div>
         </div>
+
+        <!-- ELITE STANDARD -->
+        <div class="dk-card dk-card-pad">
+            <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--text); margin: 0 0 10px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="shield" style="width:16px; height:16px; color: var(--accent);"></i> Elite Guard Standard
+            </h3>
+            <ul style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.8; padding-left: 18px; margin: 0;">
+                <li>Min. 5 years tactical training</li>
+                <li>Advanced close-protection certification</li>
+                <li>Psychological screening every 6 months</li>
+                <li>Valid armed license (if armed detail)</li>
+                <li>Direct chain of command reporting</li>
+            </ul>
+        </div>
+
     </div>
 </div>
