@@ -41,6 +41,13 @@ public class VipApplicationService : IVipApplicationService
             "Your VIP application has been submitted and is under review.",
             "Info");
 
+        // Notify all admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "New VIP Application Received 📋",
+            $"A client has submitted a new VIP application. Please review it in the Admin Panel.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -77,6 +84,13 @@ public class VipApplicationService : IVipApplicationService
             "Congratulations! Your VIP application has been approved. You now have VIP Client access.",
             "Info");
 
+        // Notify admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "VIP Application Approved ✅",
+            $"A VIP application has been approved and the client has been upgraded to VIP status.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -93,6 +107,13 @@ public class VipApplicationService : IVipApplicationService
             application.ClientId,
             "VIP Application Rejected",
             "Your VIP application was not approved at this time. Please contact support for details.",
+            "Warning");
+
+        // Notify admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "VIP Application Rejected",
+            "A VIP application has been rejected.",
             "Warning");
 
         return (true, string.Empty);

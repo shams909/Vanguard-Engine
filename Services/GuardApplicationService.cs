@@ -51,6 +51,13 @@ public class GuardApplicationService : IGuardApplicationService
             "Your guard application has been received and is under review by our team.",
             "Info");
 
+        // Notify all admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "New Guard Application Received 📝",
+            $"A new guard application has been submitted. Please review it in the Admin Panel.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -97,6 +104,13 @@ public class GuardApplicationService : IGuardApplicationService
             "Congratulations! Your guard application has been approved. You are now an active guard.",
             "Info");
 
+        // Notify admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "Guard Application Approved ✅",
+            "A guard application has been approved. The guard is now active.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -119,6 +133,13 @@ public class GuardApplicationService : IGuardApplicationService
             application.UserId,
             "Guard Application Not Approved",
             "Unfortunately your guard application was not approved at this time. You may re-apply in the future.",
+            "Warning");
+
+        // Notify admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "Guard Application Rejected",
+            "A guard application has been rejected.",
             "Warning");
 
         return (true, string.Empty);

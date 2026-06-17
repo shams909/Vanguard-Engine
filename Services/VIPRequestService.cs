@@ -70,6 +70,13 @@ public class VIPRequestService : IVIPRequestService
             $"Your VIP protection request ({request.ProtectionType}) has been submitted and is awaiting review.",
             "Info");
 
+        // Notify all admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "New VIP Protection Request 🛡️",
+            $"A VIP client has submitted a new protection request ({request.ProtectionType}). Please review it in the Admin Panel.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -106,6 +113,13 @@ public class VIPRequestService : IVIPRequestService
             $"Your VIP protection request ({existing.ProtectionType}) has been approved. Guards will be assigned shortly.",
             "Info");
 
+        // Notify admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "VIP Request Approved",
+            $"VIP protection request ({existing.ProtectionType}) has been approved. Please assign guards.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -123,6 +137,13 @@ public class VIPRequestService : IVIPRequestService
             existing.VipClientId,
             "VIP Request Rejected",
             $"Your VIP protection request ({existing.ProtectionType}) was not approved. Please contact support.",
+            "Warning");
+
+        // Notify admins
+        await _notificationService.NotifyRoleAsync(
+            "Admin",
+            "VIP Request Rejected",
+            $"A VIP protection request ({existing.ProtectionType}) has been rejected.",
             "Warning");
 
         return (true, string.Empty);

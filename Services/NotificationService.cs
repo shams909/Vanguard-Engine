@@ -24,6 +24,8 @@ public class NotificationService : INotificationService
         _logger = logger;
     }
 
+    // ── Send to a specific user ───────────────────────────────────────────────
+
     public async Task CreateNotificationAsync(string userId, string title, string message, string type = "Info")
     {
         if (string.IsNullOrWhiteSpace(userId)) return;
@@ -39,18 +41,14 @@ public class NotificationService : INotificationService
             Expiration = DateTime.UtcNow.AddDays(30)
         };
 
-        // Persist — silent fail so notifications never crash the main flow
-        try
-        {
-            await _unitOfWork.Notifications.AddAsync(notification);
-        }
+        try { await _unitOfWork.Notifications.AddAsync(notification); }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "[Notifications] Failed to persist notification for user {UserId}. " +
-                                   "Check that the 'notifications' collection exists in Appwrite.", userId);
+            _logger.LogWarning(ex,
+                "[Notifications] Failed to persist notification for user {UserId}. " +
+                "Ensure 'notifications' collection exists in Appwrite.", userId);
         }
 
-        // Real-time push — also silent fail
         try
         {
             await _hubContext.Clients.Group(userId).SendAsync("ReceiveNotification", new
@@ -65,9 +63,60 @@ public class NotificationService : INotificationService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "[Notifications] Failed to push SignalR notification for user {UserId}.", userId);
+            _logger.LogWarning(ex,
+                "[Notifications] SignalR push failed for user {UserId}.", userId);
         }
     }
+
+    // ── Send to every user with a given role name (e.g. "Admin") ─────────────
+
+    public async Task NotifyRoleAsync(string roleName, string title, string message, string type = "Info")
+    {
+        try
+        {
+            // 1. Find the role document by name
+            var role = await _unitOfWork.Roles.GetByNameAsync(roleName);
+            if (role == null)
+            {
+                _logger.LogWarning("[Notifications] Role '{Role}' not found – skipping admin notification.", roleName);
+                return;
+            }
+
+            // 2. Page through users that have this roleId
+            int page = 1;
+            const int pageSize = 50;
+            var adminIds = new List<string>();
+
+            while (true)
+            {
+                var users = await _unitOfWork.Users.GetPagedAsync(page, pageSize);
+                if (users == null || users.Count == 0) break;
+
+                foreach (var u in users)
+                    if (u.RoleId == role.Id && !string.IsNullOrWhiteSpace(u.Id))
+                        adminIds.Add(u.Id);
+
+                if (users.Count < pageSize) break;
+                page++;
+            }
+
+            if (adminIds.Count == 0)
+            {
+                _logger.LogWarning("[Notifications] No users found with role '{Role}'.", roleName);
+                return;
+            }
+
+            // 3. Send notification to every admin
+            var tasks = adminIds.Select(id => CreateNotificationAsync(id, title, message, type));
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[Notifications] NotifyRoleAsync failed for role '{Role}'.", roleName);
+        }
+    }
+
+    // ── Queries ───────────────────────────────────────────────────────────────
 
     public async Task<List<Notification>> GetUserNotificationsAsync(string userId, int page = 1, int pageSize = 20)
     {
@@ -86,10 +135,7 @@ public class NotificationService : INotificationService
 
     public async Task<int> GetUnreadCountAsync(string userId)
     {
-        try
-        {
-            return await _unitOfWork.Notifications.GetUnreadCountAsync(userId);
-        }
+        try   { return await _unitOfWork.Notifications.GetUnreadCountAsync(userId); }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "[Notifications] Failed to get unread count for user {UserId}.", userId);
@@ -99,13 +145,10 @@ public class NotificationService : INotificationService
 
     public async Task MarkAsReadAsync(string notificationId)
     {
-        try
-        {
-            await _unitOfWork.Notifications.MarkAsReadAsync(notificationId);
-        }
+        try   { await _unitOfWork.Notifications.MarkAsReadAsync(notificationId); }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "[Notifications] Failed to mark notification {Id} as read.", notificationId);
+            _logger.LogWarning(ex, "[Notifications] Failed to mark {Id} as read.", notificationId);
         }
     }
 }
