@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Vanguard_Engine.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/notifications")]
 [Authorize]
 public class NotificationController : ControllerBase
 {
@@ -19,22 +18,52 @@ public class NotificationController : ControllerBase
         _notificationService = notificationService;
     }
 
-    [HttpGet("unread")]
-    public async Task<ActionResult<List<Notification>>> GetUnread([FromQuery] string userId)
+    // GET /api/notifications?userId=xxx
+    [HttpGet]
+    public async Task<IActionResult> GetNotifications([FromQuery] string? userId)
     {
-        var notifications = await _notificationService.GetUserNotificationsAsync(userId, 1, 20);
-        return Ok(notifications);
+        var uid = userId ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var notifications = await _notificationService.GetUserNotificationsAsync(uid, 1, 30);
+        var unread = notifications.Count(n => !n.IsRead);
+        return Ok(new { notifications, unreadCount = unread });
     }
 
-    [HttpPost("markread")]
-    public async Task<IActionResult> MarkRead([FromBody] MarkReadRequest request)
+    // GET /api/notifications/unread-count?userId=xxx
+    [HttpGet("unread-count")]
+    public async Task<IActionResult> GetUnreadCount([FromQuery] string? userId)
     {
-        await _notificationService.MarkAsReadAsync(request.NotificationId);
+        var uid = userId ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var count = await _notificationService.GetUnreadCountAsync(uid);
+        return Ok(new { count });
+    }
+
+    // PATCH /api/notifications/{id}/read
+    [HttpPatch("{id}/read")]
+    public async Task<IActionResult> MarkRead(string id)
+    {
+        await _notificationService.MarkAsReadAsync(id);
         return NoContent();
     }
+
+    // POST /api/notifications  (for testing / internal use)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateNotificationRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.UserId) || string.IsNullOrWhiteSpace(req.Message))
+            return BadRequest("UserId and Message are required.");
+
+        await _notificationService.CreateNotificationAsync(
+            req.UserId,
+            req.Title ?? "Notification",
+            req.Message,
+            req.Type ?? "Info");
+
+        return Created("", null);
+    }
 }
 
-public class MarkReadRequest
-{
-    public string NotificationId { get; set; } = string.Empty;
-}
+public record CreateNotificationRequest(
+    string? UserId,
+    string? Title,
+    string? Message,
+    string? Type);
