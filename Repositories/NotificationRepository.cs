@@ -1,7 +1,7 @@
 using Appwrite;
+using Newtonsoft.Json;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.Services;
-using Vanguard_Engine.Repositories;
 
 namespace Vanguard_Engine.Repositories;
 
@@ -12,12 +12,19 @@ public class NotificationRepository : AppwriteRepository<Notification>, INotific
     {
     }
 
+    // ── Queries ───────────────────────────────────────────────────────────────
+
     public async Task<List<Notification>> GetByUserIdAsync(string userId)
     {
         var result = await _databases.ListDocuments(
             databaseId: _databaseId,
             collectionId: _collectionId,
-            queries: new List<string> { Query.Equal("userId", userId), Query.OrderDesc("$createdAt") }
+            queries: new List<string>
+            {
+                Query.Equal("userId", userId),
+                Query.OrderDesc("$createdAt"),
+                Query.Limit(50)
+            }
         );
         return result.Documents.Select(d => MapToEntity(d)!).ToList();
     }
@@ -27,9 +34,13 @@ public class NotificationRepository : AppwriteRepository<Notification>, INotific
         var result = await _databases.ListDocuments(
             databaseId: _databaseId,
             collectionId: _collectionId,
-            queries: new List<string> { Query.Equal("userId", userId), Query.Equal("isRead", false) }
+            queries: new List<string>
+            {
+                Query.Equal("userId", userId),
+                Query.Equal("isRead", false)
+            }
         );
-        return result.Documents.Count;
+        return (int)result.Total;
     }
 
     public async Task MarkAsReadAsync(string notificationId)
@@ -40,5 +51,60 @@ public class NotificationRepository : AppwriteRepository<Notification>, INotific
             documentId: notificationId,
             data: new Dictionary<string, object> { { "isRead", true } }
         );
+    }
+
+    // ── Override AddAsync with explicit field mapping ──────────────────────
+    // The base class uses Pascal-case JSON serialization which doesn't match
+    // the Appwrite attribute names (camelCase). We explicitly map fields here.
+
+    public override async Task AddAsync(Notification n)
+    {
+        await _databases.CreateDocument(
+            databaseId: _databaseId,
+            collectionId: _collectionId,
+            documentId: ID.Unique(),
+            data: BuildData(n)
+        );
+    }
+
+    // ── MapToEntity override to handle camelCase → PascalCase mapping ─────
+    protected new Notification? MapToEntity(Appwrite.Models.Document document)
+    {
+        if (document == null) return null;
+
+        var d = document.Data;
+
+        return new Notification
+        {
+            Id         = document.Id,
+            UserId     = d.TryGetValue("userId",     out var uid)  ? uid?.ToString()  ?? "" : "",
+            Title      = d.TryGetValue("title",      out var t)    ? t?.ToString()    ?? "" : "",
+            Message    = d.TryGetValue("message",    out var msg)  ? msg?.ToString()  ?? "" : "",
+            Type       = d.TryGetValue("type",       out var typ)  ? typ?.ToString()  ?? "Info" : "Info",
+            IsRead     = d.TryGetValue("isRead",     out var ir)   && ir is bool b && b,
+            CreatedAt  = DateTime.TryParse(document.CreatedAt, out var ca) ? ca : DateTime.UtcNow,
+            Expiration = d.TryGetValue("expiration", out var exp) && exp != null
+                             ? (DateTime.TryParse(exp.ToString(), out var ed) ? ed : (DateTime?)null)
+                             : null
+        };
+    }
+
+    // ── Private helper ────────────────────────────────────────────────────
+
+    private static Dictionary<string, object> BuildData(Notification n)
+    {
+        var data = new Dictionary<string, object>
+        {
+            { "userId",  n.UserId },
+            { "title",   n.Title },
+            { "message", n.Message },
+            { "type",    n.Type },
+            { "isRead",  n.IsRead }
+        };
+
+        if (n.Expiration.HasValue)
+            data["expiration"] = n.Expiration.Value.ToString("o"); // ISO 8601
+
+        return data;
     }
 }

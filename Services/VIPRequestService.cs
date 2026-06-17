@@ -6,6 +6,7 @@ namespace Vanguard_Engine.Services;
 public class VIPRequestService : IVIPRequestService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
 
     private static readonly Dictionary<string, HashSet<string>> _allowedTransitions = new()
     {
@@ -18,9 +19,10 @@ public class VIPRequestService : IVIPRequestService
         { "Cancelled", new() { } },
     };
 
-    public VIPRequestService(IUnitOfWork unitOfWork)
+    public VIPRequestService(IUnitOfWork unitOfWork, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
     }
 
     // ── Queries ───────────────────────────────────────────────────────────────
@@ -50,16 +52,24 @@ public class VIPRequestService : IVIPRequestService
 
     public async Task<(bool Success, string Error)> CreateRequestAsync(VIPRequest request)
     {
-        if (request == null)                               return (false, "Request payload cannot be empty.");
+        if (request == null)                                  return (false, "Request payload cannot be empty.");
         if (string.IsNullOrWhiteSpace(request.VipClientId))  return (false, "Client identity is required.");
         if (string.IsNullOrWhiteSpace(request.ProtectionType)) return (false, "Protection type is required.");
-        if (request.NumberOfGuards <= 0)                   return (false, "At least one elite officer must be requested.");
-        if (request.NumberOfGuards > 20)                   return (false, "Elite tier is capped at 20 officers per deployment.");
-        if (string.IsNullOrWhiteSpace(request.Duration))   return (false, "Service duration is required.");
+        if (request.NumberOfGuards <= 0)                      return (false, "At least one elite officer must be requested.");
+        if (request.NumberOfGuards > 20)                      return (false, "Elite tier is capped at 20 officers per deployment.");
+        if (string.IsNullOrWhiteSpace(request.Duration))      return (false, "Service duration is required.");
 
         request.Status = "Pending";
         request.AssignedGuardIds = new List<string>();
         await _unitOfWork.VipRequests.AddAsync(request);
+
+        // Notify the requesting client
+        await _notificationService.CreateNotificationAsync(
+            request.VipClientId,
+            "VIP Request Submitted",
+            $"Your VIP protection request ({request.ProtectionType}) has been submitted and is awaiting review.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -86,7 +96,16 @@ public class VIPRequestService : IVIPRequestService
         if (existing == null) return (false, "VIP request not found.");
         if (existing.Status != "Pending")
             return (false, $"Only Pending requests can be approved. Current status: '{existing.Status}'.");
+
         await _unitOfWork.VipRequests.UpdateStatusAsync(id, "Approved");
+
+        // Notify client
+        await _notificationService.CreateNotificationAsync(
+            existing.VipClientId,
+            "VIP Request Approved ✅",
+            $"Your VIP protection request ({existing.ProtectionType}) has been approved. Guards will be assigned shortly.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -96,7 +115,16 @@ public class VIPRequestService : IVIPRequestService
         if (existing == null) return (false, "VIP request not found.");
         if (existing.Status != "Pending")
             return (false, $"Only Pending requests can be rejected. Current status: '{existing.Status}'.");
+
         await _unitOfWork.VipRequests.UpdateStatusAsync(id, "Rejected");
+
+        // Notify client
+        await _notificationService.CreateNotificationAsync(
+            existing.VipClientId,
+            "VIP Request Rejected",
+            $"Your VIP protection request ({existing.ProtectionType}) was not approved. Please contact support.",
+            "Warning");
+
         return (true, string.Empty);
     }
 
@@ -108,11 +136,15 @@ public class VIPRequestService : IVIPRequestService
         if (existing.Status != "Active" && existing.Status != "Assigned")
             return (false, $"Only Active or Assigned services can be marked completed. Current status: '{existing.Status}'.");
 
-        // Complete the request
         await _unitOfWork.VipRequests.UpdateStatusAsync(id, "Completed");
-
-        // ── Auto-release assigned guards: Busy → Available ──────────────
         await ReleaseGuardsAsync(existing.AssignedGuardIds);
+
+        // Notify client
+        await _notificationService.CreateNotificationAsync(
+            existing.VipClientId,
+            "VIP Protection Completed",
+            $"Your VIP protection service ({existing.ProtectionType}) has been marked as completed.",
+            "Info");
 
         return (true, string.Empty);
     }
@@ -123,14 +155,12 @@ public class VIPRequestService : IVIPRequestService
     {
         var allApps = await _unitOfWork.GuardApplications.GetAllAsync();
 
-        // General profiles only (no jobId), status=Approved, guardStatus=Available
         var eligibleProfiles = allApps
             .Where(a => string.IsNullOrEmpty(a.JobId) &&
                         a.Status == "Approved" &&
                         a.GuardStatus == "Available")
             .ToList();
 
-        // Exclude guards already in an active VIP request
         var activeVipRequests = await _unitOfWork.VipRequests.GetAllAsync();
         var busyInVip = activeVipRequests
             .Where(r => r.Status is "Assigned" or "Active")
@@ -154,21 +184,18 @@ public class VIPRequestService : IVIPRequestService
         if (guardUserIds.Count > request.NumberOfGuards)
             return (false, $"You are assigning {guardUserIds.Count} officers but the request only requires {request.NumberOfGuards}.");
 
-        // Validate every selected guard is still eligible
         var eligibleGuards = await GetEligibleGuardsAsync();
         var eligibleUserIds = eligibleGuards.Select(g => g.UserId).ToHashSet();
 
         foreach (var uid in guardUserIds)
         {
             if (!eligibleUserIds.Contains(uid))
-                return (false, $"One or more selected officers are no longer available. Please refresh the list.");
+                return (false, "One or more selected officers are no longer available. Please refresh the list.");
         }
 
-        // Save assignment and transition to Assigned
         await _unitOfWork.VipRequests.UpdateAssignedGuardsAsync(requestId, guardUserIds);
         await _unitOfWork.VipRequests.UpdateStatusAsync(requestId, "Assigned");
 
-        // Mark every assigned guard as Busy (general profile)
         var allApps = await _unitOfWork.GuardApplications.GetAllAsync();
         foreach (var uid in guardUserIds)
         {
@@ -176,7 +203,21 @@ public class VIPRequestService : IVIPRequestService
                 a.UserId == uid && (string.IsNullOrEmpty(a.JobId) || a.JobId == ""));
             if (profile != null)
                 await _unitOfWork.GuardApplications.UpdateGuardStatusAsync(profile.Id, "Busy");
+
+            // Notify each assigned guard
+            await _notificationService.CreateNotificationAsync(
+                uid,
+                "You've Been Assigned to a VIP Mission 🛡️",
+                $"You have been assigned to a VIP protection detail ({request.ProtectionType}). Please report for duty.",
+                "Info");
         }
+
+        // Notify the requesting client
+        await _notificationService.CreateNotificationAsync(
+            request.VipClientId,
+            "Guards Assigned to Your Request",
+            $"Elite officers have been assigned to your VIP protection request ({request.ProtectionType}).",
+            "Info");
 
         return (true, string.Empty);
     }
@@ -193,6 +234,14 @@ public class VIPRequestService : IVIPRequestService
             return (false, "Cannot start protection — no officers have been assigned yet.");
 
         await _unitOfWork.VipRequests.UpdateStatusAsync(id, "Active");
+
+        // Notify the client
+        await _notificationService.CreateNotificationAsync(
+            existing.VipClientId,
+            "Protection Service is Now Active 🟢",
+            $"Your VIP protection detail ({existing.ProtectionType}) is now active.",
+            "Info");
+
         return (true, string.Empty);
     }
 
@@ -231,7 +280,6 @@ public class VIPRequestService : IVIPRequestService
         var allApps = await _unitOfWork.GuardApplications.GetAllAsync();
         foreach (var uid in guardIds)
         {
-            // Release general profile: Busy → Available
             var general = allApps.FirstOrDefault(a =>
                 a.UserId == uid && (string.IsNullOrEmpty(a.JobId) || a.JobId == ""));
             if (general != null)
