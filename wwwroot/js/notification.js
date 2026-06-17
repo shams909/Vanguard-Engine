@@ -1,56 +1,115 @@
 /**
  * notification.js
- * Handles real-time notifications via SignalR with polling fallback.
+ * Slide-in sidebar notification panel with SignalR + polling fallback.
  */
 (function () {
     'use strict';
 
     const userId = document.querySelector('meta[name="user-id"]')?.content;
-    if (!userId) return; // Not logged in – nothing to do
+    if (!userId) return;
 
-    const badge = document.getElementById('notif-badge');
-    const list  = document.getElementById('notif-list');
-    const bell  = document.getElementById('notif-bell');
-    const dropdown = document.getElementById('notif-dropdown');
+    /* ─── Elements ──────────────────────────────────────────── */
+    const bell      = document.getElementById('notif-bell');
+    const badge     = document.getElementById('notif-badge');
+    const sidebar   = document.getElementById('notif-sidebar');
+    const overlay   = document.getElementById('notif-overlay');
+    const list      = document.getElementById('notif-list');
+    const closeBtn  = document.getElementById('notif-close');
+    const markAllBtn= document.getElementById('notif-mark-all');
 
     let unreadCount = 0;
+    let isOpen      = false;
 
-    /* ─── helpers ─────────────────────────────────────────── */
+    /* ─── Sidebar open / close ──────────────────────────────── */
+    function openSidebar() {
+        if (!sidebar || !overlay) return;
+        isOpen = true;
+        overlay.classList.add('open');
+        requestAnimationFrame(() => overlay.classList.add('visible'));
+        sidebar.classList.add('open');
+        bell?.classList.add('active');
+        document.body.style.overflow = 'hidden'; // prevent background scroll
+        // Re-init icons inside sidebar (X button)
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeSidebar() {
+        if (!sidebar || !overlay) return;
+        isOpen = false;
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        bell?.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => overlay.classList.remove('open'), 280);
+    }
+
+    if (bell)     bell.addEventListener('click', () => isOpen ? closeSidebar() : openSidebar());
+    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+    if (overlay)  overlay.addEventListener('click', closeSidebar);
+
+    // ESC key to close
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) closeSidebar(); });
+
+    /* ─── Badge ─────────────────────────────────────────────── */
     function updateBadge(n) {
-        unreadCount = n;
+        unreadCount = Math.max(0, n);
         if (!badge) return;
-        badge.textContent = n > 0 ? (n > 99 ? '99+' : n) : '';
-        badge.style.display = n > 0 ? 'flex' : 'none';
+        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+
+    /* ─── Mark all read ─────────────────────────────────────── */
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', () => {
+            list?.querySelectorAll('.notif-item.notif-unread').forEach(el => markRead(el, false));
+            updateBadge(0);
+        });
+    }
+
+    /* ─── Notification item ─────────────────────────────────── */
+    const TYPE_ICONS = {
+        info:     '💬',
+        warning:  '⚠️',
+        critical: '🚨',
+    };
+
+    function buildItem(notif) {
+        const el = document.createElement('div');
+        el.className = 'notif-item notif-unread';
+        el.dataset.id = notif.id ?? notif.Id ?? '';
+
+        const raw  = (notif.type ?? notif.Type ?? 'info').toLowerCase();
+        const type = ['info','warning','critical'].includes(raw) ? raw : 'info';
+        const icon = TYPE_ICONS[type] ?? '💬';
+
+        el.innerHTML = `
+            <div class="notif-icon-wrap notif-icon-${type}">${icon}</div>
+            <div class="notif-body">
+                <p class="notif-title">${escHtml(notif.title ?? notif.Title ?? 'Notification')}</p>
+                <p class="notif-msg">${escHtml(notif.message ?? notif.Message ?? '')}</p>
+                <p class="notif-time">⏱ ${timeAgo(notif.createdAt ?? notif.CreatedAt)}</p>
+            </div>`;
+
+        el.addEventListener('click', () => markRead(el));
+        return el;
     }
 
     function prependNotification(notif) {
         if (!list) return;
         const empty = list.querySelector('.notif-empty');
         if (empty) empty.remove();
-
-        const el = document.createElement('div');
-        el.className = 'notif-item notif-unread';
-        el.dataset.id = notif.id ?? notif.Id ?? '';
-        const typeClass = (notif.type ?? notif.Type ?? 'Info').toLowerCase();
-        el.innerHTML = `
-            <span class="notif-type-dot notif-type-${typeClass}"></span>
-            <div class="notif-body">
-                <p class="notif-title">${escHtml(notif.title ?? notif.Title ?? 'Notification')}</p>
-                <p class="notif-msg">${escHtml(notif.message ?? notif.Message ?? '')}</p>
-                <p class="notif-time">${timeAgo(notif.createdAt ?? notif.CreatedAt)}</p>
-            </div>`;
-        el.addEventListener('click', () => markRead(el));
-        list.prepend(el);
+        list.prepend(buildItem(notif));
     }
 
-    function markRead(el) {
-        const id = el?.dataset?.id;
-        if (!id) return;
+    function markRead(el, updateBadgeCount = true) {
+        if (!el || !el.classList.contains('notif-unread')) return;
         el.classList.remove('notif-unread');
-        updateBadge(Math.max(0, unreadCount - 1));
-        fetch(`/api/notifications/${id}/read`, { method: 'PATCH' }).catch(() => {});
+        if (updateBadgeCount) updateBadge(unreadCount - 1);
+        const id = el.dataset?.id;
+        if (id) fetch(`/api/notifications/${id}/read`, { method: 'PATCH' }).catch(() => {});
     }
 
+    /* ─── Helpers ───────────────────────────────────────────── */
     function escHtml(s) {
         return String(s ?? '')
             .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -68,25 +127,40 @@
         return `${Math.floor(h / 24)}d ago`;
     }
 
-    /* ─── load initial notifications ──────────────────────── */
+    /* ─── Load initial ──────────────────────────────────────── */
     async function loadInitial() {
         try {
             const res  = await fetch(`/api/notifications?userId=${encodeURIComponent(userId)}`);
             if (!res.ok) return;
-            const data = await res.json();
-            const items   = Array.isArray(data) ? data : (data.notifications ?? data.items ?? []);
-            const unread  = typeof data.unreadCount === 'number' ? data.unreadCount : items.filter(n => !(n.isRead ?? n.IsRead)).length;
+            const data  = await res.json();
+            const items  = Array.isArray(data) ? data : (data.notifications ?? []);
+            const unread = typeof data.unreadCount === 'number'
+                ? data.unreadCount
+                : items.filter(n => !(n.isRead ?? n.IsRead)).length;
+
             updateBadge(unread);
-            if (list) {
-                list.innerHTML = items.length === 0
-                    ? '<div class="notif-empty">No notifications yet</div>'
-                    : '';
-                items.forEach(n => prependNotification(n));
+
+            if (!list) return;
+            if (items.length === 0) {
+                list.innerHTML = `
+                    <div class="notif-empty">
+                        <div class="notif-empty-icon">🔕</div>
+                        <div class="notif-empty-text">All caught up!</div>
+                        <div class="notif-empty-sub">No notifications yet.</div>
+                    </div>`;
+            } else {
+                list.innerHTML = '';
+                items.forEach(n => list.appendChild(buildItem(n)));
+                // mark already-read ones
+                list.querySelectorAll('.notif-item').forEach((el, i) => {
+                    const n = items[i];
+                    if (n?.isRead ?? n?.IsRead) el.classList.remove('notif-unread');
+                });
             }
         } catch (_) {}
     }
 
-    /* ─── polling fallback ────────────────────────────────── */
+    /* ─── Polling fallback ──────────────────────────────────── */
     let pollingTimer = null;
     function startPolling() {
         if (pollingTimer) return;
@@ -95,14 +169,13 @@
                 const res = await fetch(`/api/notifications/unread-count?userId=${encodeURIComponent(userId)}`);
                 if (res.ok) {
                     const data = await res.json();
-                    const n = typeof data === 'number' ? data : (data.count ?? 0);
-                    updateBadge(n);
+                    updateBadge(typeof data === 'number' ? data : (data.count ?? 0));
                 }
             } catch (_) {}
-        }, 30000); // every 30 seconds
+        }, 30000);
     }
 
-    /* ─── SignalR ─────────────────────────────────────────── */
+    /* ─── SignalR ───────────────────────────────────────────── */
     function startSignalR() {
         if (typeof signalR === 'undefined') {
             console.warn('[Notifications] SignalR not loaded – using polling only.');
@@ -118,6 +191,12 @@
         connection.on('ReceiveNotification', (notif) => {
             prependNotification(notif);
             updateBadge(unreadCount + 1);
+            // Subtle bell shake
+            bell?.animate([
+                { transform: 'rotate(-15deg)' }, { transform: 'rotate(15deg)' },
+                { transform: 'rotate(-10deg)' }, { transform: 'rotate(10deg)' },
+                { transform: 'rotate(0deg)' }
+            ], { duration: 500, easing: 'ease-in-out' });
         });
 
         connection.start()
@@ -130,21 +209,7 @@
         connection.onclose(() => startPolling());
     }
 
-    /* ─── bell toggle ─────────────────────────────────────── */
-    if (bell && dropdown) {
-        bell.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const open = dropdown.classList.toggle('notif-open');
-            if (open) {
-                // Mark visible unread items as read
-                dropdown.querySelectorAll('.notif-unread').forEach(el => markRead(el));
-            }
-        });
-        document.addEventListener('click', () => dropdown.classList.remove('notif-open'));
-        dropdown.addEventListener('click', e => e.stopPropagation());
-    }
-
-    /* ─── init ────────────────────────────────────────────── */
+    /* ─── Init ──────────────────────────────────────────────── */
     loadInitial();
     startSignalR();
 })();

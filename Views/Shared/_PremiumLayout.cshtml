@@ -146,47 +146,139 @@
         .notif-bell-btn {
             position: relative; background: none; border: 1px solid var(--border);
             border-radius: 12px; padding: 7px 10px; cursor: pointer; color: var(--text-sub);
-            display: flex; align-items: center; transition: all 0.15s;
+            display: flex; align-items: center; transition: all 0.15s; flex-shrink: 0;
         }
         .notif-bell-btn:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border-strong); }
+        .notif-bell-btn.active { background: rgba(180,83,9,0.1); color: var(--accent); border-color: rgba(180,83,9,0.3); }
         .notif-badge {
             position: absolute; top: -6px; right: -6px;
             background: var(--red); color: #fff; border-radius: 999px;
             min-width: 18px; height: 18px; font-size: 0.65rem; font-weight: 700;
             display: flex; align-items: center; justify-content: center; padding: 0 4px;
-            border: 2px solid var(--bg); line-height: 1;
+            border: 2px solid var(--bg); line-height: 1; pointer-events: none;
         }
-        .notif-dropdown {
-            display: none; position: absolute; top: calc(100% + 10px); right: 0;
-            width: 320px; background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(24px); border: 1px solid var(--border);
-            border-radius: 18px; box-shadow: var(--shadow-md); z-index: 2000;
-            overflow: hidden; animation: notif-fade 0.18s ease;
+
+        /* ─── NOTIFICATION OVERLAY ─── */
+        .notif-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(2px);
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.25s ease;
         }
-        .notif-dropdown.notif-open { display: block; }
-        @@keyframes notif-fade { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
-        .notif-header {
-            padding: 14px 16px 10px; font-size: 0.78rem; font-weight: 700;
-            color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.08em;
+        .notif-overlay.open { display: block; }
+        .notif-overlay.visible { opacity: 1; }
+
+        /* ─── NOTIFICATION SIDEBAR DRAWER ─── */
+        .notif-sidebar {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 380px;
+            max-width: 100vw;
+            background: #faf7f4;
+            border-left: 1px solid var(--border);
+            box-shadow: -8px 0 40px rgba(67,40,24,0.12);
+            z-index: 3001;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
-        .notif-list { max-height: 340px; overflow-y: auto; }
+        .notif-sidebar.open { transform: translateX(0); }
+
+        /* Sidebar header */
+        .notif-sb-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            flex-shrink: 0;
+        }
+        .notif-sb-title {
+            font-size: 1rem; font-weight: 800; color: var(--text);
+            display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px;
+        }
+        .notif-sb-title .nb-icon { font-size: 1.1rem; }
+        .notif-sb-actions { display: flex; align-items: center; gap: 6px; }
+        .notif-mark-all {
+            font-size: 0.72rem; font-weight: 600; color: var(--accent);
+            background: rgba(180,83,9,0.08); border: 1px solid rgba(180,83,9,0.2);
+            border-radius: 8px; padding: 4px 10px; cursor: pointer;
+            transition: all 0.15s; white-space: nowrap;
+        }
+        .notif-mark-all:hover { background: rgba(180,83,9,0.15); }
+        .notif-close-btn {
+            width: 32px; height: 32px; border-radius: 10px;
+            border: 1px solid var(--border); background: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); transition: all 0.15s;
+        }
+        .notif-close-btn:hover { background: rgba(248,113,113,0.1); border-color: var(--red); color: var(--red); }
+
+        /* Sidebar list */
+        .notif-list {
+            flex: 1;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+        .notif-list::-webkit-scrollbar { width: 4px; }
+        .notif-list::-webkit-scrollbar-track { background: transparent; }
+        .notif-list::-webkit-scrollbar-thumb { background: rgba(180,83,9,0.15); border-radius: 4px; }
+
         .notif-item {
-            display: flex; align-items: flex-start; gap: 10px;
-            padding: 12px 16px; cursor: pointer; transition: background 0.1s;
-            border-bottom: 1px solid rgba(215,200,180,0.35);
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 14px 20px; cursor: pointer; transition: background 0.12s;
+            border-bottom: 1px solid rgba(215,200,180,0.4);
+            position: relative;
         }
         .notif-item:last-child { border-bottom: none; }
-        .notif-item:hover { background: var(--surface-hover); }
+        .notif-item:hover { background: rgba(245,235,220,0.6); }
         .notif-item.notif-unread { background: rgba(180,83,9,0.04); }
-        .notif-type-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-        .notif-type-info     { background: #3b82f6; }
-        .notif-type-warning  { background: var(--yellow); }
-        .notif-type-critical { background: var(--red); }
+        .notif-item.notif-unread::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+        }
+
+        .notif-icon-wrap {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 1rem;
+        }
+        .notif-icon-info     { background: rgba(59,130,246,0.12); color: #3b82f6; }
+        .notif-icon-warning  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .notif-icon-critical { background: rgba(239,68,68,0.12);  color: #ef4444; }
+
         .notif-body { flex: 1; min-width: 0; }
-        .notif-title { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-        .notif-msg   { font-size: 0.77rem; color: var(--text-sub); line-height: 1.4; }
-        .notif-time  { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
-        .notif-empty { padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+        .notif-title { font-size: 0.83rem; font-weight: 700; color: var(--text); margin-bottom: 3px; line-height: 1.3; }
+        .notif-msg   { font-size: 0.78rem; color: var(--text-sub); line-height: 1.5; word-break: break-word; }
+        .notif-time  { font-size: 0.7rem; color: var(--text-muted); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+
+        .notif-empty {
+            padding: 60px 24px; text-align: center; color: var(--text-muted);
+        }
+        .notif-empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+        .notif-empty-text { font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+        .notif-empty-sub  { font-size: 0.78rem; }
+
+        /* Sidebar footer */
+        .notif-sb-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.75rem; color: var(--text-muted);
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* ─── MOBILE ─── */
+        @@media (max-width: 480px) {
+            .notif-sidebar { width: 100vw; }
+        }
 
 
         .dk-main { max-width: 1400px; margin: 0 auto; padding: 36px 28px 80px; }
@@ -446,17 +538,11 @@
         <ul class="dk-nav-right">
             @if (isAuth)
             {
-                <li style="position:relative;">
+                <li>
                     <button id="notif-bell" class="notif-bell-btn" aria-label="Notifications">
                         <i data-lucide="bell" style="width:20px; height:20px;"></i>
                         <span id="notif-badge" class="notif-badge" style="display:none;">0</span>
                     </button>
-                    <div id="notif-dropdown" class="notif-dropdown">
-                        <div class="notif-header">Notifications</div>
-                        <div id="notif-list" class="notif-list">
-                            <div class="notif-empty">No notifications yet</div>
-                        </div>
-                    </div>
                 </li>
                 <li>
                     <div class="user-chip">
@@ -479,6 +565,30 @@
         </ul>
     </div>
 </nav>
+
+<!-- ═══ NOTIFICATION SIDEBAR ═══ -->
+<div id="notif-overlay" class="notif-overlay" aria-hidden="true"></div>
+<aside id="notif-sidebar" class="notif-sidebar" role="dialog" aria-label="Notifications" aria-modal="true">
+    <div class="notif-sb-header">
+        <div class="notif-sb-title">
+            <span class="nb-icon">🔔</span> Notifications
+        </div>
+        <div class="notif-sb-actions">
+            <button id="notif-mark-all" class="notif-mark-all">Mark all read</button>
+            <button id="notif-close" class="notif-close-btn" aria-label="Close notifications">
+                <i data-lucide="x" style="width:16px;height:16px;"></i>
+            </button>
+        </div>
+    </div>
+    <div id="notif-list" class="notif-list">
+        <div class="notif-empty">
+            <div class="notif-empty-icon">🔕</div>
+            <div class="notif-empty-text">All caught up!</div>
+            <div class="notif-empty-sub">No notifications yet.</div>
+        </div>
+    </div>
+    <div class="notif-sb-footer">Notifications are kept for 30 days</div>
+</aside>
 
 <main class="dk-main">
     @RenderBody()
