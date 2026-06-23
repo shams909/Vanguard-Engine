@@ -13,5 +13,6 @@ public interface IUnitOfWork
     IVIPRequestRepository VipRequests { get; }
     IGuardShiftRepository GuardShifts { get; }
     IVipApplicationRepository VipApplications { get; }
+    IAssignedShiftRepository AssignedShifts { get; }
     Task<int> SaveChangesAsync();
 }

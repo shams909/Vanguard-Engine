@@ -44,6 +44,30 @@ try
         } catch { Console.WriteLine($"- Attribute '{attributes[i,0]}' exists."); }
     }
 
+    // --- Assigned Shifts Setup ---
+    Console.WriteLine("\n--- Setting up Assigned Shifts Collection ---");
+    string assignedShiftsCollId = "assigned_shifts";
+    try {
+        await databases.CreateCollection(databaseId, assignedShiftsCollId, "Assigned Shifts", permissions: new List<string> { "read(\"any\")", "create(\"users\")", "update(\"users\")", "delete(\"users\")" });
+        Console.WriteLine("Collection 'assigned_shifts' created.");
+    } catch { Console.WriteLine("Collection 'assigned_shifts' exists."); }
+
+    string[,] shiftAttributes = {
+        { "guardId", "255", "true" },
+        { "guardName", "255", "true" },
+        { "shiftDate", "100", "true" },
+        { "startTime", "50", "true" },
+        { "endTime", "50", "true" },
+        { "status", "50", "true" }
+    };
+
+    for (int i = 0; i < shiftAttributes.GetLength(0); i++) {
+        try {
+            await databases.CreateStringAttribute(databaseId, assignedShiftsCollId, shiftAttributes[i,0], int.Parse(shiftAttributes[i,1]), bool.Parse(shiftAttributes[i,2]));
+            Console.WriteLine($"- Attribute '{shiftAttributes[i,0]}' added.");
+        } catch { Console.WriteLine($"- Attribute '{shiftAttributes[i,0]}' exists."); }
+    }
+
     // --- Guard Applications Update ---
     try {
         await databases.CreateStringAttribute(databaseId, "guard_applications", "jobId", 100, false);

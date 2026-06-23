@@ -1,0 +1,137 @@
+@model List<Vanguard_Engine.Entities.AssignedShift>
+@{
+    ViewData["Title"] = "Shift Assignment Panel";
+    var guards = ViewBag.ApprovedGuards as List<Vanguard_Engine.Entities.GuardApplication> ?? new List<Vanguard_Engine.Entities.GuardApplication>();
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Admin Modules</div>
+        <h1 class="page-header-title">Shift Deployment Scheduling</h1>
+        <p class="page-header-sub">Assign guards to specific dates and times, and prevent scheduling conflicts.</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+    
+    <!-- Shift Creation Form -->
+    <div class="dk-card dk-card-pad">
+        <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: var(--text); display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="calendar-plus" style="width: 20px; height: 20px; color: var(--accent);"></i> Schedule New Shift
+        </h2>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="dk-alert dk-alert-success" style="margin-bottom: 16px;">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="dk-alert dk-alert-error" style="margin-bottom: 16px;">@TempData["Error"]</div>
+        }
+
+        <form asp-action="AssignShift" method="post" style="display: flex; flex-direction: column; gap: 14px;">
+            @Html.AntiForgeryToken()
+            
+            <div class="dk-form-group">
+                <label class="dk-label">Select Operator</label>
+                <select name="guardId" id="guardSelect" class="dk-input" required onchange="document.getElementById('guardName').value = this.options[this.selectedIndex].text.split(' (')[0];">
+                    <option value="">-- Choose Guard --</option>
+                    @foreach (var g in guards)
+                    {
+                        <option value="@g.UserId">@g.FullName (@g.Status)</option>
+                    }
+                </select>
+                <input type="hidden" name="guardName" id="guardName" value="" />
+            </div>
+
+            <div class="dk-form-group">
+                <label class="dk-label">Date</label>
+                <input type="date" name="shiftDate" class="dk-input" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="dk-form-group">
+                    <label class="dk-label">Start Time</label>
+                    <input type="time" name="startTime" class="dk-input" required />
+                </div>
+                <div class="dk-form-group">
+                    <label class="dk-label">End Time</label>
+                    <input type="time" name="endTime" class="dk-input" required />
+                </div>
+            </div>
+
+            <button type="submit" class="dk-btn dk-btn-primary" style="margin-top: 8px;">
+                <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Assign Shift
+            </button>
+        </form>
+    </div>
+
+    <!-- Assigned Shifts Table -->
+    <div class="dk-card dk-card-pad">
+        <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: var(--text); display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="list" style="width: 20px; height: 20px; color: var(--green);"></i> Assigned Roster
+        </h2>
+
+        <div class="dk-table-container">
+            <table class="dk-table">
+                <thead>
+                    <tr>
+                        <th>Operator</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var shift in Model)
+                    {
+                        <tr>
+                            <td><strong style="color: var(--text);">@shift.GuardName</strong></td>
+                            <td>@shift.ShiftDate</td>
+                            <td>@shift.StartTime - @shift.EndTime</td>
+                            <td>
+                                @if (shift.Status == "Scheduled")
+                                {
+                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2);">Scheduled</span>
+                                }
+                                else if (shift.Status == "Cancelled")
+                                {
+                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2);">Cancelled</span>
+                                }
+                                else
+                                {
+                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(180,83,9,0.1); color: var(--accent); border: 1px solid rgba(180,83,9,0.2);">@shift.Status</span>
+                                }
+                            </td>
+                            <td>
+                                @if (shift.Status == "Scheduled")
+                                {
+                                    <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="shiftId" value="@shift.Id" />
+                                        <input type="hidden" name="status" value="Cancelled" />
+                                        <button type="submit" class="dk-btn dk-btn-danger" style="padding: 4px 10px; font-size: 0.76rem;" onclick="return confirm('Cancel this shift?')">Cancel</button>
+                                    </form>
+                                }
+                                else if (shift.Status == "Cancelled")
+                                {
+                                    <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="shiftId" value="@shift.Id" />
+                                        <input type="hidden" name="status" value="Scheduled" />
+                                        <button type="submit" class="dk-btn dk-btn-primary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="return confirm('Restore this shift?')">Restore</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding: 20px;">No shifts assigned yet.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

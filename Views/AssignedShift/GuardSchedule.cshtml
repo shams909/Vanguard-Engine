@@ -1,0 +1,66 @@
+@model List<Vanguard_Engine.Entities.AssignedShift>
+@{
+    ViewData["Title"] = "Assigned Deployments";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Tactical Schedule</div>
+        <h1 class="page-header-title">My Assigned Deployments</h1>
+        <p class="page-header-sub">View your upcoming tactical shifts and scheduled operations.</p>
+    </div>
+</div>
+
+<div class="dk-card dk-card-pad">
+    <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; color: var(--text); display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="calendar" style="width: 20px; height: 20px; color: var(--accent);"></i> Scheduled Shifts
+    </h2>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        @if (!Model.Any())
+        {
+            <div style="text-align: center; padding: 24px 0; border: 1px dashed rgba(180,83,9,0.2); border-radius: 12px;">
+                <i data-lucide="calendar-x" style="width: 28px; height: 28px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                <div style="font-size: 0.86rem; font-weight: 600; color: var(--text-muted);">No upcoming shifts assigned.</div>
+            </div>
+        }
+        else
+        {
+            @foreach (var shift in Model)
+            {
+                <div style="padding: 18px 24px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <div style="font-weight: 800; color: var(--text); font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="calendar-days" style="width: 18px; height: 18px; color: var(--accent);"></i>
+                            @DateTime.Parse(shift.ShiftDate).ToString("dddd, MMM dd, yyyy")
+                        </div>
+                        <div style="font-size: 0.86rem; color: var(--text-sub); margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="clock" style="width: 14px; height: 14px; color: var(--green);"></i>
+                            @shift.StartTime - @shift.EndTime
+                        </div>
+                    </div>
+                    <div>
+                        @if (shift.Status == "Scheduled")
+                        {
+                            <span style="font-size: 0.78rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2); padding: 6px 14px; border-radius: 100px;">
+                                Active Duty Scheduled
+                            </span>
+                        }
+                        else if (shift.Status == "Cancelled")
+                        {
+                            <span style="font-size: 0.78rem; font-weight: 700; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); padding: 6px 14px; border-radius: 100px;">
+                                Shift Cancelled
+                            </span>
+                        }
+                        else
+                        {
+                            <span style="font-size: 0.78rem; font-weight: 700; background: rgba(180, 83, 9, 0.1); color: var(--accent); border: 1px solid rgba(180, 83, 9, 0.2); padding: 6px 14px; border-radius: 100px;">
+                                @shift.Status
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

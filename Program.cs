@@ -32,6 +32,7 @@ builder.Services.AddScoped<IHiringService, HiringService>();
 builder.Services.AddScoped<IClientRequestService, ClientRequestService>();
 builder.Services.AddScoped<IVIPRequestService, VIPRequestService>();
 builder.Services.AddScoped<IGuardShiftService, GuardShiftService>();
+builder.Services.AddScoped<IAssignedShiftService, AssignedShiftService>();
 builder.Services.AddScoped<IVipApplicationService, VipApplicationService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();

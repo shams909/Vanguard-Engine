@@ -160,6 +160,21 @@ else
                     }
                 </div>
 
+                <!-- Scheduled Shifts Shortcut -->
+                <div class="dk-card dk-card-pad" style="border-color: rgba(52, 211, 153, 0.25);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 4px;">
+                                <i data-lucide="calendar" style="width: 18px; height: 18px; color: var(--green);"></i> Assigned Shifts
+                            </h2>
+                            <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">View your scheduled dates and deployment times.</p>
+                        </div>
+                        <a asp-controller="AssignedShift" asp-action="GuardSchedule" class="dk-btn dk-btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">
+                            View Schedule <i data-lucide="arrow-right" style="width: 14px; height: 14px; margin-left: 6px;"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Active Duty Logs -->
                 <div class="dk-card dk-card-pad">
                     <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">
@@ -168,7 +183,7 @@ else
 
                     <div style="display: flex; flex-direction: column; gap: 12px;">
                         @{
-                            var jobApps = Model.Where(a => !string.IsNullOrEmpty(a.JobId)).OrderByDescending(a => a.CreatedAt).ToList();
+                            var jobApps = Model?.Where(a => !string.IsNullOrEmpty(a.JobId)).OrderByDescending(a => a.CreatedAt).ToList() ?? new();
                         }
                         @if (!jobApps.Any())
                         {
@@ -274,7 +289,7 @@ else
                 {
                     var shift = ViewBag.ActiveShift as Vanguard_Engine.Entities.GuardShift;
                     <text>
-                    var checkInMs = new Date('@shift.CheckInDateTime.ToString("o")').getTime();
+                    var checkInMs = new Date('@shift!.CheckInDateTime.ToString("o")').getTime();
                     </text>
                 }
                 else
