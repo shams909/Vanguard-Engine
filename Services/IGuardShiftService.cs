@@ -5,7 +5,7 @@ namespace Vanguard_Engine.Services;
 public interface IGuardShiftService
 {
     // ── Guard Operations ──────────────────────────────────────────────────
-    Task<(bool Success, string Error)> CheckInAsync(string guardId, string guardName);
+    Task<(bool Success, string Error)> CheckInAsync(string guardId, string guardName, string assignedShiftId);
     Task<(bool Success, string Error)> CheckOutAsync(string shiftId, string guardId);
     Task<GuardShift?> GetActiveShiftAsync(string guardId);
     Task<List<GuardShift>> GetShiftHistoryAsync(string guardId);

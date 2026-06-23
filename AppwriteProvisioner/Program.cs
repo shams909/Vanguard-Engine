@@ -74,6 +74,12 @@ try
         Console.WriteLine("- Attribute 'jobId' added to guard_applications.");
     } catch { }
 
+    // --- Guard Shifts Update ---
+    try {
+        await databases.CreateStringAttribute(databaseId, "guard_shifts", "assignedShiftId", 100, false);
+        Console.WriteLine("- Attribute 'assignedShiftId' added to guard_shifts.");
+    } catch { }
+
     // --- Users Collection Update ---
     Console.WriteLine("\n--- Updating Users Collection Schema ---");
     try {

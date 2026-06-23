@@ -3,6 +3,7 @@
     ViewData["Title"] = "Security Operator Terminal";
     var latestApp = Model?.OrderByDescending(a => a.CreatedAt).FirstOrDefault();
     var isApproved = latestApp?.Status == "Approved";
+    var todaysShift = ViewBag.TodaysShift as Vanguard_Engine.Entities.AssignedShift;
 }
 
 <div class="page-header">
@@ -84,21 +85,41 @@ else
                     else
                     {
                         <!-- Not Checked In State -->
-                        <div style="text-align: center; padding: 20px 0 24px;">
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(180, 83, 9, 0.08); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                                <i data-lucide="shield-alert" style="width: 22px; height: 22px;"></i>
+
+                        @if (todaysShift != null)
+                        {
+                            <div style="text-align: center; padding: 20px 0 24px;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(52, 211, 153, 0.08); color: var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                    <i data-lucide="clock" style="width: 22px; height: 22px;"></i>
+                                </div>
+                                <div style="font-weight: 700; color: var(--text); font-size: 0.94rem;">Scheduled Shift Available</div>
+                                <p style="color: var(--text-muted); font-size: 0.82rem; margin: 6px auto 20px; max-width: 320px;">
+                                    You have a shift scheduled for today: <strong>@todaysShift.StartTime to @todaysShift.EndTime</strong>.
+                                </p>
                             </div>
-                            <div style="font-weight: 700; color: var(--text); font-size: 0.94rem;">Not Currently On Shift</div>
-                            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 6px auto 20px; max-width: 320px;">
-                                Start your shift to log attendance and track working hours.
-                            </p>
-                        </div>
-                        <form asp-controller="GuardShift" asp-action="CheckIn" method="post">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="dk-btn dk-btn-primary" style="width: 100%; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;">
-                                <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In for Shift
+                            <form asp-controller="GuardShift" asp-action="CheckIn" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="assignedShiftId" value="@todaysShift.Id" />
+                                <button type="submit" class="dk-btn dk-btn-primary" style="width: 100%; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem;">
+                                    <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div style="text-align: center; padding: 20px 0 24px;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(180, 83, 9, 0.08); color: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                    <i data-lucide="calendar-x" style="width: 22px; height: 22px;"></i>
+                                </div>
+                                <div style="font-weight: 700; color: var(--text); font-size: 0.94rem;">No Shift Scheduled Today</div>
+                                <p style="color: var(--text-muted); font-size: 0.82rem; margin: 6px auto 20px; max-width: 320px;">
+                                    You are not scheduled for any shifts today. Check-in is disabled.
+                                </p>
+                            </div>
+                            <button disabled class="dk-btn" style="width: 100%; justify-content: center; min-height: 48px; border-radius: 14px; font-size: 0.92rem; background: rgba(255,255,255,0.05); color: var(--text-muted); cursor: not-allowed; border: 1px solid var(--border);">
+                                <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Check In Unavailable
                             </button>
-                        </form>
+                        }
                     }
                 </div>
 

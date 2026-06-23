@@ -14,10 +14,39 @@ public class GuardShiftService : IGuardShiftService
 
     // ── Guard Operations ──────────────────────────────────────────────────
 
-    public async Task<(bool Success, string Error)> CheckInAsync(string guardId, string guardName)
+    public async Task<(bool Success, string Error)> CheckInAsync(string guardId, string guardName, string assignedShiftId)
     {
         if (string.IsNullOrWhiteSpace(guardId))
             return (false, "Session is invalid. Please log in again.");
+
+        if (string.IsNullOrWhiteSpace(assignedShiftId))
+            return (false, "No assigned shift provided for check-in.");
+
+        // Fetch the assigned shift to validate time
+        var assignedShift = await _unitOfWork.AssignedShifts.GetByIdAsync(assignedShiftId);
+        if (assignedShift == null)
+            return (false, "Assigned shift not found.");
+
+        if (assignedShift.GuardId != guardId)
+            return (false, "You are not authorized for this shift.");
+            
+        if (assignedShift.Status != "Scheduled")
+            return (false, "This shift is not currently scheduled.");
+
+        // Time Validation (Allow 30 minutes early)
+        var todayDate = DateTime.Now.ToString("yyyy-MM-dd");
+        if (assignedShift.ShiftDate != todayDate)
+            return (false, "You can only check into shifts scheduled for today.");
+
+        if (TimeSpan.TryParse(assignedShift.StartTime, out var startTimeSpan))
+        {
+            var nowTime = DateTime.Now.TimeOfDay;
+            var earliestCheckIn = startTimeSpan.Subtract(TimeSpan.FromMinutes(30));
+            if (nowTime < earliestCheckIn)
+            {
+                return (false, $"You are too early. You can only check in 30 minutes before your shift ({assignedShift.StartTime}).");
+            }
+        }
 
         // Prevent double check-in
         var existing = await _unitOfWork.GuardShifts.GetActiveShiftAsync(guardId);
@@ -28,6 +57,7 @@ public class GuardShiftService : IGuardShiftService
         {
             GuardId      = guardId,
             GuardName    = guardName,
+            AssignedShiftId = assignedShiftId,
             CheckInTime  = DateTime.UtcNow.ToString("o"), // ISO 8601 round-trip
             CheckOutTime = null,
             DurationMinutes = 0,
@@ -35,6 +65,11 @@ public class GuardShiftService : IGuardShiftService
         };
 
         await _unitOfWork.GuardShifts.AddAsync(shift);
+
+        // Link status
+        assignedShift.Status = "Active";
+        _unitOfWork.AssignedShifts.Update(assignedShift);
+
         return (true, string.Empty);
     }
 
@@ -65,6 +100,16 @@ public class GuardShiftService : IGuardShiftService
             checkOut.ToString("o"),
             duration
         );
+
+        if (!string.IsNullOrEmpty(shift.AssignedShiftId))
+        {
+            var assignedShift = await _unitOfWork.AssignedShifts.GetByIdAsync(shift.AssignedShiftId);
+            if (assignedShift != null)
+            {
+                assignedShift.Status = "Completed";
+                _unitOfWork.AssignedShifts.Update(assignedShift);
+            }
+        }
 
         return (true, string.Empty);
     }

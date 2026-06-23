@@ -13,6 +13,9 @@ public class GuardShift
     [JsonProperty("guardName")]
     public string GuardName { get; set; } = string.Empty;
 
+    [JsonProperty("assignedShiftId")]
+    public string AssignedShiftId { get; set; } = string.Empty;
+
     /// <summary>ISO 8601 UTC string — stored as string for Appwrite compatibility.</summary>
     [JsonProperty("checkInTime")]
     public string CheckInTime { get; set; } = string.Empty;

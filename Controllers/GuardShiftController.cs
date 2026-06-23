@@ -26,7 +26,7 @@ public class GuardShiftController : Controller
     [HttpPost]
     [Authorize(Roles = "Guard")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CheckIn()
+    public async Task<IActionResult> CheckIn(string assignedShiftId)
     {
         var guardId = GetUserId();
 
@@ -36,7 +36,7 @@ public class GuardShiftController : Controller
                     ?? allApps.FirstOrDefault(a => a.Status == "Approved");
         var guardName = profile?.FullName ?? User.Identity?.Name ?? "Unknown Officer";
 
-        var result = await _shiftService.CheckInAsync(guardId, guardName);
+        var result = await _shiftService.CheckInAsync(guardId, guardName, assignedShiftId);
 
         TempData[result.Success ? "Success" : "Error"] =
             result.Success ? "✅ Shift started. You are now checked in." : result.Error;

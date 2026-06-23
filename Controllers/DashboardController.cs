@@ -14,6 +14,7 @@ public class DashboardController : Controller
     private readonly IClientRequestService _requestService;
     private readonly IVIPRequestService _vipRequestService;
     private readonly IGuardShiftService _shiftService;
+    private readonly IAssignedShiftService _assignedShiftService;
 
     public DashboardController(
         IUserService userService,
@@ -21,7 +22,8 @@ public class DashboardController : Controller
         IHiringService hiringService,
         IClientRequestService requestService,
         IVIPRequestService vipRequestService,
-        IGuardShiftService shiftService)
+        IGuardShiftService shiftService,
+        IAssignedShiftService assignedShiftService)
     {
         _userService = userService;
         _guardService = guardService;
@@ -29,6 +31,7 @@ public class DashboardController : Controller
         _requestService = requestService;
         _vipRequestService = vipRequestService;
         _shiftService = shiftService;
+        _assignedShiftService = assignedShiftService;
     }
 
     [HttpGet]
@@ -106,6 +109,12 @@ public class DashboardController : Controller
         // Current shift (for real check-in/out widget)
         var activeShift = await _shiftService.GetActiveShiftAsync(userId);
         ViewBag.ActiveShift = activeShift;
+
+        // Today's scheduled shift
+        var todayStr = DateTime.Now.ToString("yyyy-MM-dd");
+        var myAssignedShifts = await _assignedShiftService.GetGuardScheduleAsync(userId);
+        var todaysShift = myAssignedShifts.FirstOrDefault(s => s.ShiftDate == todayStr && s.Status == "Scheduled");
+        ViewBag.TodaysShift = todaysShift;
 
         return View(myApps);
     }
