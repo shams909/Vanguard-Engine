@@ -476,10 +476,58 @@
         /* ─── MONO TEXT ─── */
         .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); }
 
-        /* ─── MEDIA ─── */
-        @@media (max-width: 640px) {
+        /* ─── RESPONSIVE MEDIA QUERIES ─── */
+        /* Tablets and small desktops */
+        @@media (max-width: 1024px) {
+            .dk-main { padding: 24px 16px 80px; }
+            div[style*="grid-template-columns: 2fr 1fr"],
+            div[style*="grid-template-columns: 3fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Mobile devices and small tablets */
+        @@media (max-width: 768px) {
+            div[style*="grid-template-columns: 1fr 1fr"],
+            div[style*="grid-template-columns: repeat(3, 1fr)"] {
+                grid-template-columns: 1fr !important;
+            }
             .form-grid-2 { grid-template-columns: 1fr; }
-            .dk-nav-links { display: none; }
+            
+            /* Navbar adjustments */
+            .dk-nav { border-radius: 16px; top: 8px; width: calc(100% - 16px); }
+            .dk-nav-inner { flex-direction: column; padding: 16px; gap: 16px; height: auto; }
+            .dk-nav-links { width: 100%; justify-content: center; }
+            .dk-nav-right { width: 100%; justify-content: center; flex-wrap: wrap; }
+            
+            /* Header and Flex adjustments */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+            div[style*="display: flex; justify-content: space-between"] {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 16px !important;
+            }
+            div[style*="display: flex; justify-content: space-between"] > a.dk-btn,
+            div[style*="display: flex; justify-content: space-between"] > button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Table responsiveness - horizontal scroll */
+            .dk-table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+
+        /* Small mobile devices */
+        @@media (max-width: 480px) {
+            .stat-grid { grid-template-columns: 1fr; }
+            .notif-sidebar { width: 100vw; }
+            .dk-card-pad { padding: 16px; }
+            .hero-title { font-size: 1.5rem; }
+            
+            /* Allow horizontal scroll for nav links on very small screens */
+            .dk-nav-links { justify-content: flex-start; overflow-x: auto; padding-bottom: 8px; flex-wrap: nowrap; }
+            .dk-nav-links::-webkit-scrollbar { display: none; }
+            .dk-nav-links a { white-space: nowrap; }
         }
     </style>
 </head>
