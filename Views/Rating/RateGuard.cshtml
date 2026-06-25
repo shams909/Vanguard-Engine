@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "Evaluate Guard Service";
+    var guards = ViewBag.Guards as List<Vanguard_Engine.Entities.User> ?? new();
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Service Evaluation
+        </div>
+        <h1 class="page-header-title">Rate Guard Performance</h1>
+        <p class="page-header-sub">
+            Your feedback helps us maintain Elite Vanguard Standards and rewards our top-performing tactical units.
+        </p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background: rgba(52, 211, 153, 0.1); color: var(--green); padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(52, 211, 153, 0.2);">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div style="background: rgba(239, 68, 68, 0.1); color: var(--red); padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.2);">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="dk-card dk-card-pad" style="max-width: 600px;">
+    <form asp-controller="Rating" asp-action="SubmitRating" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="dk-form-group">
+            <label class="dk-label">Select Guard to Evaluate</label>
+            <select name="guardId" class="dk-input" required id="guardSelector" onchange="document.getElementById('guardNameInput').value = this.options[this.selectedIndex].text">
+                <option value="">-- Choose a Guard --</option>
+                @foreach(var g in guards)
+                {
+                    <option value="@g.Id">@g.Username</option>
+                }
+            </select>
+            <input type="hidden" name="guardName" id="guardNameInput" />
+        </div>
+
+        <div class="dk-form-group">
+            <label class="dk-label">Performance Score</label>
+            <div style="display: flex; gap: 8px;">
+                @for(int i = 1; i <= 5; i++)
+                {
+                    <label style="cursor: pointer; display: flex; flex-direction: column; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; flex: 1; text-align: center; background: rgba(255,255,255,0.05);">
+                        <input type="radio" name="score" value="@i" required style="margin-bottom: 8px;" />
+                        <span style="font-size: 1.2rem; color: var(--accent);">
+                            @for(int s=0; s<i; s++){ <text>★</text> }
+                        </span>
+                        <span style="font-size: 0.7rem; font-weight: 700; margin-top: 6px; color: var(--text-muted);">
+                            @if(i==1) { <text>Poor</text> }
+                            else if(i==3) { <text>Average</text> }
+                            else if(i==5) { <text>Elite</text> }
+                            else { <text>Good</text> }
+                        </span>
+                    </label>
+                }
+            </div>
+        </div>
+
+        <div class="dk-form-group">
+            <label class="dk-label">Comments / Feedback</label>
+            <textarea name="comments" class="dk-input" required rows="4" placeholder="How did the guard perform during their deployment?"></textarea>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="dk-btn dk-btn-primary">
+                <i data-lucide="star" style="width: 16px; height: 16px;"></i> Submit Rating
+            </button>
+        </div>
+    </form>
+</div>

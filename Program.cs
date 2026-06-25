@@ -34,6 +34,7 @@ builder.Services.AddScoped<IVIPRequestService, VIPRequestService>();
 builder.Services.AddScoped<IGuardShiftService, GuardShiftService>();
 builder.Services.AddScoped<IAssignedShiftService, AssignedShiftService>();
 builder.Services.AddScoped<IIncidentService, IncidentService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IVipApplicationService, VipApplicationService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();

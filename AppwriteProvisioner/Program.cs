@@ -95,6 +95,34 @@ try
         } catch { Console.WriteLine($"- Attribute '{incidentAttributes[i,0]}' exists."); }
     }
 
+    // --- Ratings Setup ---
+    Console.WriteLine("\n--- Setting up Ratings Collection ---");
+    string ratingsCollId = "ratings";
+    try {
+        await databases.CreateCollection(databaseId, ratingsCollId, "Guard Ratings", permissions: new List<string> { "read(\"any\")", "create(\"users\")", "update(\"users\")", "delete(\"users\")" });
+        Console.WriteLine("Collection 'ratings' created.");
+    } catch { Console.WriteLine("Collection 'ratings' exists."); }
+
+    string[,] ratingAttributes = {
+        { "clientId", "255", "true" },
+        { "guardId", "255", "true" },
+        { "guardName", "255", "true" },
+        { "comments", "5000", "false" },
+        { "shiftId", "255", "false" }
+    };
+
+    for (int i = 0; i < ratingAttributes.GetLength(0); i++) {
+        try {
+            await databases.CreateStringAttribute(databaseId, ratingsCollId, ratingAttributes[i,0], int.Parse(ratingAttributes[i,1]), bool.Parse(ratingAttributes[i,2]));
+            Console.WriteLine($"- Attribute '{ratingAttributes[i,0]}' added.");
+        } catch { Console.WriteLine($"- Attribute '{ratingAttributes[i,0]}' exists."); }
+    }
+    
+    try {
+        await databases.CreateIntegerAttribute(databaseId, ratingsCollId, "score", true, min: 1, max: 5);
+        Console.WriteLine("- Attribute 'score' added.");
+    } catch { Console.WriteLine("- Attribute 'score' exists."); }
+
     // --- Guard Applications Update ---
     try {
         await databases.CreateStringAttribute(databaseId, "guard_applications", "jobId", 100, false);

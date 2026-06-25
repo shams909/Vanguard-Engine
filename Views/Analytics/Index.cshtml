@@ -1,0 +1,138 @@
+@{
+    ViewData["Title"] = "System Analytics";
+}
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            Intelligence & Metrics
+        </div>
+        <h1 class="page-header-title">Analytics Dashboard</h1>
+        <p class="page-header-sub">Macro-level overview of guard performance, incident metrics, and client engagement.</p>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="stat-grid" style="margin-bottom: 24px;">
+    <div class="stat-card stat-total">
+        <span class="stat-label">Total Active Guards</span>
+        <div class="stat-value">@ViewBag.TotalGuards</div>
+    </div>
+    <div class="stat-card stat-pending">
+        <span class="stat-label">Client Requests</span>
+        <div class="stat-value">@ViewBag.TotalRequests</div>
+    </div>
+    <div class="stat-card stat-approved">
+        <span class="stat-label">Average Guard Rating</span>
+        <div class="stat-value">@ViewBag.AverageRating <span style="font-size: 0.9rem; color: var(--accent);">★</span></div>
+    </div>
+    <div class="stat-card stat-total" style="border-color: rgba(239, 68, 68, 0.35);">
+        <span class="stat-label">Total Incidents Logged</span>
+        <div class="stat-value" style="color: var(--red);">@ViewBag.TotalIncidents</div>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    
+    <!-- Requests Bar Chart -->
+    <div class="dk-card dk-card-pad">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px;">Client Deployment Requests</h3>
+        <canvas id="requestChart" height="200"></canvas>
+    </div>
+
+    <!-- Rating Distribution -->
+    <div class="dk-card dk-card-pad">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px;">Guard Rating Distribution</h3>
+        <canvas id="ratingChart" height="200"></canvas>
+    </div>
+
+    <!-- Incidents Pie Chart -->
+    <div class="dk-card dk-card-pad" style="grid-column: span 2; display: flex; flex-direction: column; align-items: center;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px; align-self: flex-start;">Incident Resolution Status</h3>
+        <div style="width: 300px; height: 300px;">
+            <canvas id="incidentChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Serialize data from C#
+    const requestLabels = @Html.Raw(Json.Serialize(ViewBag.RequestLabels));
+    const requestData = @Html.Raw(Json.Serialize(ViewBag.RequestData));
+
+    const ratingLabels = @Html.Raw(Json.Serialize(ViewBag.RatingLabels));
+    const ratingData = @Html.Raw(Json.Serialize(ViewBag.RatingData));
+
+    const incidentLabels = @Html.Raw(Json.Serialize(ViewBag.IncidentLabels));
+    const incidentData = @Html.Raw(Json.Serialize(ViewBag.IncidentData));
+
+    // Global Defaults for better visibility (Dark Brown / Black)
+    Chart.defaults.color = '#4a2c11';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.weight = '600';
+
+    // 1. Requests Bar Chart
+    new Chart(document.getElementById('requestChart'), {
+        type: 'bar',
+        data: {
+            labels: requestLabels,
+            datasets: [{
+                label: 'Requests',
+                data: requestData,
+                backgroundColor: ['rgba(217, 119, 6, 0.6)', 'rgba(52, 211, 153, 0.6)', 'rgba(59, 130, 246, 0.6)'],
+                borderColor: ['rgba(217, 119, 6, 1)', 'rgba(52, 211, 153, 1)', 'rgba(59, 130, 246, 1)'],
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Rating Distribution Bar Chart
+    new Chart(document.getElementById('ratingChart'), {
+        type: 'bar',
+        data: {
+            labels: ratingLabels,
+            datasets: [{
+                label: 'Scores',
+                data: ratingData,
+                backgroundColor: 'rgba(180, 83, 9, 0.6)',
+                borderColor: 'rgba(180, 83, 9, 1)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: { x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { grid: { display: false } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 3. Incident Pie Chart
+    new Chart(document.getElementById('incidentChart'), {
+        type: 'doughnut',
+        data: {
+            labels: incidentLabels,
+            datasets: [{
+                data: incidentData,
+                backgroundColor: ['rgba(239, 68, 68, 0.8)', 'rgba(52, 211, 153, 0.8)'],
+                borderColor: ['rgba(239, 68, 68, 1)', 'rgba(52, 211, 153, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>

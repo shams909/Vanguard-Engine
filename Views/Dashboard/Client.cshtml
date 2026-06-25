@@ -47,6 +47,21 @@
             </a>
         </div>
 
+        <!-- Guard Evaluation -->
+        <div class="dk-card dk-card-pad" style="border-color: rgba(59, 130, 246, 0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 4px;">
+                        <i data-lucide="star" style="width: 18px; height: 18px; color: #3b82f6;"></i> Evaluate Guard Service
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">Rate recent guard performance and leave comments.</p>
+                </div>
+                <a asp-controller="Rating" asp-action="RateGuard" class="dk-btn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
+                    Submit Rating
+                </a>
+            </div>
+        </div>
+
         <!-- Service History / Roster -->
         <div class="dk-card dk-card-pad">
             <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text); margin: 0 0 16px; display: flex; align-items: center; gap: 6px;">

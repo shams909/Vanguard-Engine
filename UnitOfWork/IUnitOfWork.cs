@@ -14,6 +14,7 @@ public interface IUnitOfWork
     IGuardShiftRepository GuardShifts { get; }
     IAssignedShiftRepository AssignedShifts { get; }
     IIncidentRepository Incidents { get; }
+    IRatingRepository Ratings { get; }
     IVipApplicationRepository VipApplications { get; }
     Task<int> SaveChangesAsync();
 }
