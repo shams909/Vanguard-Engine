@@ -557,17 +557,7 @@
                 }
                 @if (currentRole == "Admin" || currentRole == "Recruiter")
                 {
-                    <li><a asp-controller="ClientRequest" asp-action="AdminRequests"><i data-lucide="shield-alert" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Client Petitions</a></li>
-                    <li><a asp-controller="VIPRequest" asp-action="AdminRequests"><i data-lucide="crown" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> VIP Requests</a></li>
-                    <li><a asp-controller="VipApplication" asp-action="AdminPanel"><i data-lucide="award" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> VIP Applications</a></li>
-                    <li><a asp-controller="Guard" asp-action="Applications"><i data-lucide="eye" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Enlistments Queue</a></li>
-                    <li><a asp-controller="GuardShift" asp-action="AdminPanel"><i data-lucide="activity" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Attendance</a></li>
-                    <li><a asp-controller="Recruitment" asp-action="Manage"><i data-lucide="file-edit" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers Board</a></li>
-                }
-                @if (currentRole == "Admin")
-                {
-                    <li><a asp-controller="Users" asp-action="Index"><i data-lucide="users" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Users</a></li>
-                    <li><a asp-controller="Roles" asp-action="Index"><i data-lucide="key" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Roles</a></li>
+                    <li><a asp-controller="Analytics" asp-action="Index"><i data-lucide="pie-chart" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Analytics</a></li>
                 }
                 @if (currentRole == "Client")
                 {
