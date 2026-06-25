@@ -14,6 +14,7 @@ public class AppwriteUnitOfWork : IUnitOfWork
     public IVIPRequestRepository VipRequests { get; }
     public IGuardShiftRepository GuardShifts { get; }
     public IAssignedShiftRepository AssignedShifts { get; }
+    public IIncidentRepository Incidents { get; }
     public IVipApplicationRepository VipApplications { get; }
 
     public AppwriteUnitOfWork(IAppwriteService appwriteService)
@@ -26,6 +27,7 @@ public class AppwriteUnitOfWork : IUnitOfWork
         VipRequests = new VIPRequestRepository(appwriteService);
         GuardShifts = new GuardShiftRepository(appwriteService);
         AssignedShifts = new AppwriteAssignedShiftRepository(appwriteService);
+        Incidents = new AppwriteIncidentRepository(appwriteService);
         VipApplications = new VipApplicationRepository(appwriteService);
         Notifications = new NotificationRepository(appwriteService);
     }

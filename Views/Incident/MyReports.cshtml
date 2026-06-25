@@ -1,0 +1,78 @@
+@model List<Vanguard_Engine.Entities.Incident>
+@{
+    var role = ViewBag.UserRole as string ?? "Guard";
+    var formType = role == "Guard" ? "Incidents" : "Complaints";
+    ViewData["Title"] = $"My {formType}";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">History</div>
+        <h1 class="page-header-title">My Submitted @formType</h1>
+        <p class="page-header-sub">View the status and resolutions of your previous reports.</p>
+    </div>
+    <a asp-controller="Incident" asp-action="Submit" class="dk-btn dk-btn-primary">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New @(role == "Guard" ? "Incident" : "Complaint")
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background: rgba(52, 211, 153, 0.1); color: var(--green); padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(52, 211, 153, 0.2);">
+        @TempData["Success"]
+    </div>
+}
+
+<div class="dk-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i data-lucide="file-text" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+            <h3>No reports found</h3>
+            <p>You haven't submitted any @formType.ToLower() yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="dk-table-wrap">
+            <table class="dk-table">
+                <thead>
+                    <tr>
+                        <th>Date Submitted</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Resolution Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var isResolved = item.Status == "Resolved";
+                        var statusBg = isResolved ? "rgba(52, 211, 153, 0.1)" : "rgba(180, 83, 9, 0.1)";
+                        var statusFg = isResolved ? "var(--green)" : "var(--accent)";
+
+                        <tr>
+                            <td style="white-space: nowrap;">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</td>
+                            <td style="font-weight: 600;">@item.Title</td>
+                            <td>
+                                <span style="padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: @statusBg; color: @statusFg; border: 1px solid @statusBg;">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (isResolved)
+                                {
+                                    <span style="color: var(--text-sub); font-size: 0.85rem;">@item.ResolutionNotes</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Pending review...</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

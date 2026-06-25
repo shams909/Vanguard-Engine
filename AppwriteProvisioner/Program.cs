@@ -68,6 +68,33 @@ try
         } catch { Console.WriteLine($"- Attribute '{shiftAttributes[i,0]}' exists."); }
     }
 
+    // --- Incidents Setup ---
+    Console.WriteLine("\n--- Setting up Incidents Collection ---");
+    string incidentsCollId = "incidents";
+    try {
+        await databases.CreateCollection(databaseId, incidentsCollId, "Incidents and Complaints", permissions: new List<string> { "read(\"any\")", "create(\"users\")", "update(\"users\")", "delete(\"users\")" });
+        Console.WriteLine("Collection 'incidents' created.");
+    } catch { Console.WriteLine("Collection 'incidents' exists."); }
+
+    string[,] incidentAttributes = {
+        { "reportedByUserId", "255", "true" },
+        { "reportedByName", "255", "true" },
+        { "reporterRole", "50", "true" },
+        { "type", "50", "true" },
+        { "title", "255", "true" },
+        { "description", "5000", "true" },
+        { "status", "50", "true" },
+        { "resolutionNotes", "5000", "false" },
+        { "resolvedByAdminId", "255", "false" }
+    };
+
+    for (int i = 0; i < incidentAttributes.GetLength(0); i++) {
+        try {
+            await databases.CreateStringAttribute(databaseId, incidentsCollId, incidentAttributes[i,0], int.Parse(incidentAttributes[i,1]), bool.Parse(incidentAttributes[i,2]));
+            Console.WriteLine($"- Attribute '{incidentAttributes[i,0]}' added.");
+        } catch { Console.WriteLine($"- Attribute '{incidentAttributes[i,0]}' exists."); }
+    }
+
     // --- Guard Applications Update ---
     try {
         await databases.CreateStringAttribute(databaseId, "guard_applications", "jobId", 100, false);

@@ -196,6 +196,26 @@ else
                     </div>
                 </div>
 
+                <!-- Incident Reporting Shortcut -->
+                <div class="dk-card dk-card-pad" style="border-color: rgba(239, 68, 68, 0.25); margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 4px;">
+                                <i data-lucide="alert-triangle" style="width: 18px; height: 18px; color: var(--red);"></i> Incident Reporting
+                            </h2>
+                            <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">Submit an operational incident or view past reports.</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a asp-controller="Incident" asp-action="Submit" class="dk-btn dk-btn-danger" style="padding: 8px 16px; font-size: 0.85rem;">
+                                Submit
+                            </a>
+                            <a asp-controller="Incident" asp-action="MyReports" class="dk-btn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(255,255,255,0.05);">
+                                History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Active Duty Logs -->
                 <div class="dk-card dk-card-pad">
                     <h2 style="font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">

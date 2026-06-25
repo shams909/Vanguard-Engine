@@ -1,0 +1,104 @@
+@model List<Vanguard_Engine.Entities.Incident>
+@{
+    ViewData["Title"] = "Incident Management";
+    var filter = ViewBag.Filter as string ?? "All";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">Administration</div>
+        <h1 class="page-header-title">Incident Management</h1>
+        <p class="page-header-sub">Review and resolve incidents submitted by guards and complaints submitted by clients.</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background: rgba(52, 211, 153, 0.1); color: var(--green); padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(52, 211, 153, 0.2);">
+        @TempData["Success"]
+    </div>
+}
+
+<div style="display: flex; gap: 12px; margin-bottom: 20px;">
+    <a asp-action="AdminPanel" asp-route-filter="All" class="dk-btn @(filter == "All" ? "dk-btn-primary" : "")" style="@(filter != "All" ? "background: var(--surface); color: var(--text);" : "")">All</a>
+    <a asp-action="AdminPanel" asp-route-filter="Open" class="dk-btn @(filter == "Open" ? "dk-btn-primary" : "")" style="@(filter != "Open" ? "background: var(--surface); color: var(--text);" : "")">Open</a>
+    <a asp-action="AdminPanel" asp-route-filter="Resolved" class="dk-btn @(filter == "Resolved" ? "dk-btn-primary" : "")" style="@(filter != "Resolved" ? "background: var(--surface); color: var(--text);" : "")">Resolved</a>
+</div>
+
+<div class="dk-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--green); margin-bottom: 16px;"></i>
+            <h3>All Clear!</h3>
+            <p>No @filter.ToLower() incidents or complaints found.</p>
+        </div>
+    }
+    else
+    {
+        <div class="dk-table-wrap">
+            <table class="dk-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Reported By</th>
+                        <th>Title / Description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var isResolved = item.Status == "Resolved";
+                        var statusBg = isResolved ? "rgba(52, 211, 153, 0.1)" : "rgba(180, 83, 9, 0.1)";
+                        var statusFg = isResolved ? "var(--green)" : "var(--accent)";
+
+                        var typeBg = item.Type == "Incident" ? "rgba(59, 130, 246, 0.1)" : "rgba(239, 68, 68, 0.1)";
+                        var typeFg = item.Type == "Incident" ? "#3b82f6" : "var(--red)";
+
+                        <tr>
+                            <td style="white-space: nowrap;">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <span style="padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; background: @typeBg; color: @typeFg;">
+                                    @item.Type.ToUpper()
+                                </span>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600;">@item.ReportedByName</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">@item.ReporterRole</div>
+                            </td>
+                            <td style="max-width: 300px;">
+                                <div style="font-weight: 600;">@item.Title</div>
+                                <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 4px;">@item.Description</div>
+                            </td>
+                            <td>
+                                <span style="padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: @statusBg; color: @statusFg; border: 1px solid @statusBg;">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (isResolved)
+                                {
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                        <strong>Notes:</strong> @item.ResolutionNotes
+                                    </div>
+                                }
+                                else
+                                {
+                                    <form asp-action="Resolve" method="post" style="display: flex; gap: 8px; align-items: flex-start;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="incidentId" value="@item.Id" />
+                                        <input type="text" name="resolutionNotes" class="dk-input" style="padding: 6px 10px; font-size: 0.8rem; height: auto;" required placeholder="Resolution notes..." />
+                                        <button type="submit" class="dk-btn dk-btn-primary" style="padding: 6px 12px; min-height: 0; font-size: 0.8rem;">Resolve</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

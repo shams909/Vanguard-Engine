@@ -1,0 +1,46 @@
+@{
+    var role = ViewBag.UserRole as string ?? "Guard";
+    var formType = role == "Guard" ? "Incident" : "Complaint";
+    ViewData["Title"] = $"Submit {formType}";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px;">
+            @(role == "Guard" ? "Tactical Reporting" : "Client Services")
+        </div>
+        <h1 class="page-header-title">Submit @formType</h1>
+        <p class="page-header-sub">
+            @(role == "Guard" ? "Log a security incident, breach, or operational issue." : "Submit a complaint or report an issue regarding our services.")
+        </p>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div style="background: rgba(239, 68, 68, 0.1); color: var(--red); padding: 14px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.2);">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="dk-card dk-card-pad" style="max-width: 600px;">
+    <form asp-controller="Incident" asp-action="Submit" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="dk-form-group">
+            <label class="dk-label">@formType Title / Subject</label>
+            <input type="text" name="title" class="dk-input" required placeholder="Brief summary of the issue" />
+        </div>
+
+        <div class="dk-form-group">
+            <label class="dk-label">Detailed Description</label>
+            <textarea name="description" class="dk-input" required rows="6" placeholder="Provide as much detail as possible..."></textarea>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="dk-btn dk-btn-primary">
+                <i data-lucide="send" style="width: 16px; height: 16px;"></i> Submit @formType
+            </button>
+        </div>
+    </form>
+</div>
