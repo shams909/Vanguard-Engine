@@ -12,13 +12,16 @@ public class ClientRequestController : Controller
 {
     private readonly IClientRequestService _requestService;
     private readonly IGuardApplicationService _guardService;
+    private readonly INotificationService _notificationService;
 
     public ClientRequestController(
         IClientRequestService requestService,
-        IGuardApplicationService guardService)
+        IGuardApplicationService guardService,
+        INotificationService notificationService)
     {
         _requestService = requestService;
         _guardService = guardService;
+        _notificationService = notificationService;
     }
 
     // ==========================================
@@ -81,6 +84,15 @@ public class ClientRequestController : Controller
             ModelState.AddModelError(string.Empty, result.Error);
             return View(model);
         }
+
+        // 🔔 Real-time: Notify Admins of new patrol request
+        var clientName = User.Identity?.Name ?? "A Client";
+        await _notificationService.NotifyRoleAsync(
+            roleName: "Admin",
+            title: "New Patrol Request Submitted",
+            message: $"{clientName} has submitted a patrol request for {model.NumberOfGuards} guard(s) at {model.Location}.",
+            type: "Info"
+        );
 
         return RedirectToAction(nameof(MyRequests));
     }
@@ -197,6 +209,18 @@ public class ClientRequestController : Controller
         else
         {
             TempData["Success"] = $"Request status updated to '{status}'!";
+
+            // 🔔 Real-time: Notify the Client their request status changed
+            var req = await _requestService.GetRequestByIdAsync(id);
+            if (req != null && !string.IsNullOrEmpty(req.ClientId))
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: req.ClientId,
+                    title: "Deployment Request Updated",
+                    message: $"Your patrol request status has been updated to '{status}' by our team.",
+                    type: status == "Approved" ? "Info" : "Warning"
+                );
+            }
         }
         return RedirectToAction(nameof(AdminRequests));
     }

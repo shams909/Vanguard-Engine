@@ -10,11 +10,13 @@ public class IncidentController : Controller
 {
     private readonly IIncidentService _incidentService;
     private readonly IUserService _userService;
+    private readonly INotificationService _notificationService;
 
-    public IncidentController(IIncidentService incidentService, IUserService userService)
+    public IncidentController(IIncidentService incidentService, IUserService userService, INotificationService notificationService)
     {
         _incidentService = incidentService;
         _userService = userService;
+        _notificationService = notificationService;
     }
 
     private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
@@ -45,11 +47,24 @@ public class IncidentController : Controller
 
         var result = await _incidentService.SubmitIncidentAsync(userId, userName, userRole, type, title, description);
 
-        TempData[result.Success ? "Success" : "Error"] =
-            result.Success ? $"✅ {type} submitted successfully. An administrator will review it shortly." : result.Error;
+        if (result.Success)
+        {
+            TempData["Success"] = $"✅ {type} submitted successfully. An administrator will review it shortly.";
+
+            // 🔔 Real-time: Notify ALL Admins instantly
+            await _notificationService.NotifyRoleAsync(
+                roleName: "Admin",
+                title: $"New {type} Submitted",
+                message: $"'{title}' was reported by {userName}. Requires your review.",
+                type: "Warning"
+            );
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
 
         if (!result.Success) return View();
-        
         return RedirectToAction("MyReports");
     }
 
@@ -95,10 +110,29 @@ public class IncidentController : Controller
     public async Task<IActionResult> Resolve(string incidentId, string resolutionNotes)
     {
         var adminId = GetUserId();
+        var adminName = User.Identity?.Name ?? "Administrator";
         var result = await _incidentService.ResolveIncidentAsync(incidentId, adminId, resolutionNotes);
 
-        TempData[result.Success ? "Success" : "Error"] =
-            result.Success ? "Incident has been resolved successfully." : result.Error;
+        if (result.Success)
+        {
+            TempData["Success"] = "Incident has been resolved successfully.";
+
+            // 🔔 Real-time: Notify the original reporter that their case is closed
+            var incident = await _incidentService.GetIncidentByIdAsync(incidentId);
+            if (incident != null && !string.IsNullOrEmpty(incident.ReportedByUserId))
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: incident.ReportedByUserId,
+                    title: "Your Report Has Been Resolved",
+                    message: $"Your {incident.Type} '{incident.Title}' has been reviewed and closed by {adminName}. Notes: {resolutionNotes}",
+                    type: "Info"
+                );
+            }
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
 
         return RedirectToAction("AdminPanel");
     }

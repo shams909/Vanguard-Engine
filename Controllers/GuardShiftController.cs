@@ -10,11 +10,13 @@ public class GuardShiftController : Controller
 {
     private readonly IGuardShiftService _shiftService;
     private readonly IGuardApplicationService _guardService;
+    private readonly INotificationService _notificationService;
 
-    public GuardShiftController(IGuardShiftService shiftService, IGuardApplicationService guardService)
+    public GuardShiftController(IGuardShiftService shiftService, IGuardApplicationService guardService, INotificationService notificationService)
     {
         _shiftService = shiftService;
         _guardService = guardService;
+        _notificationService = notificationService;
     }
 
     private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
@@ -38,8 +40,21 @@ public class GuardShiftController : Controller
 
         var result = await _shiftService.CheckInAsync(guardId, guardName, assignedShiftId);
 
-        TempData[result.Success ? "Success" : "Error"] =
-            result.Success ? "✅ Shift started. You are now checked in." : result.Error;
+        if (result.Success)
+        {
+            TempData["Success"] = "✅ Shift started. You are now checked in.";
+            // 🔔 Real-time: Notify Admins of live check-in
+            await _notificationService.NotifyRoleAsync(
+                roleName: "Admin",
+                title: "Guard Checked In",
+                message: $"{guardName} has checked in and started their shift.",
+                type: "Info"
+            );
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
 
         return RedirectToAction("Guard", "Dashboard");
     }
@@ -49,10 +64,24 @@ public class GuardShiftController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CheckOut(string shiftId)
     {
+        var guardName = User.Identity?.Name ?? "Unknown Officer";
         var result = await _shiftService.CheckOutAsync(shiftId, GetUserId());
 
-        TempData[result.Success ? "Success" : "Error"] =
-            result.Success ? "Shift completed. Duration saved to your history." : result.Error;
+        if (result.Success)
+        {
+            TempData["Success"] = "Shift completed. Duration saved to your history.";
+            // 🔔 Real-time: Notify Admins of check-out
+            await _notificationService.NotifyRoleAsync(
+                roleName: "Admin",
+                title: "Guard Checked Out",
+                message: $"{guardName} has completed their shift and checked out.",
+                type: "Info"
+            );
+        }
+        else
+        {
+            TempData["Error"] = result.Error;
+        }
 
         return RedirectToAction("Guard", "Dashboard");
     }

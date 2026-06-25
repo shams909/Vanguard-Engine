@@ -52,6 +52,12 @@ public class IncidentService : IIncidentService
         return (true, string.Empty);
     }
 
+    public async Task<Incident?> GetIncidentByIdAsync(string incidentId)
+    {
+        if (string.IsNullOrWhiteSpace(incidentId)) return null;
+        return await _unitOfWork.Incidents.GetByIdAsync(incidentId);
+    }
+
     public async Task<List<Incident>> GetMyReportsAsync(string userId)
     {
         if (string.IsNullOrWhiteSpace(userId)) return new List<Incident>();
