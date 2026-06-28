@@ -6,7 +6,9 @@
 
 <div class="page-header">
     <div>
-        <h1 class="page-header-title">👥 Users Management</h1>
+        <h1 class="page-header-title" style="display:flex; align-items:center; gap:10px;">
+            <i data-lucide="users" style="width:28px; height:28px; color:var(--accent);"></i> Users Management
+        </h1>
         <p class="page-header-sub">View all registered users and manage their roles</p>
     </div>
     <a asp-action="Create" class="dk-btn dk-btn-primary">+ Add User</a>
@@ -92,9 +94,11 @@
     }
     else
     {
-        <div class="empty-state">
-            <div class="empty-icon">👥</div>
-            <div class="empty-title">No users found</div>
+        <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+            <div class="empty-icon" style="margin-bottom: 12px; color: var(--text-muted); display:flex; justify-content:center;">
+                <i data-lucide="users" style="width:36px; height:36px;"></i>
+            </div>
+            <div class="empty-title" style="font-weight:700; color:var(--text);">No users found</div>
         </div>
     }
 </div>
