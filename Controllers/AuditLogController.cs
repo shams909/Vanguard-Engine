@@ -49,4 +49,20 @@ public class AuditLogController : BaseController
         ViewBag.UserId = id;
         return View(logs);
     }
+
+    // GET /AuditLog/Export
+    [HttpGet("Export")]
+    public async Task<IActionResult> Export()
+    {
+        var logs = await _auditLogService.GetRecentActivityAsync(1000); // Export top 1000 for now
+        var builder = new System.Text.StringBuilder();
+        builder.AppendLine("Time,Entity Type,Entity ID,Action,From,To,Performed By,Notes");
+
+        foreach (var log in logs)
+        {
+            builder.AppendLine($"\"{log.CreatedAt:yyyy-MM-dd HH:mm:ss}\",\"{log.EntityType}\",\"{log.EntityId}\",\"{log.Action}\",\"{log.FromValue}\",\"{log.ToValue}\",\"{log.PerformedByRole}\",\"{log.Notes?.Replace("\"", "\"\"")}\"");
+        }
+
+        return File(System.Text.Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", $"AuditLogs_{DateTime.UtcNow:yyyyMMdd_HHmmss}.csv");
+    }
 }

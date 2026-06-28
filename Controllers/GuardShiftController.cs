@@ -120,4 +120,27 @@ public class GuardShiftController : BaseController
 
         return View(shifts);
     }
+
+    // GET /GuardShift/Export
+    [HttpGet("GuardShift/Export")]
+    [Authorize(Roles = "Admin,Recruiter")]
+    public async Task<IActionResult> Export(string filter = "All")
+    {
+        var shifts = filter switch
+        {
+            "Active"    => await _shiftService.GetActiveShiftsAsync(),
+            "Completed" => await _shiftService.GetCompletedShiftsAsync(),
+            _           => await _shiftService.GetAllShiftsAsync()
+        };
+
+        var builder = new System.Text.StringBuilder();
+        builder.AppendLine("Guard Name,Check In,Check Out,Status,Duration (mins),Location");
+
+        foreach (var shift in shifts)
+        {
+            builder.AppendLine($"\"{shift.GuardName}\",\"{shift.CheckInDateTime:yyyy-MM-dd HH:mm}\",\"{shift.CheckOutDateTime?.ToString("yyyy-MM-dd HH:mm") ?? "Active"}\",\"{shift.Status}\",\"{shift.DurationMinutes}\",\"Location not specified\"");
+        }
+
+        return File(System.Text.Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", $"GuardShifts_{filter}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.csv");
+    }
 }

@@ -17,6 +17,11 @@
         </h1>
         <p class="page-header-sub">Monitor guard check-ins, active shifts, and daily working hours.</p>
     </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+        <a asp-action="Export" asp-route-filter="@filter" class="dk-btn dk-btn-primary" style="background:var(--green);border-color:var(--green);">
+            <i data-lucide="download" style="width:16px;height:16px;margin-right:6px;"></i> Export to CSV
+        </a>
+    </div>
 </div>
 
 <!-- Stat Cards -->

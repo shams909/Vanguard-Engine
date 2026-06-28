@@ -31,16 +31,9 @@ public class NotificationRepository : AppwriteRepository<Notification>, INotific
 
     public async Task<int> GetUnreadCountAsync(string userId)
     {
-        var result = await _databases.ListDocuments(
-            databaseId: _databaseId,
-            collectionId: _collectionId,
-            queries: new List<string>
-            {
-                Query.Equal("userId", userId),
-                Query.Equal("isRead", false)
-            }
-        );
-        return (int)result.Total;
+        // Workaround for Appwrite C# SDK bug with boolean query parameters
+        var recent = await GetByUserIdAsync(userId);
+        return recent.Count(n => !n.IsRead);
     }
 
     public async Task MarkAsReadAsync(string notificationId)
