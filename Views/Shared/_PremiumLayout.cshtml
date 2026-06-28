@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <style>
         :root {
             --bg: #f3ede1;
@@ -42,12 +44,42 @@
             color: var(--text);
             min-height: 100vh;
             /* Coffee/Bronze Light Theme Background */
-            background-image:
-                radial-gradient(ellipse 70% 60% at 20% -20%, rgba(180, 83, 9, 0.35) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 80% 110%, rgba(146, 64, 14, 0.3) 0%, transparent 50%),
-                radial-gradient(circle 50% at 90% 10%, rgba(217, 119, 6, 0.25) 0%, transparent 60%);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(215, 200, 180, 0.4) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(245, 235, 220, 0.6) 0px, transparent 50%);
             background-attachment: fixed;
         }
+
+        /* ─── DATATABLES PREMIUM STYLING ─── */
+        .dataTables_wrapper { padding: 12px 4px; font-size: 0.85rem; }
+        .dataTables_wrapper .dataTables_filter { margin-bottom: 12px; }
+        .dataTables_wrapper .dataTables_filter label { display: flex; align-items: center; justify-content: flex-end; color: var(--text-muted); font-weight: 500; }
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid var(--border-strong); border-radius: 10px; padding: 8px 14px; min-width: 220px;
+            background: rgba(255,255,255,0.7); outline: none; margin-left: 8px; transition: all 0.2s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .dataTables_wrapper .dataTables_filter input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(180,83,9,0.15); }
+        .dataTables_wrapper .dataTables_length { margin-bottom: 12px; }
+        .dataTables_wrapper .dataTables_length label { display: flex; align-items: center; color: var(--text-muted); font-weight: 500; }
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 12px;
+            background: rgba(255,255,255,0.7); margin: 0 8px; font-weight: 600; color: var(--text); outline: none; cursor: pointer;
+        }
+        .dataTables_wrapper .dataTables_paginate { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 8px !important; border: 1px solid transparent !important; background: transparent !important; color: var(--text) !important; font-weight: 600; padding: 6px 12px !important; margin: 0 2px; transition: all 0.15s;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--accent) !important; color: white !important; font-weight: 700; box-shadow: 0 2px 8px rgba(146, 64, 14, 0.2); border: 1px solid var(--accent) !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current) {
+            background: rgba(180,83,9,0.1) !important; color: var(--accent) !important; border-color: rgba(180,83,9,0.2) !important;
+        }
+        table.dataTable { margin-top: 8px !important; margin-bottom: 8px !important; border-bottom: 1px solid var(--border) !important; }
+        table.dataTable thead th, table.dataTable thead td, table.dataTable.no-footer {
+            border-bottom: 2px solid var(--border) !important; padding: 12px 16px;
+        }
+        .dataTables_info { color: var(--text-muted) !important; margin-top: 20px; }
 
         /* ─── NAVBAR ─── */
         .dk-nav {
@@ -704,7 +736,28 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
-<script>lucide.createIcons();</script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    lucide.createIcons();
+    $(document).ready(function() {
+        if ($.fn.DataTable) {
+            $('.dk-table, table[style*="width: 100%"], table[style*="width:100%"]').not('.no-dt').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "language": {
+                    "search": "<i data-lucide='search' style='width:16px;height:16px;margin-bottom:-3px;color:var(--text-muted);margin-right:6px;'></i>",
+                    "searchPlaceholder": "Search records...",
+                    "lengthMenu": "<span style='color:var(--text-muted);font-weight:600;margin-right:6px;'>Display</span> _MENU_",
+                    "info": "<span style='color:var(--text-muted);font-weight:600;'>Showing _START_ to _END_ of _TOTAL_ entries</span>"
+                },
+                "drawCallback": function() {
+                    lucide.createIcons();
+                },
+                "order": [] 
+            });
+        }
+    });
+</script>
 <script src="~/js/notification.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>

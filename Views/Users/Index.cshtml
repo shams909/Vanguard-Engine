@@ -99,15 +99,4 @@
     }
 </div>
 
-@if (Model.Users.Any())
-{
-    <ul class="pagination">
-        <li class="@(Model.PageNumber <= 1 ? "disabled" : "")">
-            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize">← Prev</a>
-        </li>
-        <li class="active"><span>Page @Model.PageNumber</span></li>
-        <li>
-            <a asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize">Next →</a>
-        </li>
-    </ul>
-}
+</div>
