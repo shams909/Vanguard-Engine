@@ -402,7 +402,37 @@ public class ClientRequestService : IClientRequestService
         var existing = await _unitOfWork.ClientRequests.GetByIdAsync(id);
         if (existing == null) return (false, "Client security request not found.");
 
+        // 1. Free any assigned guards
+        if (existing.AssignedGuardIds != null && existing.AssignedGuardIds.Any())
+        {
+            foreach (var gid in existing.AssignedGuardIds)
+            {
+                await _unitOfWork.Users.UpdateGuardStatusAsync(gid, "Available");
+            }
+        }
+
+        // 2. Delete linked GuardApplications
+        var linkedApps = await _unitOfWork.GuardApplications.GetByJobIdAsync(id);
+        foreach (var app in linkedApps)
+        {
+            await _unitOfWork.GuardApplications.DeleteAsync(app.Id);
+        }
+
+        // 3. Delete linked AssignedShifts
+        var linkedShifts = await _unitOfWork.AssignedShifts.GetByClientRequestIdAsync(id);
+        foreach (var shift in linkedShifts)
+        {
+            await _unitOfWork.AssignedShifts.DeleteAsync(shift.Id);
+        }
+
+        // 4. Hard delete the request
         await _unitOfWork.ClientRequests.DeleteAsync(id);
+
+        // 5. Audit Log (Danger Zone event)
+        await _auditLog.LogAsync("ClientRequest", id, "DangerZone_Purge",
+            "system", fromValue: existing.Status, toValue: "DELETED",
+            notes: $"Hard deleted with {linkedApps.Count} applications and {linkedShifts.Count} shifts.", performedByRole: "Admin");
+
         return (true, string.Empty);
     }
 

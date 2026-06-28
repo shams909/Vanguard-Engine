@@ -156,7 +156,7 @@
                                     </form>
                                 }
 
-                                <form asp-action="Delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete this deployment request?');">
+                                <form asp-action="Delete" method="post" style="display: inline;" data-confirm="Are you sure you want to permanently delete this deployment request?">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@request.Id" />
                                     <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25); box-shadow: none; padding: 6px 8px;">

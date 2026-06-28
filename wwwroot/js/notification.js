@@ -83,14 +83,61 @@
         const icon = TYPE_ICONS[type] ?? '💬';
 
         el.innerHTML = `
+            <input type="checkbox" class="notif-checkbox" />
             <div class="notif-icon-wrap notif-icon-${type}">${icon}</div>
             <div class="notif-body">
                 <p class="notif-title">${escHtml(notif.title ?? notif.Title ?? 'Notification')}</p>
                 <p class="notif-msg">${escHtml(notif.message ?? notif.Message ?? '')}</p>
                 <p class="notif-time">⏱ ${timeAgo(notif.createdAt ?? notif.CreatedAt)}</p>
+            </div>
+            <div style="position:relative; margin-left:auto;">
+                <button class="notif-more-btn" aria-label="More options">
+                    <i data-lucide="more-vertical" style="width:16px;height:16px;"></i>
+                </button>
+                <div class="notif-dropdown">
+                    <button class="notif-dropdown-item notif-mark-read-btn">Mark as read</button>
+                    <button class="notif-dropdown-item danger notif-del-btn">Delete</button>
+                </div>
             </div>`;
 
+        const moreBtn = el.querySelector('.notif-more-btn');
+        const dropdown = el.querySelector('.notif-dropdown');
+        const checkbox = el.querySelector('.notif-checkbox');
+
+        // Toggle dropdown
+        moreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.notif-dropdown.show').forEach(d => {
+                if (d !== dropdown) d.classList.remove('show');
+            });
+            dropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!moreBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Prevent checkbox click from triggering markRead
+        checkbox.addEventListener('click', (e) => e.stopPropagation());
+
+        // Actions
+        el.querySelector('.notif-mark-read-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.remove('show');
+            markRead(el);
+        });
+
+        el.querySelector('.notif-del-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.remove('show');
+            deleteNotif(el);
+        });
+
         el.addEventListener('click', () => markRead(el));
+        
         return el;
     }
 
@@ -99,6 +146,7 @@
         const empty = list.querySelector('.notif-empty');
         if (empty) empty.remove();
         list.prepend(buildItem(notif));
+        if (window.lucide) lucide.createIcons();
     }
 
     function markRead(el, updateBadgeCount = true) {
@@ -107,6 +155,79 @@
         if (updateBadgeCount) updateBadge(unreadCount - 1);
         const id = el.dataset?.id;
         if (id) fetch(`/api/notifications/${id}/read`, { method: 'PATCH' }).catch(() => {});
+    }
+
+    function deleteNotif(el) {
+        if (!el) return;
+        const id = el.dataset?.id;
+        if (el.classList.contains('notif-unread')) {
+            updateBadge(unreadCount - 1);
+        }
+        
+        // Add animation class
+        el.classList.add('removing');
+        
+        setTimeout(() => {
+            el.remove();
+            if (list && list.querySelectorAll('.notif-item').length === 0) {
+                list.innerHTML = `
+                    <div class="notif-empty">
+                        <div class="notif-empty-icon">🔕</div>
+                        <div class="notif-empty-text">All caught up!</div>
+                        <div class="notif-empty-sub">No notifications yet.</div>
+                    </div>`;
+            }
+        }, 300); // Matches CSS animation duration
+
+        if (id) fetch(`/api/notifications/${id}`, { method: 'DELETE' }).catch(() => {});
+    }
+
+    const clearAllBtn = document.getElementById('notif-clear-all');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            const items = list?.querySelectorAll('.notif-item');
+            if (!items || items.length === 0) return;
+            
+            // Get selected ones
+            const checkedBoxes = Array.from(list.querySelectorAll('.notif-checkbox:checked'));
+            const selectedItems = checkedBoxes.map(cb => cb.closest('.notif-item'));
+            
+            if (selectedItems.length === 0) {
+                // If nothing selected, maybe warn them? We will just do nothing.
+                alert("Please select at least one notification to delete.");
+                return;
+            }
+            
+            const ids = selectedItems.map(el => el.dataset.id).filter(id => id);
+            
+            selectedItems.forEach(el => {
+                if (el.classList.contains('notif-unread')) {
+                    updateBadge(unreadCount - 1);
+                }
+                el.classList.add('removing');
+            });
+            
+            setTimeout(() => {
+                selectedItems.forEach(el => el.remove());
+                
+                if (list.querySelectorAll('.notif-item').length === 0) {
+                    list.innerHTML = `
+                        <div class="notif-empty">
+                            <div class="notif-empty-icon">🔕</div>
+                            <div class="notif-empty-text">All caught up!</div>
+                            <div class="notif-empty-sub">No notifications yet.</div>
+                        </div>`;
+                }
+            }, 300);
+            
+            if (ids.length > 0) {
+                fetch(`/api/notifications/bulk-delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(ids)
+                }).catch(() => {});
+            }
+        });
     }
 
     /* ─── Helpers ───────────────────────────────────────────── */
@@ -156,6 +277,7 @@
                     const n = items[i];
                     if (n?.isRead ?? n?.IsRead) el.classList.remove('notif-unread');
                 });
+                if (window.lucide) lucide.createIcons();
             }
         } catch (_) {}
     }

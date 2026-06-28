@@ -1,0 +1,142 @@
+@using Vanguard_Engine.Entities
+@{
+    ViewData["Title"] = "Danger Zone";
+    var clientReqs = ViewBag.ClientRequests as List<ClientRequest> ?? new List<ClientRequest>();
+    var vipReqs = ViewBag.VIPRequests as List<VIPRequest> ?? new List<VIPRequest>();
+    var users = ViewBag.Users as List<User> ?? new List<User>();
+}
+
+<div style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 32px;">
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #ef4444; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+            <i data-lucide="alert-triangle" style="width: 32px; height: 32px;"></i> Danger Zone
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem;">
+            WARNING: Actions taken here are permanent. Hard deletions bypass the standard lifecycle and erase all associated records.
+        </p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="dk-alert" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-left: 4px solid #10b981; padding: 16px; margin-bottom: 24px; border-radius: 4px;">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="dk-alert" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border-left: 4px solid #ef4444; padding: 16px; margin-bottom: 24px; border-radius: 4px;">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Client Requests -->
+    <div class="dk-card" style="margin-bottom: 32px; border: 1px solid rgba(239, 68, 68, 0.3);">
+        <div class="dk-card-header" style="background: rgba(239, 68, 68, 0.05); padding: 20px; border-bottom: 1px solid rgba(239, 68, 68, 0.1);">
+            <h3 style="font-weight: 700; color: #ef4444; font-size: 1.2rem;">Client Requests</h3>
+        </div>
+        <div class="dk-card-pad">
+            <table class="dk-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Guards</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in clientReqs)
+                    {
+                        <tr>
+                            <td style="font-weight: 600;">@r.Location</td>
+                            <td><span class="badge" style="background: #333; color: white;">@r.Status</span></td>
+                            <td>@(r.AssignedGuardIds?.Count ?? 0) / @r.NumberOfGuards</td>
+                            <td style="text-align: right;">
+                                <form asp-action="PurgeClientRequest" method="post">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" data-confirm="Are you sure you want to permanently purge this request? All linked applications and shifts will be deleted.">
+                                        Purge
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- VIP Requests -->
+    <div class="dk-card" style="margin-bottom: 32px; border: 1px solid rgba(239, 68, 68, 0.3);">
+        <div class="dk-card-header" style="background: rgba(239, 68, 68, 0.05); padding: 20px; border-bottom: 1px solid rgba(239, 68, 68, 0.1);">
+            <h3 style="font-weight: 700; color: #ef4444; font-size: 1.2rem;">VIP Requests</h3>
+        </div>
+        <div class="dk-card-pad">
+            <table class="dk-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>VIP Client</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in vipReqs)
+                    {
+                        <tr>
+                            <td style="font-weight: 600;">@r.VipClientId</td>
+                            <td>@r.ProtectionType</td>
+                            <td><span class="badge" style="background: #333; color: white;">@r.Status</span></td>
+                            <td style="text-align: right;">
+                                <form asp-action="PurgeVipRequest" method="post">
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" data-confirm="Are you sure you want to permanently purge this VIP request? Assigned guards will be released.">
+                                        Purge
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Users -->
+    <div class="dk-card" style="margin-bottom: 32px; border: 1px solid rgba(239, 68, 68, 0.3);">
+        <div class="dk-card-header" style="background: rgba(239, 68, 68, 0.05); padding: 20px; border-bottom: 1px solid rgba(239, 68, 68, 0.1);">
+            <h3 style="font-weight: 700; color: #ef4444; font-size: 1.2rem;">Users</h3>
+        </div>
+        <div class="dk-card-pad">
+            <table class="dk-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in users)
+                    {
+                        <tr>
+                            <td style="font-weight: 600;">@u.Username</td>
+                            <td>@u.Email</td>
+                            <td>@u.Role?.RoleName</td>
+                            <td style="text-align: right;">
+                                <form asp-action="PurgeUser" method="post">
+                                    <input type="hidden" name="id" value="@u.Id" />
+                                    <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" data-confirm="Are you sure you want to completely erase user @u.Username? This will delete all their requests, applications, and their Auth identity permanently.">
+                                        Erase User
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

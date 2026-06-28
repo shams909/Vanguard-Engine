@@ -168,7 +168,7 @@ else
     @if (Model.Status == "Pending")
     {
         <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
-              onsubmit="return confirm('Withdraw this application? This cannot be undone.');">
+              data-confirm="Withdraw this application? This cannot be undone.">
             <button type="submit" class="dk-btn dk-btn-danger">✕ Withdraw Application</button>
         </form>
     }

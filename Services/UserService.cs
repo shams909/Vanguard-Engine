@@ -8,11 +8,13 @@ public class UserService : IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly PasswordHasher<User> _passwordHasher;
+    private readonly IAppwriteService _appwrite;
 
-    public UserService(IUnitOfWork unitOfWork)
+    public UserService(IUnitOfWork unitOfWork, IAppwriteService appwrite)
     {
         _unitOfWork = unitOfWork;
         _passwordHasher = new PasswordHasher<User>();
+        _appwrite = appwrite;
     }
 
     public async Task<List<User>> GetAllAsync(int pageNumber, int pageSize)
@@ -82,8 +84,45 @@ public class UserService : IUserService
         var user = await _unitOfWork.Users.GetByIdAsync(id);
         if (user is null) return false;
 
+        // Cascade delete based on role/activity
+        
+        // 1. If Guard: Delete GuardApplications
+        var allApps = await _unitOfWork.GuardApplications.GetAllAsync();
+        var apps = allApps.Where(a => a.UserId == id).ToList();
+        foreach (var app in apps)
+        {
+            await _unitOfWork.GuardApplications.DeleteAsync(app.Id);
+        }
+
+        // 2. If Client: Delete ClientRequests
+        var clientRequests = await _unitOfWork.ClientRequests.GetByClientIdAsync(id);
+        foreach (var req in clientRequests)
+        {
+            await _unitOfWork.ClientRequests.DeleteAsync(req.Id);
+        }
+
+        // 3. If VIP: Delete VIPRequests
+        var vipRequests = await _unitOfWork.VipRequests.GetByClientIdAsync(id);
+        foreach (var req in vipRequests)
+        {
+            await _unitOfWork.VipRequests.DeleteAsync(req.Id);
+        }
+
+        // 4. Remove the user document from the Database
         _unitOfWork.Users.Remove(user);
         await _unitOfWork.SaveChangesAsync();
+        
+        // 5. Remove the user from Appwrite Auth
+        try
+        {
+            var usersService = new Appwrite.Services.Users(_appwrite.GetClient());
+            await usersService.Delete(id);
+        }
+        catch 
+        {
+            // If the auth identity is already deleted or not found, ignore the error
+        }
+
         return true;
     }
 

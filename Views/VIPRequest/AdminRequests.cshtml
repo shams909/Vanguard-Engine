@@ -163,14 +163,14 @@
                                 <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
                                     @if (req.Status == "Pending")
                                     {
-                                        <form asp-action="Approve" method="post" style="display:inline;" onsubmit="return confirm('Approve this VIP protection request?')">
+                                        <form asp-action="Approve" method="post" style="display:inline;" data-confirm="Approve this VIP protection request?">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@req.Id" />
                                             <button type="submit" class="dk-btn dk-btn-success dk-btn-sm">
                                                 <i data-lucide="check" style="width:13px; height:13px;"></i> Approve
                                             </button>
                                         </form>
-                                        <form asp-action="Reject" method="post" style="display:inline;" onsubmit="return confirm('Reject this VIP request?')">
+                                        <form asp-action="Reject" method="post" style="display:inline;" data-confirm="Reject this VIP request?">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@req.Id" />
                                             <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm">
@@ -186,7 +186,7 @@
                                     }
                                     @if (req.Status == "Assigned")
                                     {
-                                        <form asp-action="StartProtection" method="post" style="display:inline;" onsubmit="return confirm('Start active protection for this VIP service?')">
+                                        <form asp-action="StartProtection" method="post" style="display:inline;" data-confirm="Start active protection for this VIP service?">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@req.Id" />
                                             <button type="submit" class="dk-btn dk-btn-primary dk-btn-sm">
@@ -196,7 +196,7 @@
                                     }
                                     @if (req.Status is "Assigned" or "Active")
                                     {
-                                        <form asp-action="Complete" method="post" style="display:inline;" onsubmit="return confirm('Mark this VIP service as completed? All guards will be released.')">
+                                        <form asp-action="Complete" method="post" style="display:inline;" data-confirm="Mark this VIP service as completed? All guards will be released.">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@req.Id" />
                                             <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--green); border-color: rgba(52,211,153,0.3);">

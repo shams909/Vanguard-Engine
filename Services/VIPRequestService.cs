@@ -103,6 +103,11 @@ public class VIPRequestService : IVIPRequestService
             await ReleaseGuardsAsync(existing.AssignedGuardIds);
 
         await _unitOfWork.VipRequests.DeleteAsync(id);
+        
+        await _auditLog.LogAsync("VIPRequest", id, "DangerZone_Purge",
+            "system", fromValue: existing.Status, toValue: "DELETED",
+            notes: $"Hard deleted VIP request.", performedByRole: "Admin");
+            
         return (true, string.Empty);
     }
 

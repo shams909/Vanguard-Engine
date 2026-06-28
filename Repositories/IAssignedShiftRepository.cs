@@ -14,5 +14,7 @@ public interface IAssignedShiftRepository : IGenericRepository<AssignedShift>
 
     /// <summary>MODULE 8: Atomically updates just the status field.</summary>
     Task UpdateStatusAsync(string id, string status);
+
+    Task DeleteAsync(string id);
 }
 

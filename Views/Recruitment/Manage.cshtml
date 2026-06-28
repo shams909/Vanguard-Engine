@@ -71,14 +71,14 @@
                                 {
                                     <form asp-action="Close" asp-route-id="@notice.Id" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" title="Close Post" onclick="return confirm('Are you sure you want to close this hiring notice?')">
+                                        <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" title="Close Post" data-confirm="Are you sure you want to close this hiring notice?">
                                             <i data-lucide="x-circle" style="width:14px; height:14px;"></i>
                                         </button>
                                     </form>
                                 }
                                 <form asp-action="Delete" asp-route-id="@notice.Id" method="post" style="display:inline;">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" style="background:rgba(248,113,113,0.05); border-color:rgba(248,113,113,0.15);" title="Delete Permanently" onclick="return confirm('WARNING: This will permanently delete the notice. Continue?')">
+                                    <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" style="background:rgba(248,113,113,0.05); border-color:rgba(248,113,113,0.15);" title="Delete Permanently" data-confirm="WARNING: This will permanently delete the notice. Continue?">
                                         <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
                                     </button>
                                 </form>

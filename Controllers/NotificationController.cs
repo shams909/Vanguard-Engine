@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Vanguard_Engine.Services;
@@ -8,6 +8,7 @@ namespace Vanguard_Engine.Controllers;
 [ApiController]
 [Route("api/notifications")]
 [Authorize]
+[IgnoreAntiforgeryToken]
 public class NotificationController : ControllerBase
 {
     private readonly INotificationService _notificationService;
@@ -22,7 +23,6 @@ public class NotificationController : ControllerBase
         ?? User.FindFirstValue("sub")
         ?? string.Empty;
 
-    // GET /api/notifications
     [HttpGet]
     public async Task<IActionResult> GetNotifications([FromQuery] int page = 1, [FromQuery] int pageSize = 30)
     {
@@ -30,7 +30,7 @@ public class NotificationController : ControllerBase
         if (string.IsNullOrEmpty(uid)) return Unauthorized();
 
         var notifications = await _notificationService.GetUserNotificationsAsync(uid, page, pageSize);
-        var unreadCount   = notifications.Count(n => !n.IsRead);
+        var unreadCount   = await _notificationService.GetUnreadCountAsync(uid);
         return Ok(new { notifications, unreadCount });
     }
 
@@ -72,6 +72,25 @@ public class NotificationController : ControllerBase
         if (string.IsNullOrEmpty(uid)) return Unauthorized();
 
         await _notificationService.DeleteExpiredAsync(uid);
+        return NoContent();
+    }
+
+    // DELETE /api/notifications/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        await _notificationService.DeleteAsync(id);
+        return NoContent();
+    }
+
+    // POST /api/notifications/bulk-delete
+    [HttpPost("bulk-delete")]
+    public async Task<IActionResult> BulkDelete([FromBody] List<string> ids)
+    {
+        if (ids != null && ids.Any())
+        {
+            await _notificationService.DeleteManyAsync(ids);
+        }
         return NoContent();
     }
 }

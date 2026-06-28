@@ -107,6 +107,94 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        lucide.createIcons();
+
+        // Global Action Alerts for data-confirm
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-confirm]').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const message = this.getAttribute('data-confirm');
+                    const form = this.closest('form');
+                    const href = this.getAttribute('href');
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Yes, proceed',
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        backdrop: 'rgba(0, 0, 0, 0.5)'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            if (form) form.submit();
+                            else if (href) window.location.href = href;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+    @if (isAuthenticated)
+    {
+        var currentUserId = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(currentUserId))
+        {
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const connection = new signalR.HubConnectionBuilder()
+                        .withUrl("/notificationHub")
+                        .configureLogging(signalR.LogLevel.Warning)
+                        .withAutomaticReconnect()
+                        .build();
+
+                    connection.on("ReceiveNotification", (notification) => {
+                        let iconType = 'info';
+                        let typeStr = notification.type ? notification.type.toLowerCase() : '';
+                        
+                        if (typeStr === 'warning' || typeStr.includes('danger')) iconType = 'warning';
+                        else if (typeStr === 'success') iconType = 'success';
+                        else if (typeStr === 'error') iconType = 'error';
+
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'bottom-end',
+                            showConfirmButton: false,
+                            timer: 6000,
+                            timerProgressBar: true,
+                            background: '#1e293b',
+                            color: '#ffffff',
+                            iconColor: iconType === 'warning' ? '#f59e0b' : (iconType === 'success' ? '#10b981' : '#3b82f6'),
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        });
+
+                        Toast.fire({
+                            icon: iconType,
+                            title: notification.title,
+                            text: notification.message
+                        });
+                    });
+
+                    connection.start().then(() => {
+                        connection.invoke("Subscribe", "@currentUserId");
+                    }).catch(err => console.error("SignalR Connection Error: ", err.toString()));
+                });
+            </script>
+        }
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

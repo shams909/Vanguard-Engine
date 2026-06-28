@@ -77,14 +77,14 @@
                                     <form asp-action="Approve" method="post" style="display: inline;">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="applicationId" value="@app.Id" />
-                                        <button type="submit" class="dk-btn dk-btn-success dk-btn-sm" onclick="return confirm('Approve and upgrade this user to VIP Client?');">
+                                        <button type="submit" class="dk-btn dk-btn-success dk-btn-sm" data-confirm="Approve and upgrade this user to VIP Client?">
                                             Approve
                                         </button>
                                     </form>
                                     <form asp-action="Reject" method="post" style="display: inline;">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="applicationId" value="@app.Id" />
-                                        <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" onclick="return confirm('Reject this application?');">
+                                        <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm" data-confirm="Reject this application?">
                                             Reject
                                         </button>
                                     </form>

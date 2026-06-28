@@ -48,13 +48,13 @@
             <div style="display:flex; gap:10px;">
                 <form asp-action="Approve" asp-route-id="@Model.Id" method="post">
                     <button type="submit" class="dk-btn dk-btn-success"
-                            onclick="return confirm('Approve application for @Model.FullName?')">
+                            data-confirm="Approve application for @Model.FullName?">
                         <i data-lucide="check" style="width:14px;height:14px;"></i> Approve Application
                     </button>
                 </form>
                 <form asp-action="Reject" asp-route-id="@Model.Id" method="post">
                     <button type="submit" class="dk-btn dk-btn-danger"
-                            onclick="return confirm('Reject application for @Model.FullName?')">
+                            data-confirm="Reject application for @Model.FullName?">
                         <i data-lucide="x" style="width:14px;height:14px;"></i> Reject Application
                     </button>
                 </form>
@@ -191,13 +191,13 @@
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
                     <form asp-action="Approve" asp-route-id="@Model.Id" method="post" style="flex:1;">
                         <button type="submit" class="dk-btn dk-btn-success" style="width:100%; justify-content:center; padding:12px;"
-                                onclick="return confirm('Approve @Model.FullName\'s application? This cannot be reversed.')">
+                                data-confirm="Approve @Model.FullName\'s application? This cannot be reversed.">
                             <i data-lucide="check" style="width:14px;height:14px;"></i> Approve Candidate
                         </button>
                     </form>
                     <form asp-action="Reject" asp-route-id="@Model.Id" method="post" style="flex:1;">
                         <button type="submit" class="dk-btn dk-btn-danger" style="width:100%; justify-content:center; padding:12px;"
-                                onclick="return confirm('Reject @Model.FullName\'s application? This cannot be reversed.')">
+                                data-confirm="Reject @Model.FullName\'s application? This cannot be reversed.">
                             <i data-lucide="x" style="width:14px;height:14px;"></i> Reject Candidate
                         </button>
                     </form>

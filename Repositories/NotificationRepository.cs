@@ -148,4 +148,20 @@ public class NotificationRepository : AppwriteRepository<Notification>, INotific
         }
         catch { /* Swallow — non-critical */ }
     }
+
+    public async Task DeleteAsync(string id)
+    {
+        try { await _databases.DeleteDocument(_databaseId, _collectionId, id); }
+        catch { }
+    }
+
+    public async Task DeleteManyAsync(List<string> ids)
+    {
+        try 
+        {
+            var tasks = ids.Select(id => _databases.DeleteDocument(_databaseId, _collectionId, id));
+            await Task.WhenAll(tasks);
+        }
+        catch { }
+    }
 }

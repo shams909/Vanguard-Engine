@@ -111,7 +111,7 @@
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="shiftId" value="@shift.Id" />
                                         <input type="hidden" name="status" value="Cancelled" />
-                                        <button type="submit" class="dk-btn dk-btn-danger" style="padding: 4px 10px; font-size: 0.76rem;" onclick="return confirm('Cancel this shift?')">Cancel</button>
+                                        <button type="submit" class="dk-btn dk-btn-danger" style="padding: 4px 10px; font-size: 0.76rem;" data-confirm="Cancel this shift?">Cancel</button>
                                     </form>
                                 }
                                 else if (shift.Status == "Cancelled")
@@ -120,7 +120,7 @@
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="shiftId" value="@shift.Id" />
                                         <input type="hidden" name="status" value="Scheduled" />
-                                        <button type="submit" class="dk-btn dk-btn-primary" style="padding: 4px 10px; font-size: 0.76rem;" onclick="return confirm('Restore this shift?')">Restore</button>
+                                        <button type="submit" class="dk-btn dk-btn-primary" style="padding: 4px 10px; font-size: 0.76rem;" data-confirm="Restore this shift?">Restore</button>
                                     </form>
                                 }
                             </td>

@@ -83,7 +83,7 @@ else
                             <button type="submit" class="dk-btn dk-btn-success dk-btn-sm"><i data-lucide="check" style="width:14px;height:14px;"></i> Approve</button>
                         </form>
                         <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;"
-                              onsubmit="return confirm('Reject application from @item.FullName?');">
+                              data-confirm="Reject application from @item.FullName?">
                             <button type="submit" class="dk-btn dk-btn-danger dk-btn-sm"><i data-lucide="x" style="width:14px;height:14px;"></i> Reject</button>
                         </form>
                     </div>

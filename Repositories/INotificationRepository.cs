@@ -15,5 +15,8 @@ public interface INotificationRepository : IGenericRepository<Notification>
 
     /// <summary>MODULE 9: Deletes all expired notifications for a user.</summary>
     Task DeleteExpiredAsync(string userId);
+
+    Task DeleteAsync(string id);
+    Task DeleteManyAsync(List<string> ids);
 }
 

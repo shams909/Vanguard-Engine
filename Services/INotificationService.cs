@@ -24,5 +24,7 @@ public interface INotificationService
 
     /// <summary>MODULE 9: Deletes all notifications past their expiry date for housekeeping.</summary>
     Task DeleteExpiredAsync(string userId);
-}
 
+    Task DeleteAsync(string notificationId);
+    Task DeleteManyAsync(List<string> notificationIds);
+}

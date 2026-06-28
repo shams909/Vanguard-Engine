@@ -95,6 +95,11 @@ public class AppwriteAssignedShiftRepository : AppwriteRepository<AssignedShift>
         );
     }
 
+    public async Task DeleteAsync(string id)
+    {
+        await _databases.DeleteDocument(_databaseId, _collectionId, id);
+    }
+
     public override void Update(AssignedShift shift)
     {
         // Fire-and-forget synchronous wrapper — used from legacy code.

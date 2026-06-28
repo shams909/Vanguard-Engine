@@ -169,4 +169,16 @@ public class NotificationService : INotificationService
             _logger.LogWarning(ex, "[Notifications] DeleteExpiredAsync failed for user {UserId}.", userId);
         }
     }
+
+    public async Task DeleteAsync(string notificationId)
+    {
+        try { await _unitOfWork.Notifications.DeleteAsync(notificationId); }
+        catch (Exception ex) { _logger.LogWarning(ex, "[Notifications] DeleteAsync failed."); }
+    }
+
+    public async Task DeleteManyAsync(List<string> notificationIds)
+    {
+        try { await _unitOfWork.Notifications.DeleteManyAsync(notificationIds); }
+        catch (Exception ex) { _logger.LogWarning(ex, "[Notifications] DeleteManyAsync failed."); }
+    }
 }
