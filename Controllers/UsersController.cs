@@ -6,7 +6,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class UsersController : Controller
+public class UsersController : BaseController
 {
     private readonly IUserService _userService;
     private readonly IRoleService _roleService;

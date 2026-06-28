@@ -1,0 +1,54 @@
+@model IEnumerable<Vanguard_Engine.Entities.AuditLog>
+@{
+    ViewData["Title"] = $"Audit Trail — {ViewBag.EntityType} {ViewBag.EntityId}";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:6px;">Vanguard Engine</div>
+        <h1 class="page-header-title">Entity Timeline</h1>
+        <p class="page-header-sub">
+            Full history for <strong>@ViewBag.EntityType</strong>
+            <span style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-left:6px;">@ViewBag.EntityId</span>
+        </p>
+    </div>
+    <a asp-action="Index" class="dk-btn dk-btn-ghost dk-btn-sm">← Back to Feed</a>
+</div>
+
+<div class="dk-card dk-card-pad" style="margin-top:8px;">
+    @if (!Model.Any())
+    {
+        <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+            <div style="font-size:1rem;font-weight:600;">No history for this entity</div>
+        </div>
+    }
+    else
+    {
+        <div style="position:relative;padding-left:24px;">
+            @foreach (var log in Model)
+            {
+                <div style="position:relative;margin-bottom:28px;">
+                    <div style="position:absolute;left:-24px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);"></div>
+                    <div style="position:absolute;left:-20px;top:14px;width:2px;height:calc(100% + 14px);background:var(--border);"></div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">@log.CreatedAt.ToString("dddd, MMMM dd yyyy · HH:mm UTC")</div>
+                    <div style="font-weight:700;color:var(--text);margin-bottom:4px;">
+                        @log.Action
+                        @if (!string.IsNullOrEmpty(log.FromValue) || !string.IsNullOrEmpty(log.ToValue))
+                        {
+                            <span style="font-weight:400;font-size:0.85rem;color:var(--text-muted);margin-left:8px;">
+                                @if (!string.IsNullOrEmpty(log.FromValue)) { <span>@log.FromValue</span> }
+                                @if (!string.IsNullOrEmpty(log.FromValue) && !string.IsNullOrEmpty(log.ToValue)) { <span style="color:var(--accent);margin:0 6px;">→</span> }
+                                @if (!string.IsNullOrEmpty(log.ToValue)) { <span style="color:var(--green);font-weight:700;">@log.ToValue</span> }
+                            </span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(log.Notes))
+                    {
+                        <div style="font-size:0.82rem;color:var(--text-muted);">@log.Notes</div>
+                    }
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">by <strong>@(log.PerformedByRole ?? "System")</strong> · ID: <span style="font-family:monospace;">@log.PerformedByUserId</span></div>
+                </div>
+            }
+        </div>
+    }
+</div>

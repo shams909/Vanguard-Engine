@@ -29,15 +29,29 @@
             @foreach (var shift in Model)
             {
                 <div style="padding: 18px 24px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
-                    <div>
+                    <div style="flex: 1; min-width: 250px;">
                         <div style="font-weight: 800; color: var(--text); font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
                             <i data-lucide="calendar-days" style="width: 18px; height: 18px; color: var(--accent);"></i>
                             @DateTime.Parse(shift.ShiftDate).ToString("dddd, MMM dd, yyyy")
                         </div>
-                        <div style="font-size: 0.86rem; color: var(--text-sub); margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                        <div style="font-size: 0.86rem; color: var(--text-sub); margin-top: 6px; display: flex; align-items: center; gap: 6px;">
                             <i data-lucide="clock" style="width: 14px; height: 14px; color: var(--green);"></i>
                             @shift.StartTime - @shift.EndTime
                         </div>
+                        @if (!string.IsNullOrEmpty(shift.Location))
+                        {
+                            <div style="font-size: 0.86rem; color: var(--text); margin-top: 6px; display: flex; align-items: flex-start; gap: 6px;">
+                                <i data-lucide="map-pin" style="width: 14px; height: 14px; color: #3b82f6; flex-shrink: 0; margin-top: 2px;"></i>
+                                <span><strong>Deployment Location:</strong> @shift.Location</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(shift.Notes))
+                        {
+                            <div style="font-size: 0.86rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: flex-start; gap: 6px; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; border-left: 3px solid var(--accent);">
+                                <i data-lucide="info" style="width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; margin-top: 2px;"></i>
+                                <span style="font-style: italic;">@shift.Notes</span>
+                            </div>
+                        }
                     </div>
                     <div>
                         @if (shift.Status == "Scheduled")

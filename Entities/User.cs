@@ -42,6 +42,14 @@ public class User
     [JsonProperty("resetTokenExpiry")]
     public DateTime? ResetTokenExpiry { get; set; }
 
+    /// <summary>
+    /// Operational availability status for guards only.
+    /// Values: Available | Assigned | OnDuty | Unavailable | Suspended
+    /// Null for non-guard users.
+    /// </summary>
+    [JsonProperty("guardStatus")]
+    public string? GuardStatus { get; set; }
+
     [JsonIgnore]
     public Role? Role { get; set; }
 }

@@ -5,7 +5,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class AnalyticsController : Controller
+public class AnalyticsController : BaseController
 {
     private readonly IUserService _userService;
     private readonly IIncidentService _incidentService;

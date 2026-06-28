@@ -16,6 +16,9 @@ builder.Services.AddControllersWithViews(options =>
 });
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
+// MODULE 2: Required by NotificationService to resolve SignalR user connections
+builder.Services.AddHttpContextAccessor();
+
 // builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -38,6 +41,7 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IVipApplicationService, VipApplicationService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();         // MODULE 11: Audit trail
 
 // Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

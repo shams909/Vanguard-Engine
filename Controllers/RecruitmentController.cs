@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vanguard_Engine.Entities;
@@ -7,7 +6,7 @@ using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Controllers;
 
-public class RecruitmentController : Controller
+public class RecruitmentController : BaseController
 {
     private readonly IHiringService _hiringService;
 
@@ -16,7 +15,7 @@ public class RecruitmentController : Controller
         _hiringService = hiringService;
     }
 
-    // ── PUBLIC: VIEW OPEN JOBS ───────────────────
+    // ── PUBLIC: VIEW OPEN JOBS ─────────────────────────────────────────────────
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -32,7 +31,7 @@ public class RecruitmentController : Controller
         return View(notice);
     }
 
-    // ── ADMIN: MANAGE JOBS ────────────────────────
+    // ── ADMIN / RECRUITER: MANAGE JOBS ────────────────────────────────────────
     [Authorize(Roles = "Admin,Recruiter")]
     [HttpGet]
     public async Task<IActionResult> Manage()
@@ -55,26 +54,24 @@ public class RecruitmentController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var referenceCode = "V-REQ-" + DateTime.Now.ToString("yyMMdd") + (new Random().Next(100, 999)).ToString();
-
         var notice = new HiringNotice
         {
-            Title = model.Title,
-            ReferenceCode = referenceCode,
-            JobType = model.JobType,
-            Priority = model.Priority,
-            Description = model.Description,
-            Requirements = model.Requirements,
-            Location = model.Location,
-            SalaryRange = model.SalaryRange,
-            ExpiryDate = model.ExpiryDate,
-            PostedByUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty
+            Title           = model.Title,
+            JobType         = model.JobType,
+            Priority        = model.Priority,
+            Description     = model.Description,
+            Requirements    = model.Requirements,
+            Location        = model.Location,
+            SalaryRange     = model.SalaryRange,
+            ExpiryDate      = model.ExpiryDate,
+            NumberOfPositions = model.NumberOfPositions,
+            PostedByUserId  = GetUserId()
         };
 
         var (success, error) = await _hiringService.CreateAsync(notice);
         if (success)
         {
-            TempData["SuccessMessage"] = "Hiring notice posted successfully.";
+            SetSuccess("Hiring notice posted successfully.");
             return RedirectToAction(nameof(Manage));
         }
 
@@ -88,7 +85,7 @@ public class RecruitmentController : Controller
     public async Task<IActionResult> Close(string id)
     {
         var (success, error) = await _hiringService.CloseNoticeAsync(id);
-        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success ? "Job post closed." : error;
+        SetResult((success, error), "Job post closed.");
         return RedirectToAction(nameof(Manage));
     }
 
@@ -98,7 +95,8 @@ public class RecruitmentController : Controller
     public async Task<IActionResult> Delete(string id)
     {
         var (success, error) = await _hiringService.DeleteAsync(id);
-        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success ? "Job post deleted." : error;
+        SetResult((success, error), "Job post deleted.");
         return RedirectToAction(nameof(Manage));
     }
 }
+

@@ -8,7 +8,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize]
-public class VIPRequestController : Controller
+public class VIPRequestController : BaseController
 {
     private readonly IVIPRequestService _vipRequestService;
 
@@ -17,19 +17,16 @@ public class VIPRequestController : Controller
         _vipRequestService = vipRequestService;
     }
 
-    private string GetUserId() =>
-        User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
     // ═══════════════════════════════════════════════════════════════════════
     // VIP CLIENT ROUTES
     // ═══════════════════════════════════════════════════════════════════════
 
     [HttpGet]
-    [Authorize(Roles = "VIP Client,VIP")]
+    [Authorize(Roles = "VIP Client")]
     public IActionResult Create() => View(new VIPRequestViewModel());
 
     [HttpPost]
-    [Authorize(Roles = "VIP Client,VIP")]
+    [Authorize(Roles = "VIP Client")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(VIPRequestViewModel model)
     {
@@ -57,7 +54,7 @@ public class VIPRequestController : Controller
     }
 
     [HttpGet]
-    [Authorize(Roles = "VIP Client,VIP")]
+    [Authorize(Roles = "VIP Client")]
     public async Task<IActionResult> MyRequests()
     {
         var clientId = GetUserId();
@@ -67,23 +64,13 @@ public class VIPRequestController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "VIP Client,VIP")]
+    [Authorize(Roles = "VIP Client")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(string id)
     {
-        var request = await _vipRequestService.GetRequestByIdAsync(id);
-        if (request == null) return NotFound();
-
-        if (request.VipClientId != GetUserId())
-            return RedirectToAction("AccessDenied", "Auth");
-
-        if (request.Status != "Pending")
-        {
-            TempData["Error"] = "Only pending protection requests can be cancelled.";
-            return RedirectToAction(nameof(MyRequests));
-        }
-
-        var result = await _vipRequestService.DeleteRequestAsync(id);
+        // MODULE 5: Use CancelRequestAsync — not DeleteRequestAsync
+        // This enforces state machine rules and notifies all parties
+        var result = await _vipRequestService.CancelRequestAsync(id, GetUserId(), isAdmin: false);
         TempData[result.Success ? "Success" : "Error"] =
             result.Success ? "Protection request successfully withdrawn." : result.Error;
         return RedirectToAction(nameof(MyRequests));
@@ -139,6 +126,19 @@ public class VIPRequestController : Controller
         return RedirectToAction(nameof(AdminRequests));
     }
 
+    [HttpPost]
+    [Authorize(Roles = "Admin,Recruiter")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AdminCancel(string id)
+    {
+        // MODULE 5: Admins can cancel up to Active state
+        var adminId = GetUserId();
+        var result = await _vipRequestService.CancelRequestAsync(id, adminId, isAdmin: true);
+        TempData[result.Success ? "Success" : "Error"] =
+            result.Success ? "VIP request cancelled. All assigned officers have been released." : result.Error;
+        return RedirectToAction(nameof(AdminRequests));
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // ADMIN ROUTES — Phase 3: Guard Assignment & Activation
     // ═══════════════════════════════════════════════════════════════════════
@@ -156,9 +156,10 @@ public class VIPRequestController : Controller
             return RedirectToAction(nameof(AdminRequests));
         }
 
-        var eligibleGuards = await _vipRequestService.GetEligibleGuardsAsync();
+        // Pass armedRequired so the view can filter the guard list
+        var eligibleGuards = await _vipRequestService.GetEligibleGuardsAsync(request.ArmedRequired);
 
-        ViewBag.Request       = request;
+        ViewBag.Request        = request;
         ViewBag.EligibleGuards = eligibleGuards;
         return View();
     }
@@ -191,6 +192,17 @@ public class VIPRequestController : Controller
         var result = await _vipRequestService.StartProtectionAsync(id);
         TempData[result.Success ? "Success" : "Error"] =
             result.Success ? "Elite protection service is now ACTIVE." : result.Error;
+        return RedirectToAction(nameof(AdminRequests));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin,Recruiter")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ScheduleProtection(string id)
+    {
+        var result = await _vipRequestService.ScheduleProtectionAsync(id);
+        TempData[result.Success ? "Success" : "Error"] =
+            result.Success ? "Protection service has been scheduled. Guards are confirmed and ready." : result.Error;
         return RedirectToAction(nameof(AdminRequests));
     }
 }

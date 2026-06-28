@@ -12,6 +12,11 @@ public interface IVIPRequestService
 
     // ── VIP Client Operations ─────────────────────────────────────────────
     Task<(bool Success, string Error)> CreateRequestAsync(VIPRequest request);
+
+    /// <summary>Client cancels their own pending/approved request. Admin can cancel up to Active.</summary>
+    Task<(bool Success, string Error)> CancelRequestAsync(string id, string requesterId, bool isAdmin = false);
+
+    /// <summary>Hard-delete — Admin only. Use CancelRequestAsync for normal lifecycle cancellation.</summary>
     Task<(bool Success, string Error)> DeleteRequestAsync(string id);
 
     // ── Admin Workflow ────────────────────────────────────────────────────
@@ -20,12 +25,15 @@ public interface IVIPRequestService
     Task<(bool Success, string Error)> RejectRequestAsync(string id);
     Task<(bool Success, string Error)> CompleteRequestAsync(string id);
 
-    // ── Phase 3: Elite Guard Assignment ──────────────────────────────────
-    Task<List<GuardApplication>> GetEligibleGuardsAsync();
+    // ── Guard Assignment ──────────────────────────────────────────────────
+    /// <param name="armedRequired">When true, only returns guards with ArmedLicense = true.</param>
+    Task<List<GuardApplication>> GetEligibleGuardsAsync(bool armedRequired = false);
     Task<(bool Success, string Error)> AssignGuardsAsync(string requestId, List<string> guardUserIds);
+    Task<(bool Success, string Error)> ScheduleProtectionAsync(string id);
     Task<(bool Success, string Error)> StartProtectionAsync(string id);
 
     // ── Dashboard Stats ───────────────────────────────────────────────────
     Task<Dictionary<string, int>> GetStatusCountsAsync(string clientId);
     Task<Dictionary<string, int>> GetAllStatusCountsAsync();
 }
+

@@ -26,13 +26,21 @@ public class HiringNoticeRepository : AppwriteRepository<HiringNotice>, IHiringN
         var result = await _databases.ListDocuments(
             databaseId: _databaseId,
             collectionId: _collectionId,
-            queries: new List<string> 
-            { 
+            queries: new List<string>
+            {
                 Query.Equal("status", "Open"),
-                Query.OrderDesc("$createdAt") 
+                Query.OrderDesc("$createdAt")
             }
         );
         return result.Documents.Select(d => MapToEntity(d)!).ToList();
+    }
+
+    public override async Task<HiringNotice?> GetByIdAsync(string id)
+    {
+        try {
+            var doc = await _databases.GetDocument(_databaseId, _collectionId, id);
+            return MapToEntity(doc);
+        } catch { return null; }
     }
 
     public async Task UpdateAsync(HiringNotice notice)
@@ -55,6 +63,16 @@ public class HiringNoticeRepository : AppwriteRepository<HiringNotice>, IHiringN
         );
     }
 
+    public async Task UpdateFilledPositionsAsync(string id, int filledCount)
+    {
+        await _databases.UpdateDocument(
+            databaseId: _databaseId,
+            collectionId: _collectionId,
+            documentId: id,
+            data: new Dictionary<string, object> { { "filledPositions", filledCount } }
+        );
+    }
+
     public async Task DeleteAsync(string id)
     {
         await _databases.DeleteDocument(_databaseId, _collectionId, id);
@@ -67,16 +85,19 @@ public class HiringNoticeRepository : AppwriteRepository<HiringNotice>, IHiringN
 
     private static Dictionary<string, object> BuildData(HiringNotice e) => new()
     {
-        { "title", e.Title },
-        { "referenceCode", e.ReferenceCode },
-        { "description", e.Description },
-        { "requirements", e.Requirements },
-        { "location", e.Location },
-        { "jobType", e.JobType },
-        { "priority", e.Priority },
-        { "salaryRange", e.SalaryRange ?? string.Empty },
-        { "status", e.Status },
-        { "postedByUserId", e.PostedByUserId },
-        { "expiryDate", e.ExpiryDate?.ToString("o") ?? string.Empty }
+        { "title",             e.Title },
+        { "referenceCode",     e.ReferenceCode },
+        { "description",       e.Description },
+        { "requirements",      e.Requirements },
+        { "location",          e.Location },
+        { "jobType",           e.JobType },
+        { "priority",          e.Priority },
+        { "salaryRange",       e.SalaryRange ?? string.Empty },
+        { "status",            e.Status },
+        { "postedByUserId",    e.PostedByUserId },
+        { "expiryDate",        e.ExpiryDate?.ToString("o") ?? string.Empty },
+        { "numberOfPositions", e.NumberOfPositions },
+        { "filledPositions",   e.FilledPositions },
     };
 }
+

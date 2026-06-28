@@ -6,7 +6,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize]
-public class GuardShiftController : Controller
+public class GuardShiftController : BaseController
 {
     private readonly IGuardShiftService _shiftService;
     private readonly IGuardApplicationService _guardService;
@@ -19,7 +19,6 @@ public class GuardShiftController : Controller
         _notificationService = notificationService;
     }
 
-    private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     // ═══════════════════════════════════════════════════════════════════════
     // GUARD — Check In / Check Out

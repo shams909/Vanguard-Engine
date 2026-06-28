@@ -173,17 +173,6 @@ public class ClientRequestController : Controller
     {
         // Guard IDs must be mapped
         var result = await _requestService.AssignGuardsToRequestAsync(id, guardIds ?? new List<string>());
-        
-        // Auto-approve status on successful assignment
-        if (result.Success && guardIds != null && guardIds.Any())
-        {
-            await _requestService.UpdateRequestStatusAsync(id, "Approved");
-        }
-        else if (result.Success)
-        {
-            // Reset to pending if no guards assigned
-            await _requestService.UpdateRequestStatusAsync(id, "Pending");
-        }
 
         if (!result.Success)
         {

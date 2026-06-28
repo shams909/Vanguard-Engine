@@ -52,6 +52,36 @@ public class AppwriteUserRepository : AppwriteRepository<User>, IUserRepository
         return user;
     }
 
+    /// <summary>
+    /// Performs a targeted single-field patch on guardStatus.
+    /// More efficient than a full document Update() as it only writes one field.
+    /// </summary>
+    public async Task UpdateGuardStatusAsync(string userId, string status)
+    {
+        await _databases.UpdateDocument(
+            _databaseId,
+            _collectionId,
+            userId,
+            data: new Dictionary<string, object> { ["guardStatus"] = status });
+    }
+
+    /// <summary>
+    /// Returns all guard users matching the given operational status.
+    /// Relies on the guardStatus index in Appwrite for efficient lookup.
+    /// </summary>
+    public async Task<List<User>> GetByGuardStatusAsync(string status)
+    {
+        var result = await _databases.ListDocuments(
+            _databaseId,
+            _collectionId,
+            queries: new List<string> { Query.Equal("guardStatus", status), Query.Limit(100) });
+
+        return result.Documents
+            .Select(d => MapToEntity(d))
+            .Where(u => u != null)
+            .ToList()!;
+    }
+
     private async Task<Vanguard_Engine.Entities.Role?> GetRoleAsync(string roleId)
     {
         try

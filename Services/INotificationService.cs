@@ -12,7 +12,17 @@ public interface INotificationService
     /// <summary>Send the same notification to every user who has the given role name (e.g. "Admin").</summary>
     Task NotifyRoleAsync(string roleName, string title, string message, string type = "Info");
 
+    // ── Queries ───────────────────────────────────────────────────────────────
     Task<List<Notification>> GetUserNotificationsAsync(string userId, int page = 1, int pageSize = 20);
     Task<int> GetUnreadCountAsync(string userId);
+
+    // ── Commands ──────────────────────────────────────────────────────────────
     Task MarkAsReadAsync(string notificationId);
+
+    /// <summary>MODULE 9: Marks every unread notification for a user as read in one operation.</summary>
+    Task MarkAllReadAsync(string userId);
+
+    /// <summary>MODULE 9: Deletes all notifications past their expiry date for housekeeping.</summary>
+    Task DeleteExpiredAsync(string userId);
 }
+

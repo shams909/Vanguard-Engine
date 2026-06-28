@@ -7,7 +7,7 @@ using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Controllers;
 
-public class AuthController : Controller
+public class AuthController : BaseController
 {
     private readonly IAuthService _authService;
 

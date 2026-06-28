@@ -107,4 +107,45 @@ public class NotificationRepository : AppwriteRepository<Notification>, INotific
 
         return data;
     }
+
+    public async Task MarkAllReadAsync(string userId)
+    {
+        try
+        {
+            // Fetch all unread notifications for this user, then patch each one
+            var result = await _databases.ListDocuments(
+                databaseId:   _databaseId,
+                collectionId: _collectionId,
+                queries: new List<string>
+                {
+                    Query.Equal("userId", userId),
+                    Query.Equal("isRead", false),
+                    Query.Limit(100)
+                });
+
+            var tasks = result.Documents.Select(doc =>
+                _databases.UpdateDocument(
+                    _databaseId, _collectionId, doc.Id,
+                    new Dictionary<string, object> { { "isRead", true } }));
+
+            await Task.WhenAll(tasks);
+        }
+        catch { /* Swallow — non-critical */ }
+    }
+
+    public async Task DeleteExpiredAsync(string userId)
+    {
+        try
+        {
+            var all    = await GetByUserIdAsync(userId);
+            var now    = DateTime.UtcNow;
+            var expired = all.Where(n => n.Expiration.HasValue && n.Expiration.Value < now).ToList();
+
+            var tasks = expired.Select(n =>
+                _databases.DeleteDocument(_databaseId, _collectionId, n.Id));
+
+            await Task.WhenAll(tasks);
+        }
+        catch { /* Swallow — non-critical */ }
+    }
 }

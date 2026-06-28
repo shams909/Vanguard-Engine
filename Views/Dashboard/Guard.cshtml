@@ -123,6 +123,37 @@ else
                     }
                 </div>
 
+                <!-- Standard Client Assignment -->
+                @if (ViewBag.ActiveAssignment is Vanguard_Engine.Entities.ClientRequest activeAssignment)
+                {
+                    <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.04), rgba(255,255,255,0.4)); border-color: rgba(59, 130, 246, 0.2); margin-bottom: 24px;">
+                        <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">
+                            <i data-lucide="map-pin" style="width: 18px; height: 18px; color: #3b82f6;"></i> Active Deployment Post
+                        </h2>
+                        <div style="border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 14px; padding: 18px 20px; background: rgba(255,255,255,0.4);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+                                <div>
+                                    <div style="font-weight: 800; font-size: 1rem; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                                        @activeAssignment.Location
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                                        Client Ref: #@activeAssignment.ClientId.Substring(0, Math.Min(activeAssignment.ClientId.Length, 6)) &bull; @activeAssignment.Duration
+                                    </div>
+                                </div>
+                                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; background: @(activeAssignment.Status is "Scheduled" ? "rgba(139, 92, 246, 0.1)" : activeAssignment.Status is "Active" ? "rgba(239, 68, 68, 0.1)" : "rgba(59, 130, 246, 0.1)"); color: @(activeAssignment.Status is "Scheduled" ? "#8b5cf6" : activeAssignment.Status is "Active" ? "#ef4444" : "#3b82f6"); border: 1px solid @(activeAssignment.Status is "Scheduled" ? "rgba(139, 92, 246, 0.1)" : activeAssignment.Status is "Active" ? "rgba(239, 68, 68, 0.1)" : "rgba(59, 130, 246, 0.1)");">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: @(activeAssignment.Status is "Scheduled" ? "#8b5cf6" : activeAssignment.Status is "Active" ? "#ef4444" : "#3b82f6"); display: inline-block;"></span>
+                                    @activeAssignment.Status
+                                </span>
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(59, 130, 246, 0.08); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.15); display: inline-flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="users" style="width:11px; height:11px;"></i> Detachment: @activeAssignment.AssignedGuardIds?.Count of @activeAssignment.NumberOfGuards Guards
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
                 <!-- Current VIP Mission -->
                 <div class="dk-card dk-card-pad" style="background: linear-gradient(135deg, rgba(180,83,9,0.04), rgba(255,255,255,0.4)); border-color: rgba(180,83,9,0.2);">
                     <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0 0 16px;">

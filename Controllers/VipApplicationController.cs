@@ -7,7 +7,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize]
-public class VipApplicationController : Controller
+public class VipApplicationController : BaseController
 {
     private readonly IVipApplicationService _vipApplicationService;
 
@@ -15,9 +15,6 @@ public class VipApplicationController : Controller
     {
         _vipApplicationService = vipApplicationService;
     }
-
-    private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-    private string GetUserName() => User.Identity?.Name ?? "Unknown User";
 
     // ═══════════════════════════════════════════════════════════════════════
     // CLIENT — Apply for VIP

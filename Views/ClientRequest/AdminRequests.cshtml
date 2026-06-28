@@ -71,23 +71,34 @@
                                 @request.Duration
                             </td>
                             <td style="padding: 14px 20px;">
-                                @if (request.Status == "Approved")
+                                @switch (request.Status)
                                 {
-                                    <span class="badge-approved" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2);">
-                                        Approved
-                                    </span>
-                                }
-                                else if (request.Status == "Rejected")
-                                {
-                                    <span class="badge-rejected" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2);">
-                                        Declined
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge-pending" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(217, 119, 6, 0.1); color: var(--yellow); border: 1px solid rgba(217, 119, 6, 0.2);">
-                                        Pending
-                                    </span>
+                                    case "Approved":
+                                        <span class="badge-approved" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2);">Approved</span>
+                                        break;
+                                    case "Partially Assigned":
+                                        <span class="badge-assigned" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">Partially Assigned</span>
+                                        break;
+                                    case "Assigned":
+                                        <span class="badge-assigned" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">Assigned</span>
+                                        break;
+                                    case "Scheduled":
+                                        <span class="badge-scheduled" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2);">Scheduled</span>
+                                        break;
+                                    case "Active":
+                                        <span class="badge-active" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">Active</span>
+                                        break;
+                                    case "Completed":
+                                        <span class="badge-completed" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">Completed</span>
+                                        break;
+                                    case "Rejected":
+                                    case "Cancelled":
+                                        <span class="badge-rejected" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2);">@request.Status</span>
+                                        break;
+                                    case "Pending":
+                                    default:
+                                        <span class="badge-pending" style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:700; background: rgba(217, 119, 6, 0.1); color: var(--yellow); border: 1px solid rgba(217, 119, 6, 0.2);">@request.Status</span>
+                                        break;
                                 }
                             </td>
                             <td style="padding: 14px 28px; text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
@@ -98,41 +109,52 @@
                                 <form asp-action="UpdateStatus" method="post" style="display: inline;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@request.Id" />
-                                    @if (request.Status != "Approved")
+                                    
+                                    @if (request.Status == "Pending")
                                     {
                                         <input type="hidden" name="status" value="Approved" />
                                         <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--green); border-color: rgba(52, 211, 153, 0.25);">
                                             Approve
                                         </button>
                                     }
-                                    else
+                                    else if (request.Status == "Assigned" || request.Status == "Partially Assigned")
                                     {
-                                        <input type="hidden" name="status" value="Pending" />
-                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm">
-                                            Reset Pending
+                                        <input type="hidden" name="status" value="Scheduled" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: #8b5cf6; border-color: rgba(139, 92, 246, 0.25);">
+                                            Mark Scheduled
+                                        </button>
+                                        
+                                        <button type="submit" formaction="/ClientRequest/UpdateStatus?status=Active" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.25);">
+                                            Mark Active
+                                        </button>
+                                    }
+                                    else if (request.Status == "Scheduled")
+                                    {
+                                        <input type="hidden" name="status" value="Active" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.25);">
+                                            Mark Active
+                                        </button>
+                                    }
+                                    else if (request.Status == "Active")
+                                    {
+                                        <input type="hidden" name="status" value="Completed" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--accent); border-color: rgba(180, 83, 9, 0.25); font-weight: 700;">
+                                            Complete Contract
                                         </button>
                                     }
                                 </form>
 
-                                @if (request.Status == "Approved")
+                                @if (request.Status == "Pending" || request.Status == "Approved")
                                 {
-                                    <form asp-action="Complete" method="post" style="display: inline;">
+                                    <form asp-action="UpdateStatus" method="post" style="display: inline;">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@request.Id" />
-                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--accent); border-color: rgba(180, 83, 9, 0.25); font-weight: 700;">
-                                            Complete Contract
+                                        <input type="hidden" name="status" value="Rejected" />
+                                        <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25);">
+                                            Decline
                                         </button>
                                     </form>
                                 }
-
-                                <form asp-action="UpdateStatus" method="post" style="display: inline;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@request.Id" />
-                                    <input type="hidden" name="status" value="Rejected" />
-                                    <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25);">
-                                        Decline
-                                    </button>
-                                </form>
 
                                 <form asp-action="Delete" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete this deployment request?');">
                                     @Html.AntiForgeryToken()

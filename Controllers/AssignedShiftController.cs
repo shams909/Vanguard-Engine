@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Controllers;
 
 [Authorize]
-public class AssignedShiftController : Controller
+public class AssignedShiftController : BaseController
 {
     private readonly IAssignedShiftService _assignedShiftService;
     private readonly IGuardApplicationService _guardAppService;
@@ -17,7 +16,6 @@ public class AssignedShiftController : Controller
         _guardAppService = guardAppService;
     }
 
-    private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     // ═══════════════════════════════════════════════════════════════════════
     // ADMIN — Shift Management Panel
@@ -38,13 +36,16 @@ public class AssignedShiftController : Controller
     [HttpPost]
     [Authorize(Roles = "Admin,Recruiter")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AssignShift(string guardId, string guardName, string shiftDate, string startTime, string endTime)
+    public async Task<IActionResult> AssignShift(
+        string guardId, string guardName,
+        string shiftDate, string startTime, string endTime,
+        string? location = null, string? notes = null)
     {
-        var result = await _assignedShiftService.AssignShiftAsync(guardId, guardName, shiftDate, startTime, endTime);
+        var result = await _assignedShiftService.AssignShiftAsync(
+            guardId, guardName, shiftDate, startTime, endTime,
+            clientRequestId: null, location: location, notes: notes);
 
-        TempData[result.Success ? "Success" : "Error"] =
-            result.Success ? "✅ Shift successfully assigned." : result.Error;
-
+        SetResult(result, "✅ Shift successfully assigned.");
         return RedirectToAction("AdminPanel");
     }
 
@@ -60,9 +61,20 @@ public class AssignedShiftController : Controller
         return RedirectToAction("AdminPanel");
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
+    [HttpPost]
+    [Authorize(Roles = "Admin,Recruiter")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForceCheckout(string shiftId)
+    {
+        // MODULE 8: Admin force-cancels a shift (guard no-show or suspended mid-duty)
+        var result = await _assignedShiftService.ForceCheckoutAsync(shiftId, GetUserId());
+        SetResult(result, "Shift force-cancelled. Officer has been released.");
+        return RedirectToAction("AdminPanel");
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
     // GUARD — View Assigned Schedule
-    // ═══════════════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════════════
 
     [HttpGet]
     [Authorize(Roles = "Guard")]

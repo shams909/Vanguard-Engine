@@ -1,0 +1,53 @@
+@model IEnumerable<Vanguard_Engine.Entities.AuditLog>
+@{
+    ViewData["Title"] = $"User Activity — {ViewBag.UserId}";
+}
+
+<div class="page-header">
+    <div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:6px;">Vanguard Engine</div>
+        <h1 class="page-header-title">User Activity Log</h1>
+        <p class="page-header-sub">All actions performed by user <span style="font-family:monospace;color:var(--accent);">@ViewBag.UserId</span></p>
+    </div>
+    <a asp-action="Index" class="dk-btn dk-btn-ghost dk-btn-sm">← Back to Feed</a>
+</div>
+
+<div class="dk-card dk-card-pad" style="margin-top:8px;">
+    @if (!Model.Any())
+    {
+        <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+            <div style="font-size:1rem;font-weight:600;">No activity recorded for this user</div>
+        </div>
+    }
+    else
+    {
+        <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+            <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                    <th style="padding:12px 16px;text-align:left;font-weight:700;color:var(--text-sub);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Time</th>
+                    <th style="padding:12px 16px;text-align:left;font-weight:700;color:var(--text-sub);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Entity</th>
+                    <th style="padding:12px 16px;text-align:left;font-weight:700;color:var(--text-sub);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Action</th>
+                    <th style="padding:12px 16px;text-align:left;font-weight:700;color:var(--text-sub);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Transition</th>
+                    <th style="padding:12px 16px;text-align:left;font-weight:700;color:var(--text-sub);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:12px 16px;color:var(--text-muted);white-space:nowrap;">@log.CreatedAt.ToString("MMM dd, HH:mm")</td>
+                        <td style="padding:12px 16px;font-weight:700;color:var(--text);">@log.EntityType</td>
+                        <td style="padding:12px 16px;">
+                            <span style="font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:100px;background:rgba(180,83,9,0.1);color:var(--accent);border:1px solid rgba(180,83,9,0.2);">@log.Action</span>
+                        </td>
+                        <td style="padding:12px 16px;font-family:monospace;font-size:0.8rem;">
+                            @if (!string.IsNullOrEmpty(log.FromValue)) { <span style="color:var(--text-muted);">@log.FromValue</span><span style="color:var(--accent);margin:0 6px;">→</span> }
+                            @if (!string.IsNullOrEmpty(log.ToValue)) { <span style="color:var(--green);font-weight:700;">@log.ToValue</span> }
+                        </td>
+                        <td style="padding:12px 16px;color:var(--text-muted);font-size:0.8rem;">@log.Notes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

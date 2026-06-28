@@ -2,6 +2,7 @@ using Appwrite;
 using Appwrite.Services;
 using Appwrite.Enums;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 using Vanguard_Engine.Entities;
 using Vanguard_Engine.Models;
 using Vanguard_Engine.UnitOfWork;
@@ -17,6 +18,14 @@ public class AuthService : IAuthService
     private readonly IEmailService _emailService;
     private readonly PasswordHasher<User> _passwordHasher;
 
+    // MODULE 2: Thread-safe in-memory login rate limiter
+    // Key = lowercased email, Value = (failure count, lockout expiry)
+    private static readonly Dictionary<string, (int Attempts, DateTime LockUntil)> _loginAttempts
+        = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly object _lockObj = new();
+    private const int MaxFailedAttempts = 5;
+    private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
+
     public AuthService(IUnitOfWork unitOfWork, IAppwriteService appwriteService, IEmailService emailService)
     {
         _unitOfWork = unitOfWork;
@@ -27,34 +36,74 @@ public class AuthService : IAuthService
 
     public async Task<LoginResult> LoginAsync(LoginViewModel model)
     {
-        var user = await _unitOfWork.Users.GetByEmailAsync(model.Email);
+        var email = model.Email?.Trim().ToLowerInvariant() ?? string.Empty;
+
+        // MODULE 2: Check rate limit before hitting the database
+        lock (_lockObj)
+        {
+            if (_loginAttempts.TryGetValue(email, out var attempt) &&
+                attempt.LockUntil > DateTime.UtcNow)
+            {
+                var remaining = (int)(attempt.LockUntil - DateTime.UtcNow).TotalMinutes + 1;
+                return new LoginResult
+                {
+                    Success = false,
+                    ErrorMessage = $"Too many failed attempts. Account locked for {remaining} more minute(s)."
+                };
+            }
+        }
+
+        var user = await _unitOfWork.Users.GetByEmailAsync(email);
         if (user == null)
         {
+            RecordFailedAttempt(email);
             return new LoginResult { Success = false, ErrorMessage = "Invalid email or password" };
         }
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
         if (result == PasswordVerificationResult.Failed)
         {
+            RecordFailedAttempt(email);
             return new LoginResult { Success = false, ErrorMessage = "Invalid email or password" };
         }
 
         // Email Verification Rule
         if (!user.IsEmailVerified)
         {
-            return new LoginResult 
-            { 
-                Success = false, 
-                IsEmailUnverified = true, 
-                User = user 
+            return new LoginResult
+            {
+                Success = false,
+                IsEmailUnverified = true,
+                User = user
             };
         }
+
+        // Success — clear any existing lockout record
+        ClearFailedAttempts(email);
 
         user.LastLogin = DateTime.UtcNow;
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync();
 
         return new LoginResult { Success = true, User = user };
+    }
+
+    private static void RecordFailedAttempt(string email)
+    {
+        lock (_lockObj)
+        {
+            _loginAttempts.TryGetValue(email, out var current);
+            var newCount = current.Attempts + 1;
+            var lockUntil = newCount >= MaxFailedAttempts
+                ? DateTime.UtcNow.Add(LockoutDuration)
+                : DateTime.MinValue;
+            _loginAttempts[email] = (newCount, lockUntil);
+        }
+    }
+
+    private static void ClearFailedAttempts(string email)
+    {
+        lock (_lockObj) { _loginAttempts.Remove(email); }
     }
 
     public async Task<bool> RegisterAsync(RegisterViewModel model, string baseUrl)
@@ -269,6 +318,8 @@ public class AuthService : IAuthService
 
     public Task LogoutAsync()
     {
+        // Cookie sign-out is performed by AuthController via HttpContext.SignOutAsync().
+        // This method exists for future server-side cleanup (token revocation, audit logging).
         return Task.CompletedTask;
     }
 
@@ -277,9 +328,8 @@ public class AuthService : IAuthService
         var user = await _unitOfWork.Users.GetByEmailAsync(email);
         if (user == null) return false;
 
-        // Generate a secure 6-digit OTP
-        var random = new Random();
-        var otp = random.Next(100000, 999999).ToString();
+        // MODULE 2: Use cryptographically secure OTP — System.Random is predictable and NOT safe for this use case
+        var otp = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
         var tokenExpiry = DateTime.UtcNow.AddMinutes(15);
 
         user.ResetToken = otp;

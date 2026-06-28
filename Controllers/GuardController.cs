@@ -8,7 +8,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize]
-public class GuardController : Controller
+public class GuardController : BaseController
 {
     private readonly IGuardApplicationService _guardApplicationService;
 
@@ -17,12 +17,11 @@ public class GuardController : Controller
         _guardApplicationService = guardApplicationService;
     }
 
-    private string GetUserId() =>
-        User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     // ── USER: APPLY ──────────────────────────────
 
     [HttpGet]
+    [Authorize(Roles = "Guard")]
     public IActionResult Apply(string? jobId = null)
     {
         return View(new GuardApplyViewModel { JobId = jobId });
@@ -30,6 +29,7 @@ public class GuardController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Guard")]
     public async Task<IActionResult> Apply(GuardApplyViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -63,6 +63,7 @@ public class GuardController : Controller
     // ── USER: MY APPLICATIONS ────────────────────
 
     [HttpGet]
+    [Authorize(Roles = "Guard")]
     public async Task<IActionResult> MyApplications()
     {
         var applications = await _guardApplicationService.GetMyApplicationsAsync(GetUserId());
@@ -72,6 +73,7 @@ public class GuardController : Controller
     // ── USER: APPLICATION DETAIL ─────────────────
 
     [HttpGet]
+    [Authorize(Roles = "Guard")]
     public async Task<IActionResult> Details(string id)
     {
         var application = await _guardApplicationService.GetApplicationByIdAsync(id, GetUserId());
@@ -83,6 +85,7 @@ public class GuardController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Guard")]
     public async Task<IActionResult> Delete(string id)
     {
         var (success, error) = await _guardApplicationService.DeleteAsync(id, GetUserId());

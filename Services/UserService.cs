@@ -86,4 +86,40 @@ public class UserService : IUserService
         await _unitOfWork.SaveChangesAsync();
         return true;
     }
+
+    // ── Guard Lifecycle Management ────────────────────────────────────────────
+
+    public async Task<bool> SuspendGuardAsync(string userId)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user is null) return false;
+        await _unitOfWork.Users.UpdateGuardStatusAsync(userId, "Suspended");
+        return true;
+    }
+
+    public async Task<bool> ReinstateGuardAsync(string userId)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user is null) return false;
+        // Only reinstate guards that are Suspended or Unavailable — not Assigned/OnDuty
+        if (user.GuardStatus != "Suspended" && user.GuardStatus != "Unavailable") return false;
+        await _unitOfWork.Users.UpdateGuardStatusAsync(userId, "Available");
+        return true;
+    }
+
+    public async Task<bool> SetUnavailableAsync(string userId)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user is null) return false;
+        // Only Available guards can mark themselves unavailable
+        if (user.GuardStatus != "Available") return false;
+        await _unitOfWork.Users.UpdateGuardStatusAsync(userId, "Unavailable");
+        return true;
+    }
+
+    public async Task<List<User>> GetGuardsByStatusAsync(string status)
+    {
+        return await _unitOfWork.Users.GetByGuardStatusAsync(status);
+    }
 }
+

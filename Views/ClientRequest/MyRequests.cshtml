@@ -2,6 +2,33 @@
 @{
     ViewData["Title"] = "My Deployment Petitions";
     var guardMap = ViewBag.GuardNames as Dictionary<string, string> ?? new Dictionary<string, string>();
+
+    string[] allStages = { "Pending", "Approved", "Assigned", "Scheduled", "Active", "Completed" };
+
+    (string bg, string fg, string border, string label) GetBadge(string status) => status switch
+    {
+        "Approved"           => ("rgba(52, 211, 153, 0.1)", "var(--green)", "rgba(52, 211, 153, 0.2)", "Approved"),
+        "Partially Assigned" => ("rgba(59, 130, 246, 0.08)", "#3b82f6", "rgba(59, 130, 246, 0.2)", "Partially Assigned"),
+        "Assigned"           => ("rgba(59, 130, 246, 0.1)", "#3b82f6", "rgba(59, 130, 246, 0.2)", "Assigned"),
+        "Scheduled"          => ("rgba(139, 92, 246, 0.1)", "#8b5cf6", "rgba(139, 92, 246, 0.2)", "Scheduled"),
+        "Active"             => ("rgba(239, 68, 68, 0.1)", "var(--red)", "rgba(239, 68, 68, 0.2)", "🔴 Active — Guards On Site"),
+        "Completed"          => ("rgba(16, 185, 129, 0.1)", "#10b981", "rgba(16, 185, 129, 0.2)", "Completed"),
+        "Rejected"           => ("rgba(239, 68, 68, 0.1)", "var(--red)", "rgba(239, 68, 68, 0.2)", "Rejected"),
+        "Cancelled"          => ("rgba(100, 116, 139, 0.1)", "#64748b", "rgba(100, 116, 139, 0.2)", "Cancelled"),
+        _                    => ("rgba(217, 119, 6, 0.1)", "var(--yellow)", "rgba(217, 119, 6, 0.2)", "Pending Review")
+    };
+
+    int GetStageIndex(string status) => status switch
+    {
+        "Pending"            => 0,
+        "Approved"           => 1,
+        "Partially Assigned" => 2,
+        "Assigned"           => 2,
+        "Scheduled"          => 3,
+        "Active"             => 4,
+        "Completed"          => 5,
+        _                    => -1
+    };
 }
 
 <div class="page-header">
@@ -19,15 +46,11 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="dk-alert dk-alert-success" style="margin-bottom: 20px;">
-        @TempData["Success"]
-    </div>
+    <div class="dk-alert dk-alert-success" style="margin-bottom: 20px;">@TempData["Success"]</div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">
-        @TempData["Error"]
-    </div>
+    <div class="dk-alert dk-alert-error" style="margin-bottom: 20px;">@TempData["Error"]</div>
 }
 
 @if (Model == null || !Model.Any())
@@ -47,132 +70,217 @@
 }
 else
 {
-    <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 24px;">
         @foreach (var request in Model)
         {
-            <div class="dk-card dk-card-pad" style="transition: all 0.25s;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
-                    <div>
-                        <div style="font-size: 0.74rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">Deployment Target</div>
-                        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text); margin: 4px 0 0;"><i data-lucide="map-pin" style="width: 16px; height: 16px; display: inline-block; vertical-align: -2px; margin-right: 4px; color: var(--accent);"></i> @request.Location</h2>
-                    </div>
+            var (bg, fg, border, label) = GetBadge(request.Status);
+            int stageIdx = GetStageIndex(request.Status);
+            bool isTerminal = request.Status is "Rejected" or "Cancelled";
+            bool isActive   = request.Status == "Active";
+            bool isDone     = request.Status == "Completed";
 
-                    <div>
-                        @if (request.Status == "Approved")
-                        {
-                            <span class="badge-approved" style="padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; background: rgba(52, 211, 153, 0.1); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.2);">
-                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px;"></span> Approved & Active
-                            </span>
-                        }
-                        else if (request.Status == "Rejected")
-                        {
-                            <span class="badge-rejected" style="padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2);">
-                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block; margin-right: 4px;"></span> Declined
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge-pending" style="padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; background: rgba(217, 119, 6, 0.1); color: var(--yellow); border: 1px solid rgba(217, 119, 6, 0.2);">
-                                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); display: inline-block; margin-right: 4px;"></span> Pending Vetting
-                            </span>
-                        }
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 0.86rem; line-height: 1.5;">
-                    <div>
-                        <span style="color: var(--text-muted);">Required Operators:</span>
-                        <div style="font-weight: 700; color: var(--text); font-size: 1rem;">@request.NumberOfGuards Tactical Guards</div>
-                    </div>
-                    <div>
-                        <span style="color: var(--text-muted);">Shift Duration:</span>
-                        <div style="font-weight: 700; color: var(--text); font-size: 1rem;">@request.Duration</div>
-                    </div>
-                </div>
-
-                <!-- Assigned Guards Display -->
-                <div style="border-top: 1px solid var(--border); margin-top: 18px; padding-top: 16px;">
-                    <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Assigned Tactical Personnel</div>
-                    
-                    @if (request.AssignedGuardIds != null && request.AssignedGuardIds.Any())
-                    {
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            @foreach (var guardId in request.AssignedGuardIds)
+            <div class="dk-card" style="overflow: hidden; border-color: @border; @(isActive ? "box-shadow: 0 0 0 2px rgba(239,68,68,0.15);" : isDone ? "box-shadow: 0 0 0 2px rgba(16,185,129,0.15);" : "")">
+                <!-- Header -->
+                <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; background: @(isActive ? "rgba(239,68,68,0.03)" : isDone ? "rgba(16,185,129,0.03)" : "transparent");">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 48px; height: 48px; border-radius: 14px; background: @bg; color: @fg; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            @if (isActive)
                             {
-                                var name = guardMap.ContainsKey(guardId) ? guardMap[guardId] : "Officer #" + guardId.Substring(0, Math.Min(guardId.Length, 5));
-                                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; background: rgba(180, 83, 9, 0.08); border: 1px solid rgba(180, 83, 9, 0.15); color: var(--accent); font-size: 0.8rem; font-weight: 700;">
-                                    <i data-lucide="shield" style="width: 14px; height: 14px;"></i> @name
-                                </span>
+                                <i data-lucide="shield-check" style="width: 22px; height: 22px;"></i>
+                            }
+                            else if (isDone)
+                            {
+                                <i data-lucide="check-circle" style="width: 22px; height: 22px;"></i>
+                            }
+                            else
+                            {
+                                <i data-lucide="map-pin" style="width: 22px; height: 22px;"></i>
                             }
                         </div>
-                    }
-                    else
-                    {
-                        <div style="font-size: 0.82rem; color: var(--text-muted); font-style: italic;">
-                            <i data-lucide="info" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-right: 2px;"></i> Tactical operators will be assigned once approved.
+                        <div>
+                            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Deployment Location</div>
+                            <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 3px 0 0;">@request.Location</h2>
+                            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">
+                                Submitted @request.CreatedAt.ToString("MMM dd, yyyy")
+                            </div>
                         </div>
-                    }
+                    </div>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; background: @bg; color: @fg; border: 1px solid @border; @(isActive ? "animation: pulse 2s infinite;" : "")">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: @fg; display: inline-block;"></span>
+                        @label
+                    </span>
                 </div>
 
-                <!-- Incoming Guard Applications -->
-                @if (request.Status == "Approved" || request.Status == "Pending" || request.Status == "Open")
+                <!-- Progress Tracker (only for non-terminal states) -->
+                @if (!isTerminal)
                 {
-                    var incomingApps = (ViewBag.JobApplications as List<Vanguard_Engine.Entities.GuardApplication> ?? new List<Vanguard_Engine.Entities.GuardApplication>())
-                        .Where(a => a.JobId == request.Id && a.Status == "Pending").ToList();
+                    <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.1);">
+                        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 0.08em;">Deployment Progress</div>
+                        <div style="display: flex; align-items: center; gap: 0;">
+                            @for (int i = 0; i < allStages.Length; i++)
+                            {
+                                bool done    = i < stageIdx;
+                                bool current = i == stageIdx;
+                                bool future  = i > stageIdx;
 
-                    if (incomingApps.Any())
+                                string dotBg     = done ? "var(--green)" : current ? fg : "var(--border)";
+                                string dotColor  = done || current ? "white" : "var(--text-muted)";
+                                string lineBg    = done ? "var(--green)" : "var(--border)";
+                                string labelColor = done ? "var(--green)" : current ? fg : "var(--text-muted)";
+                                string fontWeight = current ? "800" : done ? "700" : "500";
+
+                                <div style="display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; min-width: 0;">
+                                    <div style="display: flex; align-items: center; width: 100%;">
+                                        @if (i > 0)
+                                        {
+                                            <div style="flex: 1; height: 2px; background: @lineBg; transition: background 0.3s;"></div>
+                                        }
+                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: @dotBg; color: @dotColor; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 800; flex-shrink: 0; border: 2px solid @dotBg; z-index: 1; transition: all 0.3s; @(current ? "box-shadow: 0 0 0 4px " + bg + ";" : "")">
+                                            @if (done)
+                                            {
+                                                <i data-lucide="check" style="width: 12px; height: 12px;"></i>
+                                            }
+                                            else
+                                            {
+                                                @(i + 1)
+                                            }
+                                        </div>
+                                        @if (i < allStages.Length - 1)
+                                        {
+                                            <div style="flex: 1; height: 2px; background: var(--border);"></div>
+                                        }
+                                    </div>
+                                    <div style="font-size: 0.67rem; font-weight: @fontWeight; color: @labelColor; margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px;">
+                                        @allStages[i]
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Info Grid -->
+                <div style="padding: 18px 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; font-size: 0.85rem;">
+                        <div style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.15); border: 1px solid var(--border);">
+                            <div style="color: var(--text-muted); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Guards Requested</div>
+                            <div style="font-weight: 800; color: var(--text); font-size: 1.1rem;">@request.NumberOfGuards</div>
+                        </div>
+                        <div style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.15); border: 1px solid var(--border);">
+                            <div style="color: var(--text-muted); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Shift Duration</div>
+                            <div style="font-weight: 800; color: var(--text); font-size: 0.95rem;">@request.Duration</div>
+                        </div>
+                        <div style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.15); border: 1px solid var(--border);">
+                            <div style="color: var(--text-muted); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Guards Assigned</div>
+                            <div style="font-weight: 800; color: @fg; font-size: 1.1rem;">
+                                @(request.AssignedGuardIds?.Count ?? 0) / @request.NumberOfGuards
+                            </div>
+                        </div>
+                        <div style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.15); border: 1px solid var(--border);">
+                            <div style="color: var(--text-muted); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Current Status</div>
+                            <div style="font-weight: 800; color: @fg; font-size: 0.88rem;">@request.Status</div>
+                        </div>
+                    </div>
+
+                    <!-- Status Message Banner -->
+                    @{
+                        string? msgIcon = null;
+                        string? msgText = null;
+                        string? msgFg   = null;
+                        string? msgBg   = null;
+                        switch (request.Status)
+                        {
+                            case "Pending":
+                                msgIcon = "clock"; msgText = "Your request is under review by our operations team. You will be notified once it is approved.";
+                                msgFg = "var(--yellow)"; msgBg = "rgba(217,119,6,0.06)"; break;
+                            case "Approved":
+                                msgIcon = "check-circle"; msgText = "Your request has been approved. Our team is currently selecting suitable security officers for your deployment.";
+                                msgFg = "var(--green)"; msgBg = "rgba(52,211,153,0.06)"; break;
+                            case "Partially Assigned":
+                                msgIcon = "users"; msgText = $"Some officers have been assigned. Recruiting the remaining {request.NumberOfGuards - (request.AssignedGuardIds?.Count ?? 0)} officer(s) now.";
+                                msgFg = "#3b82f6"; msgBg = "rgba(59,130,246,0.06)"; break;
+                            case "Assigned":
+                                msgIcon = "user-check"; msgText = "All required officers have been assigned to your deployment. Scheduling will be confirmed shortly.";
+                                msgFg = "#3b82f6"; msgBg = "rgba(59,130,246,0.06)"; break;
+                            case "Scheduled":
+                                msgIcon = "calendar-check"; msgText = "Your deployment is scheduled. Officers are briefed and will arrive at the designated location on time.";
+                                msgFg = "#8b5cf6"; msgBg = "rgba(139,92,246,0.06)"; break;
+                            case "Active":
+                                msgIcon = "shield-check"; msgText = "🔴 LIVE — Your security detail is currently ON SITE and actively protecting your location.";
+                                msgFg = "var(--red)"; msgBg = "rgba(239,68,68,0.06)"; break;
+                            case "Completed":
+                                msgIcon = "check-circle-2"; msgText = "Deployment completed successfully. Thank you for trusting Vanguard Security.";
+                                msgFg = "#10b981"; msgBg = "rgba(16,185,129,0.06)"; break;
+                            case "Rejected":
+                                msgIcon = "x-circle"; msgText = "This request could not be fulfilled. Please contact our dispatch team for more information.";
+                                msgFg = "var(--red)"; msgBg = "rgba(239,68,68,0.06)"; break;
+                            case "Cancelled":
+                                msgIcon = "ban"; msgText = "This deployment request was cancelled.";
+                                msgFg = "#64748b"; msgBg = "rgba(100,116,139,0.06)"; break;
+                        }
+                    }
+                    @if (msgText != null)
+                    {
+                        <div style="margin-top: 16px; padding: 12px 16px; border-radius: 10px; background: @msgBg; border: 1px solid @border; display: flex; align-items: flex-start; gap: 10px;">
+                            <i data-lucide="@msgIcon" style="width: 16px; height: 16px; color: @msgFg; flex-shrink: 0; margin-top: 2px;"></i>
+                            <span style="font-size: 0.83rem; color: var(--text-sub); line-height: 1.5;">@msgText</span>
+                        </div>
+                    }
+
+                    <!-- Assigned Guards Display -->
+                    @if (request.AssignedGuardIds != null && request.AssignedGuardIds.Any())
                     {
                         <div style="border-top: 1px solid var(--border); margin-top: 18px; padding-top: 16px;">
-                            <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 4px;">
-                                <i data-lucide="users" style="width: 14px; height: 14px;"></i> Incoming Guard Applicants (@incomingApps.Count)
-                            </div>
-                            
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                @foreach (var app in incomingApps)
+                            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.08em;">Assigned Security Officers</div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                @foreach (var guardId in request.AssignedGuardIds)
                                 {
-                                    <div style="display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); background: rgba(255,255,255,0.4); padding: 12px 16px; border-radius: 8px; flex-wrap: wrap; gap: 10px;">
-                                        <div>
-                                            <strong style="color: var(--text); font-size: 0.9rem;">@app.FullName</strong>
-                                            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">
-                                                Experience: <strong>@app.YearsOfExperience Years</strong> &bull; License: <strong>@(app.ArmedLicense ? "Armed State" : "Standard")</strong>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; gap: 6px;">
-                                            <form asp-action="AcceptApplication" method="post" style="display: inline;">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@app.Id" />
-                                                <button type="submit" class="dk-btn dk-btn-sm" style="background: var(--green); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; border: none; cursor: pointer;">
-                                                    Accept
-                                                </button>
-                                            </form>
-                                            <form asp-action="RejectApplication" method="post" style="display: inline;">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@app.Id" />
-                                                <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; box-shadow: none;">
-                                                    Reject
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                    var name = guardMap.ContainsKey(guardId) ? guardMap[guardId] : "Officer #" + guardId.Substring(0, Math.Min(guardId.Length, 5));
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; background: rgba(180, 83, 9, 0.08); border: 1px solid rgba(180, 83, 9, 0.15); color: var(--accent); font-size: 0.82rem; font-weight: 700;">
+                                        <i data-lucide="shield" style="width: 13px; height: 13px;"></i>
+                                        @name
+                                    </span>
                                 }
                             </div>
                         </div>
                     }
-                }
 
-                @if (request.Status == "Pending")
-                {
-                    <div style="display: flex; justify-content: flex-end; margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 12px;">
-                        <form asp-action="Cancel" method="post" onsubmit="return confirm('Are you sure you want to cancel this deployment petition?');">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@request.Id" />
-                            <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25); box-shadow: none;">
-                                <i data-lucide="trash" style="width: 14px; height: 14px; margin-right: 4px; display: inline-block; vertical-align: -2px;"></i> Cancel Request
-                            </button>
-                        </form>
-                    </div>
-                }
+                    <!-- Cancel Button for Pending -->
+                    @if (request.Status == "Pending")
+                    {
+                        <div style="display: flex; justify-content: flex-end; margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 14px; gap: 8px;">
+                            <a asp-action="Edit" asp-route-id="@request.Id" class="dk-btn dk-btn-ghost dk-btn-sm" style="font-size: 0.82rem;">
+                                <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i> Edit
+                            </a>
+                            <form asp-action="Cancel" method="post" onsubmit="return confirm('Are you sure you want to cancel this deployment petition?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@request.Id" />
+                                <button type="submit" class="dk-btn dk-btn-ghost dk-btn-sm" style="color: var(--red); border-color: rgba(239, 68, 68, 0.25); box-shadow: none; font-size: 0.82rem;">
+                                    <i data-lucide="trash" style="width: 13px; height: 13px;"></i> Cancel Request
+                                </button>
+                            </form>
+                        </div>
+                    }
+
+                    @if (request.Status == "Completed")
+                    {
+                        <div style="display: flex; justify-content: flex-end; margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 14px;">
+                            <a asp-controller="Rating" asp-action="RateGuard" class="dk-btn" style="padding: 8px 16px; font-size: 0.83rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                <i data-lucide="star" style="width: 14px; height: 14px;"></i> Rate Guard Service
+                            </a>
+                        </div>
+                    }
+                </div>
             </div>
         }
     </div>
+}
+
+@section Scripts {
+    <style>
+        @@keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
+            50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+        }
+    </style>
 }

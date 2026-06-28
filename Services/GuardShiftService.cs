@@ -33,14 +33,15 @@ public class GuardShiftService : IGuardShiftService
         if (assignedShift.Status != "Scheduled")
             return (false, "This shift is not currently scheduled.");
 
-        // Time Validation (Allow 30 minutes early)
-        var todayDate = DateTime.Now.ToString("yyyy-MM-dd");
+        // Time Validation: allow check-in up to 30 minutes before shift start
+        // MODULE 1 / MODULE 8 FIX: use DateTime.UtcNow throughout — no DateTime.Now
+        var todayDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
         if (assignedShift.ShiftDate != todayDate)
             return (false, "You can only check into shifts scheduled for today.");
 
         if (TimeSpan.TryParse(assignedShift.StartTime, out var startTimeSpan))
         {
-            var nowTime = DateTime.Now.TimeOfDay;
+            var nowTime = DateTime.UtcNow.TimeOfDay;
             var earliestCheckIn = startTimeSpan.Subtract(TimeSpan.FromMinutes(30));
             if (nowTime < earliestCheckIn)
             {
@@ -66,9 +67,12 @@ public class GuardShiftService : IGuardShiftService
 
         await _unitOfWork.GuardShifts.AddAsync(shift);
 
-        // Link status
+        // Update assigned shift status
         assignedShift.Status = "Active";
         _unitOfWork.AssignedShifts.Update(assignedShift);
+
+        // MODULE 1: Guard is now actively on duty — update User.GuardStatus
+        await _unitOfWork.Users.UpdateGuardStatusAsync(guardId, "OnDuty");
 
         return (true, string.Empty);
     }
@@ -110,6 +114,10 @@ public class GuardShiftService : IGuardShiftService
                 _unitOfWork.AssignedShifts.Update(assignedShift);
             }
         }
+
+        // MODULE 1: Shift done — guard goes back to Assigned (still on deployment, just off-shift)
+        // Guard only returns to Available when the entire ClientRequest is Completed
+        await _unitOfWork.Users.UpdateGuardStatusAsync(guardId, "Assigned");
 
         return (true, string.Empty);
     }

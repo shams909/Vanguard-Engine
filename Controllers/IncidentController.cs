@@ -6,7 +6,7 @@ using Vanguard_Engine.Services;
 namespace Vanguard_Engine.Controllers;
 
 [Authorize]
-public class IncidentController : Controller
+public class IncidentController : BaseController
 {
     private readonly IIncidentService _incidentService;
     private readonly IUserService _userService;
@@ -19,14 +19,13 @@ public class IncidentController : Controller
         _notificationService = notificationService;
     }
 
-    private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     // ═══════════════════════════════════════════════════════════════════════
     // GUARDS & CLIENTS — Submit Incident / Complaint
     // ═══════════════════════════════════════════════════════════════════════
 
     [HttpGet]
-    [Authorize(Roles = "Guard,Client,VIP Client,VIP")]
+    [Authorize(Roles = "Guard,Client,VIP Client")]
     public IActionResult Submit()
     {
         var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "Guard";
@@ -35,12 +34,12 @@ public class IncidentController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Guard,Client,VIP Client,VIP")]
+    [Authorize(Roles = "Guard,Client,VIP Client")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Submit(string title, string description)
     {
         var userId = GetUserId();
-        var userName = User.Identity?.Name ?? "Unknown User";
+        var userName = GetUserName();
         var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "Guard";
         
         string type = (userRole == "Guard") ? "Incident" : "Complaint";
@@ -73,7 +72,7 @@ public class IncidentController : Controller
     // ═══════════════════════════════════════════════════════════════════════
 
     [HttpGet]
-    [Authorize(Roles = "Guard,Client,VIP Client,VIP")]
+    [Authorize(Roles = "Guard,Client,VIP Client")]
     public async Task<IActionResult> MyReports()
     {
         var reports = await _incidentService.GetMyReportsAsync(GetUserId());

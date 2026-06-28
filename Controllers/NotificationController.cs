@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Vanguard_Engine.Entities;
 using Vanguard_Engine.Services;
 
 namespace Vanguard_Engine.Controllers;
@@ -18,21 +17,30 @@ public class NotificationController : ControllerBase
         _notificationService = notificationService;
     }
 
-    // GET /api/notifications?userId=xxx
+    private string GetCurrentUserId() =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue("sub")
+        ?? string.Empty;
+
+    // GET /api/notifications
     [HttpGet]
-    public async Task<IActionResult> GetNotifications([FromQuery] string? userId)
+    public async Task<IActionResult> GetNotifications([FromQuery] int page = 1, [FromQuery] int pageSize = 30)
     {
-        var uid = userId ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-        var notifications = await _notificationService.GetUserNotificationsAsync(uid, 1, 30);
-        var unread = notifications.Count(n => !n.IsRead);
-        return Ok(new { notifications, unreadCount = unread });
+        var uid = GetCurrentUserId();
+        if (string.IsNullOrEmpty(uid)) return Unauthorized();
+
+        var notifications = await _notificationService.GetUserNotificationsAsync(uid, page, pageSize);
+        var unreadCount   = notifications.Count(n => !n.IsRead);
+        return Ok(new { notifications, unreadCount });
     }
 
-    // GET /api/notifications/unread-count?userId=xxx
+    // GET /api/notifications/unread-count
     [HttpGet("unread-count")]
-    public async Task<IActionResult> GetUnreadCount([FromQuery] string? userId)
+    public async Task<IActionResult> GetUnreadCount()
     {
-        var uid = userId ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var uid = GetCurrentUserId();
+        if (string.IsNullOrEmpty(uid)) return Unauthorized();
+
         var count = await _notificationService.GetUnreadCountAsync(uid);
         return Ok(new { count });
     }
@@ -45,25 +53,25 @@ public class NotificationController : ControllerBase
         return NoContent();
     }
 
-    // POST /api/notifications  (for testing / internal use)
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateNotificationRequest req)
+    // MODULE 9: PATCH /api/notifications/read-all
+    [HttpPatch("read-all")]
+    public async Task<IActionResult> MarkAllRead()
     {
-        if (string.IsNullOrWhiteSpace(req.UserId) || string.IsNullOrWhiteSpace(req.Message))
-            return BadRequest("UserId and Message are required.");
+        var uid = GetCurrentUserId();
+        if (string.IsNullOrEmpty(uid)) return Unauthorized();
 
-        await _notificationService.CreateNotificationAsync(
-            req.UserId,
-            req.Title ?? "Notification",
-            req.Message,
-            req.Type ?? "Info");
+        await _notificationService.MarkAllReadAsync(uid);
+        return NoContent();
+    }
 
-        return Created("", null);
+    // MODULE 9: DELETE /api/notifications/expired
+    [HttpDelete("expired")]
+    public async Task<IActionResult> DeleteExpired()
+    {
+        var uid = GetCurrentUserId();
+        if (string.IsNullOrEmpty(uid)) return Unauthorized();
+
+        await _notificationService.DeleteExpiredAsync(uid);
+        return NoContent();
     }
 }
-
-public record CreateNotificationRequest(
-    string? UserId,
-    string? Title,
-    string? Message,
-    string? Type);

@@ -5,7 +5,7 @@ using Vanguard_Engine.Models;
 
 namespace Vanguard_Engine.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 

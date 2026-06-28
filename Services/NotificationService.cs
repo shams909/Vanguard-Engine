@@ -151,4 +151,22 @@ public class NotificationService : INotificationService
             _logger.LogWarning(ex, "[Notifications] Failed to mark {Id} as read.", notificationId);
         }
     }
+
+    public async Task MarkAllReadAsync(string userId)
+    {
+        try   { await _unitOfWork.Notifications.MarkAllReadAsync(userId); }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[Notifications] MarkAllReadAsync failed for user {UserId}.", userId);
+        }
+    }
+
+    public async Task DeleteExpiredAsync(string userId)
+    {
+        try   { await _unitOfWork.Notifications.DeleteExpiredAsync(userId); }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[Notifications] DeleteExpiredAsync failed for user {UserId}.", userId);
+        }
+    }
 }

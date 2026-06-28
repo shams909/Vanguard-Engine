@@ -18,4 +18,9 @@ public class ClientRequestViewModel
     [StringLength(100, ErrorMessage = "Duration detail cannot exceed 100 characters.")]
     [Display(Name = "Deployment Duration")]
     public string Duration { get; set; } = string.Empty;
+
+    [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters.")]
+    [Display(Name = "Additional Details")]
+    public string? Description { get; set; }
 }
+

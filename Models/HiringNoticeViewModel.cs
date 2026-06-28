@@ -35,4 +35,10 @@ public class HiringNoticeViewModel
     [Display(Name = "Expiry Date (Optional)")]
     [DataType(DataType.Date)]
     public DateTime? ExpiryDate { get; set; }
+
+    [Required]
+    [Range(1, 50, ErrorMessage = "Must be between 1 and 50 positions.")]
+    [Display(Name = "Number of Positions")]
+    public int NumberOfPositions { get; set; } = 1;
 }
+
