@@ -145,6 +145,307 @@
             color: var(--accent); 
             border-color: rgba(180, 83, 9, 0.25);
         }
+
+        /* ─── NEXT-GEN ADMIN MEGA-MENU (OPTION 1) ─── */
+        .admin-mega-btn {
+            display: flex !important;
+            align-items: center !important;
+            padding: 6px 14px !important;
+            border-radius: 100px !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            color: var(--accent) !important;
+            background: rgba(180, 83, 9, 0.1) !important;
+            border: 1px solid rgba(180, 83, 9, 0.28) !important;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-shadow: 0 2px 8px rgba(180, 83, 9, 0.08) !important;
+            font-family: inherit;
+        }
+        .admin-mega-btn:hover, .admin-mega-btn.active {
+            background: rgba(180, 83, 9, 0.18) !important;
+            border-color: rgba(180, 83, 9, 0.45) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(180, 83, 9, 0.15) !important;
+        }
+        .admin-mega-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-12px) scale(0.96);
+            width: 760px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(45px) saturate(200%);
+            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            border: 1px solid var(--border-strong);
+            border-radius: 26px;
+            box-shadow: 0 24px 64px rgba(67, 40, 24, 0.16), 0 0 1px 1px rgba(255,255,255,0.8);
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            z-index: 2500;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .admin-mega-menu.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+        .mega-col-title {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mega-col-title svg { width: 13px; height: 13px; color: var(--accent); }
+        .mega-item {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px !important;
+            border-radius: 14px !important;
+            text-decoration: none !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            transition: all 0.2s ease !important;
+            margin-bottom: 4px;
+        }
+        .mega-item:hover {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: var(--border-strong) !important;
+            transform: translateX(3px);
+            box-shadow: 0 4px 14px rgba(67, 40, 24, 0.05) !important;
+        }
+        .mega-icon-wrap {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+        .mega-item:hover .mega-icon-wrap { transform: scale(1.08); }
+        .mega-icon-wrap svg { width: 18px; height: 18px; }
+        .mega-item-title { font-size: 0.83rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+        .mega-item-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-top: 3px; line-height: 1.3; }
+        .mega-item.danger-item:hover {
+            background: rgba(239, 68, 68, 0.06) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+        }
+
+        /* ─── NEXT-GEN COMMAND PALETTE (OPTION 2) ─── */
+        .cmd-trigger-pill {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 4px 6px 4px 12px !important;
+            border-radius: 100px !important;
+            font-size: 0.76rem !important;
+            font-weight: 600 !important;
+            color: var(--text-sub) !important;
+            background: rgba(245, 235, 220, 0.45) !important;
+            border: 1px dashed rgba(180, 160, 140, 0.7) !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .cmd-trigger-pill:hover {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: var(--text) !important;
+            border-style: solid !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 2px 10px rgba(180, 83, 9, 0.1) !important;
+        }
+        .kbd-shortcut {
+            background: rgba(215, 200, 180, 0.5);
+            color: var(--text);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 100px;
+            border: 1px solid rgba(180, 160, 140, 0.8);
+            letter-spacing: 0.5px;
+            font-family: inherit;
+        }
+        .cmd-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(41, 37, 36, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 12vh 20px 20px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cmd-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .cmd-modal-box {
+            width: 100%;
+            max-width: 620px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid var(--border-strong);
+            border-radius: 24px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255,255,255,0.8);
+            overflow: hidden;
+            transform: scale(0.95) translateY(-15px);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .cmd-modal-overlay.open .cmd-modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .cmd-input-wrap {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid var(--border);
+        }
+        .cmd-search-icon { width: 22px; height: 22px; color: var(--accent); flex-shrink: 0; }
+        #cmd-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text);
+            font-family: inherit;
+        }
+        #cmd-search-input::placeholder { color: var(--text-muted); font-weight: 500; opacity: 0.75; }
+        .cmd-esc-tag {
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .cmd-esc-tag:hover { background: rgba(239, 68, 68, 0.15); }
+        .cmd-results-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .cmd-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .cmd-item:hover, .cmd-item.selected {
+            background: rgba(180, 83, 9, 0.1);
+            border-color: rgba(180, 83, 9, 0.22);
+            transform: translateX(4px);
+        }
+        .cmd-item.selected {
+            background: rgba(180, 83, 9, 0.16);
+            box-shadow: 0 4px 12px rgba(180, 83, 9, 0.08);
+        }
+        .cmd-item-left { display: flex; align-items: center; gap: 14px; }
+        .cmd-icon-wrap {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .cmd-icon-wrap svg { width: 18px; height: 18px; }
+        .cmd-title-group { display: flex; flex-direction: column; }
+        .cmd-item-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+        .cmd-item-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        .cmd-cat-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+            background: rgba(215, 200, 180, 0.4);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .cmd-footer {
+            padding: 10px 20px;
+            background: rgba(245, 235, 220, 0.5);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .cmd-footer kbd {
+            background: rgba(255,255,255,0.7);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .cmd-no-results {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        @@media (max-width: 768px) {
+            .admin-mega-menu {
+                position: fixed;
+                left: 12px !important;
+                right: 12px !important;
+                top: 85px !important;
+                width: calc(100vw - 24px) !important;
+                transform: translateY(-10px) scale(0.96) !important;
+                grid-template-columns: 1fr;
+                max-height: calc(100vh - 110px);
+                overflow-y: auto;
+            }
+            .admin-mega-menu.show {
+                transform: translateY(0) scale(1) !important;
+            }
+            .cmd-modal-overlay { padding: 5vh 12px 12px; }
+            .cmd-trigger-pill span { display: none; }
+        }
         .dk-nav-right {
             display: flex; align-items: center; gap: 8px;
             list-style: none; flex-shrink: 0;
@@ -655,6 +956,124 @@
                 @if (currentRole == "Admin" || currentRole == "Recruiter")
                 {
                     <li><a asp-controller="Analytics" asp-action="Index"><i data-lucide="pie-chart" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Analytics</a></li>
+                    
+                    <!-- NEXT-GEN MEGA-MENU DROPDOWN (OPTION 1) -->
+                    <li style="position: relative;" id="admin-mega-li">
+                        <button type="button" class="admin-mega-btn" id="admin-mega-trigger" title="Explore All Administrative Modules">
+                            <i data-lucide="layers" style="width:16px; height:16px; margin-right:4px; color:var(--accent);"></i>
+                            <span>Admin Console</span>
+                            <i data-lucide="chevron-down" style="width:14px; height:14px; margin-left:4px; opacity:0.7; transition: transform 0.2s;" id="mega-arrow"></i>
+                        </button>
+                        <div class="admin-mega-menu" id="admin-mega-popover" role="menu" aria-label="Admin Modules">
+                            <!-- Column 1: Personnel & Roles -->
+                            <div class="mega-col">
+                                <div class="mega-col-title"><i data-lucide="users"></i> PERSONNEL & ROLES</div>
+                                <a asp-controller="Users" asp-action="Index" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(180,83,9,0.1); color:var(--accent);"><i data-lucide="users"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">User Management</div>
+                                        <div class="mega-item-sub">Assign roles & clearances</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="Roles" asp-action="Index" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(180,83,9,0.1); color:var(--accent);"><i data-lucide="key"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Role Definitions</div>
+                                        <div class="mega-item-sub">Manage system policies</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="Guard" asp-action="Applications" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(52,211,153,0.1); color:var(--green);"><i data-lucide="shield-check"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Recruitment Desk</div>
+                                        <div class="mega-item-sub">Approve guard applicants</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="Recruitment" asp-action="Manage" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(180,83,9,0.1); color:var(--accent);"><i data-lucide="file-text"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Deployment Notices</div>
+                                        <div class="mega-item-sub">Post hiring notices</div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Column 2: Operations & Petitions -->
+                            <div class="mega-col">
+                                <div class="mega-col-title"><i data-lucide="shield-alert"></i> OPERATIONS & PETITIONS</div>
+                                <a asp-controller="ClientRequest" asp-action="AdminRequests" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(180,83,9,0.1); color:var(--accent);"><i data-lucide="shield-alert"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Client Petitions</div>
+                                        <div class="mega-item-sub">Deploy tactical forces</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="VIPRequest" asp-action="AdminRequests" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(147,51,234,0.1); color:#9333ea;"><i data-lucide="crown"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">VIP Requests</div>
+                                        <div class="mega-item-sub">Elite protection deployments</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="VipApplication" asp-action="AdminPanel" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(147,51,234,0.1); color:#9333ea;"><i data-lucide="award"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">VIP Applications</div>
+                                        <div class="mega-item-sub">Approve elite client tiers</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="Dashboard" asp-action="Admin" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(41,37,36,0.08); color:#292524;"><i data-lucide="layout-dashboard"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Admin Dashboard</div>
+                                        <div class="mega-item-sub">Central operations hub</div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <!-- Column 3: Monitoring & Logs -->
+                            <div class="mega-col">
+                                <div class="mega-col-title"><i data-lucide="activity"></i> MONITORING & LOGS</div>
+                                <a asp-controller="Analytics" asp-action="Index" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(59,130,246,0.1); color:#3b82f6;"><i data-lucide="pie-chart"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Analytics Hub</div>
+                                        <div class="mega-item-sub">System metrics & stats</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="Incident" asp-action="AdminPanel" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(239,68,68,0.1); color:var(--red);"><i data-lucide="alert-triangle"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Incident Reports</div>
+                                        <div class="mega-item-sub">Manage guard & client issues</div>
+                                    </div>
+                                </a>
+                                <a asp-controller="AuditLog" asp-action="Index" class="mega-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(139,92,246,0.1); color:#8b5cf6;"><i data-lucide="history"></i></div>
+                                    <div>
+                                        <div class="mega-item-title">Audit Logs</div>
+                                        <div class="mega-item-sub">Monitor system activity</div>
+                                    </div>
+                                </a>
+                                <a href="/DangerZone" class="mega-item danger-item">
+                                    <div class="mega-icon-wrap" style="background:rgba(239,68,68,0.15); color:#ef4444;"><i data-lucide="flame"></i></div>
+                                    <div>
+                                        <div class="mega-item-title" style="color:#ef4444;">Danger Zone</div>
+                                        <div class="mega-item-sub">Purge records & users</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- COMMAND PALETTE TRIGGER PILL (OPTION 2) -->
+                    <li>
+                        <button type="button" class="cmd-trigger-pill" id="open-cmd-palette" title="Press Ctrl + K or Cmd + K anywhere to jump instantly">
+                            <i data-lucide="search" style="width:14px; height:14px; opacity:0.8;"></i>
+                            <span>Quick Jump...</span>
+                            <kbd class="kbd-shortcut">Ctrl + K</kbd>
+                        </button>
+                    </li>
                 }
                 @if (currentRole == "Client")
                 {
@@ -726,6 +1145,25 @@
     <div class="notif-sb-footer">Notifications are kept for 30 days</div>
 </aside>
 
+<!-- ═══ NEXT-GEN COMMAND PALETTE MODAL (OPTION 2) ═══ -->
+<div id="cmd-modal-overlay" class="cmd-modal-overlay" aria-hidden="true">
+    <div class="cmd-modal-box" role="dialog" aria-modal="true" aria-label="Command Palette">
+        <div class="cmd-input-wrap">
+            <i data-lucide="search" class="cmd-search-icon"></i>
+            <input type="text" id="cmd-search-input" placeholder="Where do you want to navigate today? Type to filter... (e.g. Incidents, VIP)" autocomplete="off" />
+            <button type="button" id="cmd-close-btn" class="cmd-esc-tag">ESC</button>
+        </div>
+        <div id="cmd-results-list" class="cmd-results-list">
+            <!-- Dynamically populated via JS -->
+        </div>
+        <div class="cmd-footer">
+            <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+            <span><kbd>Enter</kbd> to select</span>
+            <span><kbd>Esc</kbd> to close</span>
+        </div>
+    </div>
+</div>
+
 <main class="dk-main">
     @RenderBody()
 </main>
@@ -759,6 +1197,196 @@
     });
 </script>
 <script src="~/js/notification.js" asp-append-version="true"></script>
+<script>
+    /* ═══ NEXT-GEN NAVIGATION COMBINED EXPERIENCE (MEGA-MENU + COMMAND PALETTE) ═══ */
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. Mega-Menu (Option 1) Handlers ---
+        const megaTrigger = document.getElementById('admin-mega-trigger');
+        const megaPopover = document.getElementById('admin-mega-popover');
+        const megaArrow = document.getElementById('mega-arrow');
+        const megaLi = document.getElementById('admin-mega-li');
+
+        if (megaTrigger && megaPopover) {
+            megaTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isShown = megaPopover.classList.contains('show');
+                if (isShown) {
+                    megaPopover.classList.remove('show');
+                    megaTrigger.classList.remove('active');
+                    if (megaArrow) megaArrow.style.transform = 'rotate(0deg)';
+                } else {
+                    megaPopover.classList.add('show');
+                    megaTrigger.classList.add('active');
+                    if (megaArrow) megaArrow.style.transform = 'rotate(180deg)';
+                    if (window.lucide) lucide.createIcons();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (megaLi && !megaLi.contains(e.target) && megaPopover.classList.contains('show')) {
+                    megaPopover.classList.remove('show');
+                    if (megaTrigger) megaTrigger.classList.remove('active');
+                    if (megaArrow) megaArrow.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+
+        // --- 2. Command Palette / Spotlight (Option 2) Handlers ---
+        const cmdOverlay = document.getElementById('cmd-modal-overlay');
+        const cmdInput = document.getElementById('cmd-search-input');
+        const cmdResults = document.getElementById('cmd-results-list');
+        const cmdCloseBtn = document.getElementById('cmd-close-btn');
+        const openCmdBtn = document.getElementById('open-cmd-palette');
+
+        const adminModules = [
+            { title: "User Management", sub: "Assign roles & security clearances", category: "Personnel", url: "/Users", icon: "users", color: "#92400e", bg: "rgba(180, 83, 9, 0.1)" },
+            { title: "Role Definitions", sub: "Manage backend roles and security policies", category: "Personnel", url: "/Roles", icon: "key", color: "#92400e", bg: "rgba(180, 83, 9, 0.1)" },
+            { title: "Recruitment Desk", sub: "Approve or reject guard applicants", category: "Personnel", url: "/Guard/Applications", icon: "shield-check", color: "#15803d", bg: "rgba(52, 211, 153, 0.1)" },
+            { title: "Deployment Notices", sub: "Post new hiring notices for security guards", category: "Personnel", url: "/Recruitment/Manage", icon: "file-text", color: "#92400e", bg: "rgba(180, 83, 9, 0.1)" },
+            { title: "Client Petitions", sub: "Deploy tactical forces & patrol schedules to clients", category: "Operations", url: "/ClientRequest/AdminRequests", icon: "shield-alert", color: "#92400e", bg: "rgba(180, 83, 9, 0.1)" },
+            { title: "VIP Requests", sub: "Elite executive protection deployments", category: "Operations", url: "/VIPRequest/AdminRequests", icon: "crown", color: "#9333ea", bg: "rgba(147, 51, 234, 0.1)" },
+            { title: "VIP Applications", sub: "Approve elite client tiers and credentials", category: "Operations", url: "/VipApplication/AdminPanel", icon: "award", color: "#9333ea", bg: "rgba(147, 51, 234, 0.1)" },
+            { title: "Analytics Hub", sub: "System metrics, guard ratings & performance charts", category: "Monitoring", url: "/Analytics", icon: "pie-chart", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)" },
+            { title: "Incident Reports", sub: "Manage guard issues, alarms & client complaints", category: "Monitoring", url: "/Incident/AdminPanel", icon: "alert-triangle", color: "#b91c1c", bg: "rgba(239, 68, 68, 0.1)" },
+            { title: "Audit Logs", sub: "Track and monitor all system activity & entity logs", category: "Monitoring", url: "/AuditLog", icon: "history", color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.1)" },
+            { title: "Danger Zone", sub: "Permanently purge records and users", category: "System", url: "/DangerZone", icon: "flame", color: "#ef4444", bg: "rgba(239, 68, 68, 0.15)", isDanger: true },
+            { title: "Admin Operations Center", sub: "Return to main administrative root console", category: "General", url: "/Dashboard/Admin", icon: "layout-dashboard", color: "#292524", bg: "rgba(41, 37, 36, 0.1)" }
+        ];
+
+        let selectedIndex = 0;
+        let currentResults = [];
+
+        function openPalette() {
+            if (!cmdOverlay) return;
+            cmdOverlay.classList.add('open');
+            cmdOverlay.setAttribute('aria-hidden', 'false');
+            if (cmdInput) {
+                cmdInput.value = '';
+                cmdInput.focus();
+            }
+            renderResults('');
+            if (megaPopover && megaPopover.classList.contains('show')) {
+                megaPopover.classList.remove('show');
+                if (megaTrigger) megaTrigger.classList.remove('active');
+                if (megaArrow) megaArrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function closePalette() {
+            if (!cmdOverlay) return;
+            cmdOverlay.classList.remove('open');
+            cmdOverlay.setAttribute('aria-hidden', 'true');
+        }
+
+        function renderResults(query) {
+            if (!cmdResults) return;
+            const q = query.toLowerCase().trim();
+            currentResults = adminModules.filter(m => 
+                m.title.toLowerCase().includes(q) || 
+                m.sub.toLowerCase().includes(q) || 
+                m.category.toLowerCase().includes(q)
+            );
+
+            selectedIndex = 0;
+            if (currentResults.length === 0) {
+                cmdResults.innerHTML = '<div class="cmd-no-results">No matching administrative modules found.</div>';
+                return;
+            }
+
+            let html = '';
+            currentResults.forEach((m, idx) => {
+                const isSelected = idx === selectedIndex ? 'selected' : '';
+                const dangerStyle = m.isDanger ? 'color:#ef4444;' : '';
+                html += `
+                    <a href="${m.url}" class="cmd-item ${isSelected}" data-idx="${idx}">
+                        <div class="cmd-item-left">
+                            <div class="cmd-icon-wrap" style="background:${m.bg}; color:${m.color};">
+                                <i data-lucide="${m.icon}"></i>
+                            </div>
+                            <div class="cmd-title-group">
+                                <div class="cmd-item-title" style="${dangerStyle}">${m.title}</div>
+                                <div class="cmd-item-sub">${m.sub}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="cmd-cat-badge">${m.category}</span>
+                            <i data-lucide="arrow-right" style="width:16px; height:16px; color:var(--text-muted); opacity:0.6;"></i>
+                        </div>
+                    </a>
+                `;
+            });
+
+            cmdResults.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function updateSelection() {
+            const items = cmdResults ? cmdResults.querySelectorAll('.cmd-item') : [];
+            items.forEach((item, idx) => {
+                if (idx === selectedIndex) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        if (openCmdBtn) {
+            openCmdBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openPalette();
+            });
+        }
+
+        if (cmdCloseBtn) {
+            cmdCloseBtn.addEventListener('click', closePalette);
+        }
+
+        if (cmdOverlay) {
+            cmdOverlay.addEventListener('click', function(e) {
+                if (e.target === cmdOverlay) closePalette();
+            });
+        }
+
+        if (cmdInput) {
+            cmdInput.addEventListener('input', function(e) {
+                renderResults(e.target.value);
+            });
+
+            cmdInput.addEventListener('keydown', function(e) {
+                if (currentResults.length === 0) return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % currentResults.length;
+                    updateSelection();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex - 1 + currentResults.length) % currentResults.length;
+                    updateSelection();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const target = currentResults[selectedIndex];
+                    if (target) window.location.href = target.url;
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                if (cmdOverlay && cmdOverlay.classList.contains('open')) {
+                    closePalette();
+                } else {
+                    openPalette();
+                }
+            }
+            if (e.key === 'Escape' && cmdOverlay && cmdOverlay.classList.contains('open')) {
+                closePalette();
+            }
+        });
+    });
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
