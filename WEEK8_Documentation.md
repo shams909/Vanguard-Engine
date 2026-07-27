@@ -52,7 +52,7 @@ To eliminate background page jumping and guarantee infallible responsiveness, ke
 ```javascript
 // WHY DOCUMENT-LEVEL BINDING IS BETTER THAN INPUT BINDING:
 // 1. Guaranteed event capture regardless of active document focus.
-// 2. Ability to execute explicit default event suppression (e.preventDefault()) before browser scroll engines fire.
+// 2. Ability to execute explicit default event suppression (e.preventDefault()) before browser scroll engines fire...
 document.addEventListener('keydown', function (e) {
     // Global shortcut activation
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
