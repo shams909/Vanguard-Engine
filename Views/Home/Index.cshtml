@@ -308,10 +308,13 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 20px 48px rgba(146, 64, 14, 0.3), inset 0 2px 4px rgba(255,255,255,0.3);
-        transform: rotate(-4deg);
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: rotate(0deg);
+        transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
     }
-    .hero-logo:hover { transform: rotate(0deg) scale(1.05); }
+    .hero-logo:hover {
+        transform: rotate(360deg) scale(1.08);
+        box-shadow: 0 24px 60px rgba(146, 64, 14, 0.45), inset 0 2px 4px rgba(255,255,255,0.4);
+    }
     .hero-logo svg { width: 42px; height: 42px; }
 
     .hero-headline {
