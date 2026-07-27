@@ -19,6 +19,11 @@ public class AuthController : BaseController
     [HttpGet]
     public IActionResult Login(string? returnUrl = null, string? error = null)
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
         ViewData["ReturnUrl"] = returnUrl;
 
         if (error == "no_session")
@@ -259,6 +264,10 @@ public class AuthController : BaseController
     [HttpGet]
     public IActionResult Register()
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
         return View();
     }
 

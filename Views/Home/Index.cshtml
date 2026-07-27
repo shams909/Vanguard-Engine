@@ -161,7 +161,14 @@
                     <li><i data-lucide="check-circle-2" class="p-check"></i> Instant incident reporting with guaranteed response SLAs</li>
                 </ul>
                 <div class="pillar-foot">
-                    <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-ghost pillar-btn">Request Security Protection →</a>
+                    @if (isAuth)
+                    {
+                        <a asp-controller="ClientRequest" asp-action="Create" class="dk-btn dk-btn-ghost pillar-btn">Submit Patrol Petition →</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-ghost pillar-btn">Request Security Protection →</a>
+                    }
                 </div>
             </div>
 
@@ -177,7 +184,14 @@
                     <li><i data-lucide="check-circle-2" class="p-check"></i> Live career notifications straight to your portal</li>
                 </ul>
                 <div class="pillar-foot">
-                    <a asp-controller="Recruitment" asp-action="Index" class="dk-btn dk-btn-primary pillar-btn-pri">Browse Active Careers →</a>
+                    @if (isAuth && userRole == "Guard")
+                    {
+                        <a asp-controller="ClientRequest" asp-action="OpenJobs" class="dk-btn dk-btn-primary pillar-btn-pri">View Open Deployments →</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Recruitment" asp-action="Index" class="dk-btn dk-btn-primary pillar-btn-pri">Browse Active Careers →</a>
+                    }
                 </div>
             </div>
 
@@ -193,7 +207,18 @@
                     <li><i data-lucide="check-circle-2" class="p-check"></i> Red-tinted Danger Zone for system purge & override</li>
                 </ul>
                 <div class="pillar-foot">
-                    <a href="/Auth/Login" class="dk-btn dk-btn-ghost pillar-btn">Admin Login →</a>
+                    @if (isAuth && (userRole == "Admin" || userRole == "Recruiter"))
+                    {
+                        <a asp-controller="Dashboard" asp-action="Admin" class="dk-btn dk-btn-primary pillar-btn-pri" style="background:linear-gradient(135deg, #b45309, #92400e); border-color:#92400e; color:#fff;">Launch Operations Console →</a>
+                    }
+                    else if (isAuth)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="dk-btn dk-btn-ghost pillar-btn">Switch to Dashboard →</a>
+                    }
+                    else
+                    {
+                        <a href="/Auth/Login" class="dk-btn dk-btn-ghost pillar-btn">Admin Login →</a>
+                    }
                 </div>
             </div>
         </div>
@@ -205,9 +230,18 @@
             <h2 class="cta-title">Ready to Secure Your Operational Vanguard?</h2>
             <p class="cta-sub">Join enterprise organizations and elite tactical personnel relying on Vanguard Engine today.</p>
             <div style="margin-top: 24px;">
-                <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-primary" style="padding: 16px 36px; font-size: 1rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(146, 64, 14, 0.25);">
-                    <i data-lucide="shield" style="width:20px; height:20px; margin-right:8px;"></i> Get Started Now — Zero Setup Fees
-                </a>
+                @if (isAuth)
+                {
+                    <a asp-controller="Dashboard" asp-action="Index" class="dk-btn dk-btn-primary" style="padding: 16px 36px; font-size: 1rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(146, 64, 14, 0.25);">
+                        <i data-lucide="layout-dashboard" style="width:20px; height:20px; margin-right:8px;"></i> Return to Operations Desk →
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-primary" style="padding: 16px 36px; font-size: 1rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(146, 64, 14, 0.25);">
+                        <i data-lucide="shield" style="width:20px; height:20px; margin-right:8px;"></i> Get Started Now — Zero Setup Fees
+                    </a>
+                }
             </div>
         </div>
     </div>
