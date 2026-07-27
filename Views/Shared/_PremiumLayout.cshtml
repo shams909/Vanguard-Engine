@@ -222,11 +222,12 @@
             transition: all 0.2s ease !important;
             margin-bottom: 4px;
         }
-        .mega-item:hover {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-color: var(--border-strong) !important;
-            transform: translateX(3px);
-            box-shadow: 0 4px 14px rgba(67, 40, 24, 0.05) !important;
+        .mega-item:hover, .mega-item.kb-selected {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: var(--accent) !important;
+            transform: translateX(4px);
+            box-shadow: 0 6px 18px rgba(180, 83, 9, 0.12) !important;
+            outline: none !important;
         }
         .mega-icon-wrap {
             width: 38px;
@@ -238,13 +239,14 @@
             flex-shrink: 0;
             transition: transform 0.2s;
         }
-        .mega-item:hover .mega-icon-wrap { transform: scale(1.08); }
+        .mega-item:hover .mega-icon-wrap, .mega-item.kb-selected .mega-icon-wrap { transform: scale(1.1); }
         .mega-icon-wrap svg { width: 18px; height: 18px; }
         .mega-item-title { font-size: 0.83rem; font-weight: 700; color: var(--text); line-height: 1.2; }
         .mega-item-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-top: 3px; line-height: 1.3; }
-        .mega-item.danger-item:hover {
-            background: rgba(239, 68, 68, 0.06) !important;
-            border-color: rgba(239, 68, 68, 0.3) !important;
+        .mega-item.danger-item:hover, .mega-item.danger-item.kb-selected {
+            background: rgba(239, 68, 68, 0.08) !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.12) !important;
         }
 
         /* ─── NEXT-GEN COMMAND PALETTE (OPTION 2) ─── */
@@ -945,7 +947,10 @@
             <li><a asp-controller="Recruitment" asp-action="Index"><i data-lucide="megaphone" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers</a></li>
             @if (isAuth)
             {
-                <li><a asp-controller="Dashboard" asp-action="Index"><i data-lucide="layout-dashboard" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Dashboard</a></li>
+                @if (currentRole != "Admin" && currentRole != "Recruiter")
+                {
+                    <li><a asp-controller="Dashboard" asp-action="Index"><i data-lucide="layout-dashboard" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Dashboard</a></li>
+                }
                 @if (currentRole == "Guard")
                 {
                     <li><a asp-controller="ClientRequest" asp-action="OpenJobs"><i data-lucide="search" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Open Deployments</a></li>
@@ -1200,33 +1205,70 @@
 <script>
     /* ═══ NEXT-GEN NAVIGATION COMBINED EXPERIENCE (MEGA-MENU + COMMAND PALETTE) ═══ */
     document.addEventListener('DOMContentLoaded', function() {
-        // --- 1. Mega-Menu (Option 1) Handlers ---
+        // --- 1. Mega-Menu (Option 1) Handlers & Keyboard Nav ---
         const megaTrigger = document.getElementById('admin-mega-trigger');
         const megaPopover = document.getElementById('admin-mega-popover');
         const megaArrow = document.getElementById('mega-arrow');
         const megaLi = document.getElementById('admin-mega-li');
+        let megaSelectedIndex = -1;
+
+        function getMegaItems() {
+            return megaPopover ? Array.from(megaPopover.querySelectorAll('.mega-item')) : [];
+        }
+
+        function updateMegaSelection() {
+            const items = getMegaItems();
+            items.forEach((item, idx) => {
+                if (idx === megaSelectedIndex) {
+                    item.classList.add('kb-selected');
+                } else {
+                    item.classList.remove('kb-selected');
+                }
+            });
+        }
+
+        function closeMegaMenu() {
+            if (megaPopover && megaPopover.classList.contains('show')) {
+                megaPopover.classList.remove('show');
+                if (megaTrigger) megaTrigger.classList.remove('active');
+                if (megaArrow) megaArrow.style.transform = 'rotate(0deg)';
+                megaSelectedIndex = -1;
+                updateMegaSelection();
+            }
+        }
+
+        function openMegaMenu() {
+            if (megaPopover && !megaPopover.classList.contains('show')) {
+                megaPopover.classList.add('show');
+                if (megaTrigger) megaTrigger.classList.add('active');
+                if (megaArrow) megaArrow.style.transform = 'rotate(180deg)';
+                if (window.lucide) lucide.createIcons();
+                megaSelectedIndex = 0;
+                updateMegaSelection();
+            }
+        }
 
         if (megaTrigger && megaPopover) {
             megaTrigger.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const isShown = megaPopover.classList.contains('show');
-                if (isShown) {
-                    megaPopover.classList.remove('show');
-                    megaTrigger.classList.remove('active');
-                    if (megaArrow) megaArrow.style.transform = 'rotate(0deg)';
+                if (megaPopover.classList.contains('show')) {
+                    closeMegaMenu();
                 } else {
-                    megaPopover.classList.add('show');
-                    megaTrigger.classList.add('active');
-                    if (megaArrow) megaArrow.style.transform = 'rotate(180deg)';
-                    if (window.lucide) lucide.createIcons();
+                    openMegaMenu();
                 }
+            });
+
+            const items = getMegaItems();
+            items.forEach((item, idx) => {
+                item.addEventListener('mouseenter', () => {
+                    megaSelectedIndex = idx;
+                    updateMegaSelection();
+                });
             });
 
             document.addEventListener('click', function(e) {
                 if (megaLi && !megaLi.contains(e.target) && megaPopover.classList.contains('show')) {
-                    megaPopover.classList.remove('show');
-                    if (megaTrigger) megaTrigger.classList.remove('active');
-                    if (megaArrow) megaArrow.style.transform = 'rotate(0deg)';
+                    closeMegaMenu();
                 }
             });
         }
@@ -1373,15 +1415,53 @@
         }
 
         document.addEventListener('keydown', function(e) {
+            const isMegaOpen = megaPopover && megaPopover.classList.contains('show');
+            const isCmdOpen = cmdOverlay && cmdOverlay.classList.contains('open');
+
+            // Prevent web page scrolling when navigating menus with arrows!
+            if ((isMegaOpen || isCmdOpen) && ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                if (e.target.tagName !== 'INPUT' || ['ArrowDown', 'ArrowUp'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            }
+
+            // Keyboard navigation inside Admin Console (Mega-Menu)
+            if (isMegaOpen) {
+                const items = getMegaItems();
+                const total = items.length;
+                if (total > 0) {
+                    if (e.key === 'ArrowDown') {
+                        megaSelectedIndex = (megaSelectedIndex + 1) % total;
+                        updateMegaSelection();
+                    } else if (e.key === 'ArrowUp') {
+                        megaSelectedIndex = (megaSelectedIndex - 1 + total) % total;
+                        updateMegaSelection();
+                    } else if (e.key === 'ArrowRight') {
+                        megaSelectedIndex = (megaSelectedIndex + 4) % total;
+                        updateMegaSelection();
+                    } else if (e.key === 'ArrowLeft') {
+                        megaSelectedIndex = (megaSelectedIndex - 4 + total) % total;
+                        updateMegaSelection();
+                    } else if (e.key === 'Enter') {
+                        if (megaSelectedIndex >= 0 && megaSelectedIndex < total) {
+                            window.location.href = items[megaSelectedIndex].getAttribute('href');
+                        }
+                    } else if (e.key === 'Escape') {
+                        closeMegaMenu();
+                        if (megaTrigger) megaTrigger.focus();
+                    }
+                }
+            }
+
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
-                if (cmdOverlay && cmdOverlay.classList.contains('open')) {
+                if (isCmdOpen) {
                     closePalette();
                 } else {
                     openPalette();
                 }
             }
-            if (e.key === 'Escape' && cmdOverlay && cmdOverlay.classList.contains('open')) {
+            if (e.key === 'Escape' && isCmdOpen) {
                 closePalette();
             }
         });
