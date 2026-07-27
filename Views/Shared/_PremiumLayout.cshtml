@@ -376,13 +376,15 @@
             color: inherit;
         }
         .cmd-item:hover, .cmd-item.selected {
-            background: rgba(180, 83, 9, 0.1);
-            border-color: rgba(180, 83, 9, 0.22);
-            transform: translateX(4px);
+            background: rgba(180, 83, 9, 0.14) !important;
+            border-color: var(--accent) !important;
+            transform: translateX(5px) !important;
+            box-shadow: 0 4px 14px rgba(180, 83, 9, 0.12) !important;
         }
         .cmd-item.selected {
-            background: rgba(180, 83, 9, 0.16);
-            box-shadow: 0 4px 12px rgba(180, 83, 9, 0.08);
+            background: rgba(180, 83, 9, 0.18) !important;
+            border: 2px solid var(--accent) !important;
+            box-shadow: 0 6px 18px rgba(180, 83, 9, 0.18) !important;
         }
         .cmd-item-left { display: flex; align-items: center; gap: 14px; }
         .cmd-icon-wrap {
@@ -960,8 +962,6 @@
                 }
                 @if (currentRole == "Admin" || currentRole == "Recruiter")
                 {
-                    <li><a asp-controller="Analytics" asp-action="Index"><i data-lucide="pie-chart" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Analytics</a></li>
-                    
                     <!-- NEXT-GEN MEGA-MENU DROPDOWN (OPTION 1) -->
                     <li style="position: relative;" id="admin-mega-li">
                         <button type="button" class="admin-mega-btn" id="admin-mega-trigger" title="Explore All Administrative Modules">
@@ -1360,6 +1360,15 @@
 
             cmdResults.innerHTML = html;
             if (window.lucide) lucide.createIcons();
+
+            const items = cmdResults.querySelectorAll('.cmd-item');
+            items.forEach((item, idx) => {
+                item.addEventListener('mouseenter', () => {
+                    selectedIndex = idx;
+                    updateSelection();
+                });
+            });
+            updateSelection();
         }
 
         function updateSelection() {
@@ -1395,23 +1404,6 @@
             cmdInput.addEventListener('input', function(e) {
                 renderResults(e.target.value);
             });
-
-            cmdInput.addEventListener('keydown', function(e) {
-                if (currentResults.length === 0) return;
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    selectedIndex = (selectedIndex + 1) % currentResults.length;
-                    updateSelection();
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    selectedIndex = (selectedIndex - 1 + currentResults.length) % currentResults.length;
-                    updateSelection();
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const target = currentResults[selectedIndex];
-                    if (target) window.location.href = target.url;
-                }
-            });
         }
 
         document.addEventListener('keydown', function(e) {
@@ -1420,8 +1412,26 @@
 
             // Prevent web page scrolling when navigating menus with arrows!
             if ((isMegaOpen || isCmdOpen) && ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                if (e.target.tagName !== 'INPUT' || ['ArrowDown', 'ArrowUp'].includes(e.key)) {
+                e.preventDefault();
+            }
+
+            // Keyboard navigation inside Quick Jump (Command Palette)
+            if (isCmdOpen && currentResults.length > 0) {
+                if (e.key === 'ArrowDown') {
                     e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % currentResults.length;
+                    updateSelection();
+                    return;
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex - 1 + currentResults.length) % currentResults.length;
+                    updateSelection();
+                    return;
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const target = currentResults[selectedIndex];
+                    if (target) window.location.href = target.url;
+                    return;
                 }
             }
 
