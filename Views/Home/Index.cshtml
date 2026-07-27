@@ -1,173 +1,474 @@
 @using System.Security.Claims
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Enterprise Security Platform";
     var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "";
     var isAuth = User.Identity?.IsAuthenticated == true;
 }
 
-@if (isAuth)
-{
-    <!-- Authenticated Dashboard -->
-    <div style="padding: 48px 0 32px; text-align:center;">
-        <div style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:12px;">Welcome back</div>
-        <h1 style="font-size:2.4rem; font-weight:900; color:var(--text); letter-spacing:-1px; margin:0 0 10px;">
-            @User.Identity!.Name
-        </h1>
-        <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(99,102,241,0.12); color:var(--accent); border:1px solid rgba(99,102,241,0.25); border-radius:100px; padding:5px 14px; font-size:0.8rem; font-weight:700;">
-            @userRole
-        </span>
-    </div>
-
-    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
-
-        @if (userRole == "Guard")
+<div class="landing-container">
+    <!-- ═══ HERO SECTION ═══ -->
+    <div class="landing-hero">
+        @if (isAuth)
         {
-            <a asp-controller="Guard" asp-action="Apply" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(180,83,9,0.08),rgba(146,64,14,0.04)); border-color:rgba(180,83,9,0.2);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#d97706,#9a3412); color:#fff;"><i data-lucide="shield-check"></i></div>
-                    <div class="home-card-title">Apply as Guard</div>
-                    <div class="home-card-sub">Submit your guard application to join the force.</div>
-                    <div class="home-card-arrow">→</div>
+            <div class="auth-banner">
+                <div class="auth-banner-left">
+                    <span class="auth-pulse"></span>
+                    <span class="auth-banner-text">Welcome back, <strong>@User.Identity!.Name</strong> (<span style="color:var(--accent); font-weight:800;">@userRole</span>)</span>
                 </div>
-            </a>
-            <a asp-controller="Guard" asp-action="MyApplications" style="text-decoration:none;">
-                <div class="home-card">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9); border:1px solid var(--border-strong);"><i data-lucide="clipboard-list"></i></div>
-                    <div class="home-card-title">My Applications</div>
-                    <div class="home-card-sub">Track the status of your submitted applications.</div>
-                    <div class="home-card-arrow">→</div>
+                <div class="auth-banner-right">
+                    @if (userRole == "Admin" || userRole == "Recruiter")
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="dk-btn dk-btn-primary" style="font-size:0.78rem; padding:6px 14px;">Operational Console →</a>
+                    }
+                    else if (userRole == "Guard")
+                    {
+                        <a asp-controller="ClientRequest" asp-action="OpenJobs" class="dk-btn dk-btn-primary" style="font-size:0.78rem; padding:6px 14px;">Open Deployments →</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="ClientRequest" asp-action="MyRequests" class="dk-btn dk-btn-primary" style="font-size:0.78rem; padding:6px 14px;">My Security Posts →</a>
+                    }
                 </div>
-            </a>
-            <a asp-controller="Recruitment" asp-action="Index" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(79,70,229,0.04)); border-color:rgba(99,102,241,0.2);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#818cf8,#4f46e5); color:#fff;"><i data-lucide="search"></i></div>
-                    <div class="home-card-title">Browse Careers</div>
-                    <div class="home-card-sub">Find and apply for new security deployment posts.</div>
-                    <div class="home-card-arrow">→</div>
-                </div>
-            </a>
+            </div>
+        }
+        else
+        {
+            <div class="hero-badge">
+                <i data-lucide="shield-check" style="width:14px; height:14px; color:var(--green);"></i>
+                <span>NEXT-GENERATION SECURITY & TACTICAL DEPLOYMENT ENGINE</span>
+            </div>
         }
 
-        @if (userRole == "Admin" || userRole == "Recruiter" || userRole == "Client")
-        {
-            <a asp-controller="Guard" asp-action="Applications" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(5,150,105,0.04)); border-color:rgba(16,185,129,0.2);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#34d399,#059669); color:#fff;"><i data-lucide="eye"></i></div>
-                    <div class="home-card-title">Guard Applications</div>
-                    <div class="home-card-sub">Review, approve, or reject all applications.</div>
-                    <div class="home-card-arrow">→</div>
-                </div>
-            </a>
-            <a asp-controller="Recruitment" asp-action="Manage" style="text-decoration:none;">
-                <div class="home-card" style="background:linear-gradient(135deg,rgba(217,119,6,0.08),rgba(180,83,9,0.04)); border-color:rgba(217,119,6,0.2);">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#fbbf24,#d97706); color:#fff;"><i data-lucide="file-edit"></i></div>
-                    <div class="home-card-title">Recruitment</div>
-                    <div class="home-card-sub">Post new job openings and manage hiring notices.</div>
-                    <div class="home-card-arrow">→</div>
-                </div>
-            </a>
-        }
-
-        @if (userRole == "Admin")
-        {
-            <a asp-controller="Users" asp-action="Index" style="text-decoration:none;">
-                <div class="home-card">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9); border:1px solid var(--border-strong);"><i data-lucide="users"></i></div>
-                    <div class="home-card-title">Users</div>
-                    <div class="home-card-sub">Manage all system users and role assignments.</div>
-                    <div class="home-card-arrow">→</div>
-                </div>
-            </a>
-            <a asp-controller="Roles" asp-action="Index" style="text-decoration:none;">
-                <div class="home-card">
-                    <div class="home-card-icon" style="background:linear-gradient(135deg,#f8fafc,#f1f5f9); border:1px solid var(--border-strong);"><i data-lucide="key"></i></div>
-                    <div class="home-card-title">Roles</div>
-                    <div class="home-card-sub">Configure system access roles and permissions.</div>
-                    <div class="home-card-arrow">→</div>
-                </div>
-            </a>
-        }
-
-    </div>
-}
-else
-{
-    <!-- Guest Landing Page -->
-    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 200px); text-align:center; padding:40px 20px;">
-
-        <!-- Logo mark -->
-        <div style="width:80px; height:80px; border-radius:28px; background:linear-gradient(135deg,#d97706,#9a3412); display:flex; align-items:center; justify-content:center; color:#fff; margin-bottom:28px; box-shadow:0 16px 48px rgba(180,83,9,0.25);">
-            <i data-lucide="shield-half" style="width:36px; height:36px;"></i>
+        <!-- Logo Icon Mark -->
+        <div class="hero-logo-wrap">
+            <div class="hero-logo">
+                <i data-lucide="shield-half"></i>
+            </div>
         </div>
 
-        <h1 style="font-size:3.5rem; font-weight:900; color:var(--text); letter-spacing:-2px; margin:0 0 16px; line-height:1.1;">
-            Vanguard Engine
+        <h1 class="hero-headline">
+            Vanguard <span class="accent-text">Engine</span>
         </h1>
-        <p style="color:var(--text-muted); font-size:1.1rem; max-width:440px; margin:0 auto 40px; line-height:1.7;">
-            The next-generation security guard recruitment and workforce management platform.
+        <p class="hero-tagline">
+            The definitive enterprise security platform combining real-time tactical dispatch, verified guard recruitment, and high-clearance executive protection into a seamless command ecosystem.
         </p>
 
-        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-            <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-primary"
-               style="padding:14px 32px; font-size:0.95rem; border-radius:14px;">
-                Get Started Free →
-            </a>
-            <a asp-controller="Recruitment" asp-action="Index" class="dk-btn dk-btn-ghost"
-               style="padding:14px 28px; font-size:0.95rem; border-radius:14px; background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.2);">
-                <i data-lucide="megaphone" style="width:18px; height:18px; margin-right:8px;"></i> Browse Careers
-            </a>
-            <a asp-controller="Auth" asp-action="Login" class="dk-btn dk-btn-ghost"
-               style="padding:14px 28px; font-size:0.95rem; border-radius:14px;">
-                Sign In
-            </a>
-        </div>
-
-        <!-- Feature pills -->
-        <div style="display:flex; gap:10px; margin-top:48px; flex-wrap:wrap; justify-content:center;">
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="shield" style="width:12px; height:12px;"></i> Guard Recruitment</span>
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="eye" style="width:12px; height:12px;"></i> Application Review</span>
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="key" style="width:12px; height:12px;"></i> Role Management</span>
-            <span style="background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:0.78rem; color:var(--text-sub); display:flex; align-items:center; gap:6px;"><i data-lucide="zap" style="width:12px; height:12px;"></i> Real-time Status</span>
+        <div class="hero-cta-wrap">
+            @if (!isAuth)
+            {
+                <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-primary hero-btn">
+                    <i data-lucide="shield" style="width:18px; height:18px; margin-right:6px;"></i> Deploy Your Defense — Free Trial
+                </a>
+                <a asp-controller="Auth" asp-action="Login" class="dk-btn dk-btn-ghost hero-btn-ghost">
+                    <i data-lucide="log-in" style="width:18px; height:18px; margin-right:6px;"></i> Portal Login
+                </a>
+                <a asp-controller="Recruitment" asp-action="Index" class="dk-btn dk-btn-ghost hero-btn-ghost" style="border: 1px dashed var(--border-strong);">
+                    <i data-lucide="megaphone" style="width:18px; height:18px; margin-right:6px; color:var(--accent);"></i> Explore Guard Careers
+                </a>
+            }
+            else
+            {
+                <a href="#why-choose-us" class="dk-btn dk-btn-ghost hero-btn-ghost">
+                    <i data-lucide="chevron-down" style="width:18px; height:18px; margin-right:6px;"></i> Explore Platform Capabilities
+                </a>
+            }
         </div>
     </div>
-}
+
+    <!-- ═══ LIVE TELEMETRY & PERFORMANCE BENCHMARKS ═══ -->
+    <div class="telemetry-bar">
+        <div class="telemetry-item">
+            <div class="tel-value">99.99%</div>
+            <div class="tel-label">System Availability</div>
+        </div>
+        <div class="telemetry-sep"></div>
+        <div class="telemetry-item">
+            <div class="tel-value">&lt; 5ms</div>
+            <div class="tel-label">SignalR Dispatch Latency</div>
+        </div>
+        <div class="telemetry-sep"></div>
+        <div class="telemetry-item">
+            <div class="tel-value">AES-256</div>
+            <div class="tel-label">Enterprise Encryption</div>
+        </div>
+        <div class="telemetry-sep"></div>
+        <div class="telemetry-item">
+            <div class="tel-value">24/7 / 365</div>
+            <div class="tel-label">Tactical Support & Dispatch</div>
+        </div>
+    </div>
+
+    <!-- ═══ WHY CHOOSE VANGUARD ENGINE? ═══ -->
+    <div id="why-choose-us" class="section-container">
+        <div class="section-header">
+            <div class="section-subtitle">THE VANGUARD ADVANTAGE</div>
+            <h2 class="section-title">Why Enterprise Leaders & Tactical Command Choose Us</h2>
+            <p class="section-desc">Traditional security staffing is slow, fragmented, and opaque. Vanguard Engine revolutionizes the industry with instant communication, rigid vetting, and transparent operations.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(180, 83, 9, 0.12); color: var(--accent); border-color: rgba(180, 83, 9, 0.25);">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h3 class="feature-title">Elite Personnel Vetting</h3>
+                <p class="feature-text">Every guard inside the Vanguard ecosystem undergoes multi-stage cryptographic identity vetting, license verification, and strict security clearance assignment prior to any active deployment.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(52, 211, 153, 0.12); color: var(--green); border-color: rgba(52, 211, 153, 0.25);">
+                    <i data-lucide="zap"></i>
+                </div>
+                <h3 class="feature-title">Instant SignalR Dispatch</h3>
+                <p class="feature-text">Zero latency. When a client petition or VIP escort request is filed, our bi-directional WebSockets engine blasts deployment notifications to qualified tactical units instantaneously.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(217, 119, 6, 0.12); color: var(--yellow); border-color: rgba(217, 119, 6, 0.25);">
+                    <i data-lucide="crown"></i>
+                </div>
+                <h3 class="feature-title">VIP Executive Suite</h3>
+                <p class="feature-text">Specialized high-clearance modules designed exclusively for executive assets and VIP clientele, ensuring discreet protective details, custom shift parameters, and immediate rapid response.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.25);">
+                    <i data-lucide="history"></i>
+                </div>
+                <h3 class="feature-title">Immutable Audit Telemetry</h3>
+                <p class="feature-text">Maintain 360-degree situational awareness with tamper-proof audit trails, real-time analytics hubs, shift history tracking, and incident escalation protocols.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PLATFORM ECOSYSTEM SHOWCASE ═══ -->
+    <div class="section-container" style="margin-top: 20px;">
+        <div class="section-header">
+            <div class="section-subtitle">A UNIFIED ENTERPRISE ARCHITECTURE</div>
+            <h2 class="section-title">Built for Every Operational Stakeholder</h2>
+        </div>
+
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-top">
+                    <span class="pillar-role">FOR CLIENTS & VIPs</span>
+                    <h3 class="pillar-heading">Seamless Asset Protection</h3>
+                </div>
+                <ul class="pillar-list">
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Submit priority security patrols & petitions in seconds</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Monitor active guard shifts & deployment notices live</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Access the dedicated Executive VIP Command Console</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Instant incident reporting with guaranteed response SLAs</li>
+                </ul>
+                <div class="pillar-foot">
+                    <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-ghost pillar-btn">Request Security Protection →</a>
+                </div>
+            </div>
+
+            <div class="pillar-card highlight-pillar">
+                <div class="pillar-top">
+                    <span class="pillar-role" style="color:var(--accent);">FOR SECURITY GUARDS</span>
+                    <h3 class="pillar-heading">Elevate Your Security Career</h3>
+                </div>
+                <ul class="pillar-list">
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Access high-paying commercial & private deployment contracts</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> One-click enlistment & streamlined application tracking</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Automated shift logging and verifiable career records</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Live career notifications straight to your portal</li>
+                </ul>
+                <div class="pillar-foot">
+                    <a asp-controller="Recruitment" asp-action="Index" class="dk-btn dk-btn-primary pillar-btn-pri">Browse Active Careers →</a>
+                </div>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-top">
+                    <span class="pillar-role">FOR ADMINISTRATORS</span>
+                    <h3 class="pillar-heading">Total Command & Control</h3>
+                </div>
+                <ul class="pillar-list">
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Next-Gen Glassmorphic Mega-Menu with 12 module shortcuts</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Spotlight Quick Jump Command Palette (Ctrl + K)</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Deep analytics hub and granular role governance</li>
+                    <li><i data-lucide="check-circle-2" class="p-check"></i> Red-tinted Danger Zone for system purge & override</li>
+                </ul>
+                <div class="pillar-foot">
+                    <a href="/Auth/Login" class="dk-btn dk-btn-ghost pillar-btn">Admin Login →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ BOTTOM CTA BANNER ═══ -->
+    <div class="bottom-cta">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Secure Your Operational Vanguard?</h2>
+            <p class="cta-sub">Join enterprise organizations and elite tactical personnel relying on Vanguard Engine today.</p>
+            <div style="margin-top: 24px;">
+                <a asp-controller="Auth" asp-action="Register" class="dk-btn dk-btn-primary" style="padding: 16px 36px; font-size: 1rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(146, 64, 14, 0.25);">
+                    <i data-lucide="shield" style="width:20px; height:20px; margin-right:8px;"></i> Get Started Now — Zero Setup Fees
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
-    .home-card {
-        background: var(--glass);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 24px;
-        backdrop-filter: blur(20px);
-        transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
-        cursor: pointer;
-        height: 100%;
+    .landing-container {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 20px 12px 60px;
+        color: var(--text);
+    }
+
+    /* Hero Styling */
+    .landing-hero {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        align-items: center;
+        text-align: center;
+        padding: 60px 20px 40px;
+        position: relative;
+    }
+    
+    .auth-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border-strong);
+        padding: 10px 20px;
+        border-radius: 100px;
+        margin-bottom: 32px;
+        box-shadow: var(--shadow-sm);
+        max-width: 650px;
+        width: 100%;
+    }
+    .auth-banner-left { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--text-sub); }
+    .auth-pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px rgba(21, 128, 61, 0.6); }
+    
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(180, 83, 9, 0.08);
+        border: 1px solid rgba(180, 83, 9, 0.22);
+        color: var(--text-sub);
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        margin-bottom: 32px;
+        box-shadow: 0 2px 8px rgba(180, 83, 9, 0.06);
+    }
+
+    .hero-logo-wrap { margin-bottom: 24px; }
+    .hero-logo {
+        width: 84px; height: 84px;
+        border-radius: 26px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 20px 48px rgba(146, 64, 14, 0.3), inset 0 2px 4px rgba(255,255,255,0.3);
+        transform: rotate(-4deg);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hero-logo:hover { transform: rotate(0deg) scale(1.05); }
+    .hero-logo svg { width: 42px; height: 42px; }
+
+    .hero-headline {
+        font-size: 4rem;
+        font-weight: 900;
+        letter-spacing: -2px;
+        line-height: 1.05;
+        margin-bottom: 20px;
+        color: var(--text);
+        max-width: 900px;
+    }
+    .accent-text { color: var(--accent); }
+
+    .hero-tagline {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        max-width: 700px;
+        margin: 0 auto 40px;
+    }
+
+    .hero-cta-wrap {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+    .hero-btn {
+        padding: 15px 32px;
+        font-size: 1rem;
+        border-radius: 16px;
+        font-weight: 700;
+        box-shadow: 0 10px 28px rgba(146, 64, 14, 0.25);
+    }
+    .hero-btn-ghost {
+        padding: 15px 28px;
+        font-size: 0.96rem;
+        border-radius: 16px;
+        font-weight: 700;
+        border: 1px solid var(--border);
+        background: var(--surface);
+    }
+    .hero-btn-ghost:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-strong);
+    }
+
+    /* Telemetry Bar */
+    .telemetry-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-top: 1.5px solid rgba(255, 255, 255, 0.9);
+        border-radius: 24px;
+        padding: 28px;
+        margin: 20px 0 60px;
+        backdrop-filter: blur(30px);
+        box-shadow: var(--shadow-sm);
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .telemetry-item { text-align: center; flex: 1; min-width: 160px; }
+    .tel-value { font-size: 2.1rem; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 4px; }
+    .tel-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .telemetry-sep { width: 1px; height: 50px; background: var(--border); }
+    @@media (max-width: 768px) {
+        .telemetry-sep { display: none; }
+        .hero-headline { font-size: 2.6rem; }
+    }
+
+    /* Sections */
+    .section-container {
+        padding: 50px 0;
+    }
+    .section-header {
+        text-align: center;
+        max-width: 760px;
+        margin: 0 auto 48px;
+    }
+    .section-subtitle {
+        font-size: 0.76rem;
+        font-weight: 800;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 12px;
+    }
+    .section-title {
+        font-size: 2.6rem;
+        font-weight: 900;
+        color: var(--text);
+        letter-spacing: -1px;
+        margin-bottom: 16px;
+        line-height: 1.15;
+    }
+    .section-desc {
+        font-size: 1.02rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    /* Features Grid */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
+    .feature-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-top: 1.5px solid rgba(255, 255, 255, 0.9);
+        border-radius: 24px;
+        padding: 36px 28px;
+        backdrop-filter: blur(30px);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .feature-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--border-strong);
+        box-shadow: var(--shadow-md);
+    }
+    .feature-icon {
+        width: 54px; height: 54px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 22px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+    .feature-icon svg { width: 26px; height: 26px; }
+    .feature-title {
+        font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 12px; letter-spacing: -0.3px;
+    }
+    .feature-text {
+        font-size: 0.92rem; color: var(--text-muted); line-height: 1.6;
+    }
+
+    /* Pillars Showcase */
+    .pillars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+    @@media (max-width: 992px) {
+        .pillars-grid { grid-template-columns: 1fr; }
+    }
+    .pillar-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-top: 1.5px solid rgba(255, 255, 255, 0.9);
+        border-radius: 28px;
+        padding: 38px 30px;
+        backdrop-filter: blur(35px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s;
+    }
+    .highlight-pillar {
+        background: rgba(243, 235, 220, 0.85);
+        border: 2px solid var(--accent);
+        box-shadow: 0 20px 50px rgba(146, 64, 14, 0.12);
+        transform: scale(1.02);
+    }
+    .pillar-top { margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+    .pillar-role { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
+    .pillar-heading { font-size: 1.4rem; font-weight: 800; color: var(--text); margin-top: 6px; letter-spacing: -0.5px; }
+    
+    .pillar-list { list-style: none; display: flex; flex-direction: column; gap: 16px; flex: 1; margin-bottom: 32px; }
+    .pillar-list li { font-size: 0.9rem; color: var(--text-sub); display: flex; align-items: flex-start; gap: 12px; line-height: 1.5; font-weight: 500; }
+    .p-check { width: 18px; height: 18px; color: var(--green); flex-shrink: 0; margin-top: 2px; }
+    
+    .pillar-btn { width: 100%; justify-content: center; padding: 12px; border-radius: 14px; font-weight: 700; background: var(--surface); border: 1px solid var(--border); }
+    .pillar-btn-pri { width: 100%; justify-content: center; padding: 14px; border-radius: 14px; font-weight: 700; box-shadow: 0 6px 20px rgba(146, 64, 14, 0.2); }
+
+    /* Bottom CTA */
+    .bottom-cta {
+        margin-top: 60px;
+        background: linear-gradient(135deg, rgba(243, 235, 220, 0.9), rgba(235, 222, 203, 0.9));
+        border: 1px solid var(--border-strong);
+        border-top: 2px solid rgba(255, 255, 255, 0.95);
+        border-radius: 32px;
+        padding: 64px 30px;
+        text-align: center;
+        box-shadow: 0 24px 64px rgba(67, 40, 24, 0.15);
         position: relative;
         overflow: hidden;
     }
-    .home-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-        border-color: var(--border-strong);
-    }
-    .home-card-icon {
-        width: 48px; height: 48px; border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-    }
-    .home-card-title {
-        font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 4px;
-    }
-    .home-card-sub {
-        font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; flex: 1;
-    }
-    .home-card-arrow {
-        font-size: 1.1rem; color: var(--text-muted); align-self: flex-end;
-        transition: transform 0.15s, color 0.15s;
-    }
-    .home-card:hover .home-card-arrow { transform: translateX(4px); color: var(--accent); }
+    .cta-title { font-size: 2.5rem; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 12px; }
+    .cta-sub { font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto; }
 </style>

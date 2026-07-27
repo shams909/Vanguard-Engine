@@ -16,10 +16,6 @@ namespace Vanguard_Engine.Controllers
 
         public IActionResult Index()
         {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Dashboard");
-            }
             return View();
         }
 
