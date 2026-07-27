@@ -130,7 +130,27 @@ We replaced the bare placeholder view with a production-grade Enterprise Securit
 | **Authenticated Admin** | Replaces signup buttons with an acrylic welcome banner welcoming the Commander by name and role. | The Admin card dynamically updates to a bronze button: **"Launch Operations Console →"** routing to `/Dashboard/Admin`. | Replaces registration prompts with **"Return to Operations Desk →"**. |
 | **Authenticated Guard / Client** | Welcomes the guard/client and offers a direct quick-action warp to *Open Deployments* or *My Posts*. | Converts respective role cards into *View Open Deployments →* or *Submit Patrol Petition →*. | Offers instant workspace re-entry without re-authentication. |
 
-### 4.4 Resolving Razor View Compilation Syntax Exception (`CS0103`)
+### 4.4 Interactive Micro-Animations: The Discord-Inspired 360° Shield Spin
+To elevate the visual polish of the landing page hero section, we refined the interaction physics of the central Vanguard shield emblem ([`.hero-logo`](file:///c:/Users/Shams/Downloads/Vanguard-Engine/Views/Home/Index.cshtml#L302-L315)):
+* **Upright Authority vs. Asymmetric Tilt:** Initial mockups utilized a static leftward tilt (`rotate(-4deg)`). While casual tech startups often employ asymmetric rotation for playfulness, an institutional enterprise security platform demands architectural symmetry, precision, and discipline. The default stance was recalibrated to an unwavering upright position (`rotate(0deg)`).
+* **The Discord-Inspired Interactive Spin:** To prevent symmetrical layouts from feeling sterile, we integrated an engaging micro-animation triggered upon mouse hover—drawing direct inspiration from contemporary desktop application loading sequences (such as Discord's startup spinning emblem). Hovering commands the shield to rotate a full 360 degrees while expanding slightly (`scale(1.08)`) with an amplified bronze acrylic outer shadow.
+* **Why Elastic Cubic-Bezier Was Selected Over Linear Math:** Standard transitions (`linear`, `ease-in-out`) generate rigid, mechanical motion curves. To give the shield authentic physical mass and momentum without loading bulky JavaScript animation engines (e.g., GSAP), we engineered a specialized CSS cubic-bezier transition curve:
+
+```css
+.hero-logo {
+    transform: rotate(0deg);
+    /* Y2 value of 1.56 forces an elastic 'overshoot & settle' spring physics curve */
+    transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+.hero-logo:hover {
+    transform: rotate(360deg) scale(1.08);
+    box-shadow: 0 24px 60px rgba(146, 64, 14, 0.45), inset 0 2px 4px rgba(255,255,255,0.4);
+}
+```
+
+Because the second control point (`1.56`) exceeds the normalized animation scale coefficient of `1.0`, the browser's hardware-accelerated composITING engine creates natural spring physics—causing the emblem to spin, slightly over-rotate, and smoothly snap back into perfect alignment.
+
+### 4.5 Resolving Razor View Compilation Syntax Exception (`CS0103`)
 During the deployment of the responsive styles in `Index.cshtml`, a compilation build break occurred:
 * **Root Cause (`CS0103: The name 'media' does not exist in the current context`):** In ASP.NET Core Razor `.cshtml` files, a single `@` character acts as a transition operator instructing the engine to parse C# server code. Writing standard CSS responsive breakpoints (`@media (max-width: 768px)`) forced the compiler to search for a non-existent C# local variable named `media`.
 * **The Fix (`@@media`):** Escaping the operator by doubling it to `@@media` instructs the Razor parser to ignore code evaluation and yield a literal CSS `@media` rule to the client browser.
@@ -144,7 +164,7 @@ During the deployment of the responsive styles in `Index.cshtml`, a compilation 
 | [`Views/Shared/_PremiumLayout.cshtml`](file:///c:/Users/Shams/Downloads/Vanguard-Engine/Views/Shared/_PremiumLayout.cshtml) | **Major Feature Integration** | `.admin-mega-menu`, `.cmd-modal-box`, `document.addEventListener('keydown')`, top-right `dk-nav-right` Sign In/Sign Up buttons. | Added Mega-Menu & Command Palette, enforced warm Coffee & Bronze surface theme, added matrix keyboard navigation, and upgraded unauthenticated navbar buttons. |
 | [`Controllers/HomeController.cs`](file:///c:/Users/Shams/Downloads/Vanguard-Engine/Controllers/HomeController.cs) | **Routing Governance Refactor** | `public IActionResult Index()` | Removed forced authentication dashboard redirect, allowing both logged-in and guest users to view the actual Enterprise website. |
 | [`Controllers/AuthController.cs`](file:///c:/Users/Shams/Downloads/Vanguard-Engine/Controllers/AuthController.cs) | **Defensive Session Protection** | `Login()` (GET), `Register()` (GET) | Added instant dashboard redirects for active sessions, preventing logged-in administrators from encountering redundant login forms. |
-| [`Views/Home/Index.cshtml`](file:///c:/Users/Shams/Downloads/Vanguard-Engine/Views/Home/Index.cshtml) | **Total UI Overhaul & Complete Rewrite** | Complete view body, `.landing-container`, role-aware Razor branching (`@if(isAuth)`), and `@@media` escapes. | Built a multi-section corporate marketing page featuring dynamic role-aware action buttons that adapt instantly to active user clearances. |
+| [`Views/Home/Index.cshtml`](file:///c:/Users/Shams/Downloads/Vanguard-Engine/Views/Home/Index.cshtml) | **Total UI Overhaul & Complete Rewrite** | Complete view body, `.landing-container`, role-aware Razor branching (`@if(isAuth)`), `.hero-logo` spin animation, and `@@media` escapes. | Built a multi-section corporate marketing page featuring interactive 360° spring micro-animations and dynamic role-aware action buttons that adapt instantly to active user clearances. |
 
 ---
 *Documentation Compiled by Vanguard Engine Development Team — Ready for GitHub Version Control.*
