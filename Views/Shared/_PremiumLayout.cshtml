@@ -174,13 +174,14 @@
             left: 50%;
             transform: translateX(-50%) translateY(-12px) scale(0.96);
             width: 760px;
-            background: rgba(235, 222, 203, 0.97);
-            background-image: linear-gradient(145deg, rgba(80, 60, 28, 0.97) 0%, rgba(228, 212, 190, 0.97) 100%);
-            backdrop-filter: blur(45px) saturate(200%);
-            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            background: rgba(243, 235, 220, 0.92);
+            background-image: none;
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
             border: 1px solid var(--border-strong);
-            border-radius: 26px;
-            box-shadow: 0 24px 64px rgba(67, 40, 24, 0.26), 0 0 0 1px var(--glass-border), 0 8px 32px rgba(146, 64, 14, 0.12);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius);
+            box-shadow: 0 24px 64px rgba(67, 40, 24, 0.2), var(--shadow-md);
             padding: 24px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -261,7 +262,7 @@
             font-weight: 600 !important;
             color: var(--text-sub) !important;
             background: rgba(245, 235, 220, 0.45) !important;
-            border: 1px dashed rgba(180, 160, 140, 0.7) !important;
+            border: 1px dashed rgba(245, 235, 220, 0.45) !important;
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
@@ -308,13 +309,14 @@
         .cmd-modal-box {
             width: 100%;
             max-width: 620px;
-            background: rgba(235, 222, 203, 0.97);
-            background-image: linear-gradient(145deg, rgba(245, 233, 214, 0.97) 0%, rgba(228, 212, 190, 0.97) 100%);
+            background: rgba(243, 235, 220, 0.94);
+            background-image: none;
             backdrop-filter: blur(50px) saturate(200%);
             -webkit-backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid var(--border-strong);
-            border-radius: 24px;
-            box-shadow: 0 32px 80px rgba(67, 40, 24, 0.32), 0 0 0 1px var(--border-strong), 0 0 40px rgba(180, 83, 9, 0.12);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius);
+            box-shadow: 0 32px 80px rgba(67, 40, 24, 0.28), var(--shadow-md);
             overflow: hidden;
             transform: scale(0.95) translateY(-15px);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
