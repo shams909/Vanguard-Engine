@@ -72,66 +72,76 @@
             <i data-lucide="list" style="width: 20px; height: 20px; color: var(--green);"></i> Assigned Roster
         </h2>
 
-        <div class="dk-table-container">
-            <table class="dk-table">
-                <thead>
-                    <tr>
-                        <th>Operator</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var shift in Model)
-                    {
+        @if (!Model.Any())
+        {
+            <div class="empty-state" style="padding: 40px 20px;">
+                <div class="empty-icon"><i data-lucide="calendar" style="width:48px; height:48px; color:var(--text-muted); opacity:0.5;"></i></div>
+                <div class="empty-title" style="font-size:1.1rem; font-weight:800; color:var(--text); margin-top:10px;">No shifts assigned yet</div>
+                <div class="empty-sub" style="font-size:0.85rem; color:var(--text-sub);">Use the scheduling form on the left to assign deployment shifts to operators.</div>
+            </div>
+        }
+        else
+        {
+            <div class="dk-table-container">
+                <table class="dk-table">
+                    <thead>
                         <tr>
-                            <td><strong style="color: var(--text);">@shift.GuardName</strong></td>
-                            <td>@shift.ShiftDate</td>
-                            <td>@shift.StartTime - @shift.EndTime</td>
-                            <td>
-                                @if (shift.Status == "Scheduled")
-                                {
-                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2);">Scheduled</span>
-                                }
-                                else if (shift.Status == "Cancelled")
-                                {
-                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2);">Cancelled</span>
-                                }
-                                else
-                                {
-                                    <span style="padding: 4px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: rgba(180,83,9,0.1); color: var(--accent); border: 1px solid rgba(180,83,9,0.2);">@shift.Status</span>
-                                }
-                            </td>
-                            <td>
-                                @if (shift.Status == "Scheduled")
-                                {
-                                    <form asp-action="UpdateStatus" method="post" style="display:inline;">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="shiftId" value="@shift.Id" />
-                                        <input type="hidden" name="status" value="Cancelled" />
-                                        <button type="submit" class="dk-btn dk-btn-danger" style="padding: 4px 10px; font-size: 0.76rem;" data-confirm="Cancel this shift?">Cancel</button>
-                                    </form>
-                                }
-                                else if (shift.Status == "Cancelled")
-                                {
-                                    <form asp-action="UpdateStatus" method="post" style="display:inline;">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="shiftId" value="@shift.Id" />
-                                        <input type="hidden" name="status" value="Scheduled" />
-                                        <button type="submit" class="dk-btn dk-btn-primary" style="padding: 4px 10px; font-size: 0.76rem;" data-confirm="Restore this shift?">Restore</button>
-                                    </form>
-                                }
-                            </td>
+                            <th>Operator</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
-                    }
-                    @if (!Model.Any())
-                    {
-                        <tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding: 20px;">No shifts assigned yet.</td></tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var shift in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text);">@shift.GuardName</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">ID: @shift.GuardId.Substring(0, Math.Min(8, shift.GuardId.Length))...</div>
+                                </td>
+                                <td>@shift.ShiftDate</td>
+                                <td><span class="mono" style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">@shift.StartTime - @shift.EndTime</span></td>
+                                <td>
+                                    @if (shift.Status == "Scheduled")
+                                    {
+                                        <span class="badge badge-approved">SCHEDULED</span>
+                                    }
+                                    else if (shift.Status == "Cancelled")
+                                    {
+                                        <span class="badge badge-rejected">CANCELLED</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-pending">@shift.Status.ToUpper()</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (shift.Status == "Scheduled")
+                                    {
+                                        <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="shiftId" value="@shift.Id" />
+                                            <input type="hidden" name="status" value="Cancelled" />
+                                            <button type="submit" class="dk-btn dk-btn-danger" style="padding: 4px 10px; font-size: 0.76rem;" data-confirm="Cancel this shift?">Cancel</button>
+                                        </form>
+                                    }
+                                    else if (shift.Status == "Cancelled")
+                                    {
+                                        <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="shiftId" value="@shift.Id" />
+                                            <input type="hidden" name="status" value="Scheduled" />
+                                            <button type="submit" class="dk-btn dk-btn-primary" style="padding: 4px 10px; font-size: 0.76rem;" data-confirm="Restore this shift?">Restore</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>

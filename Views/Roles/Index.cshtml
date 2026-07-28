@@ -13,50 +13,49 @@
 </div>
 
 <div class="dk-card">
-    <table class="dk-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Role Name</th>
-                <th>Description</th>
-                <th>ID</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{ int i = 1; }
-            @foreach (var role in Model.Roles)
-            {
+    @if (!Model.Roles.Any())
+    {
+        <div class="empty-state" style="padding: 50px 24px;">
+            <div class="empty-icon">🔑</div>
+            <div class="empty-title">No roles defined</div>
+        </div>
+    }
+    else
+    {
+        <table class="dk-table">
+            <thead>
                 <tr>
-                    <td><span class="mono">@i</span></td>
-                    <td>
-                        @{
-                            var badgeCls = role.RoleName switch
-                            {
-                                "Admin" => "badge-admin",
-                                "Guard" => "badge-guard",
-                                _ => "badge-client"
-                            };
-                        }
-                        <span class="badge @badgeCls">@role.RoleName</span>
-                    </td>
-                    <td style="color:var(--text-sub);">@(role.Description ?? "—")</td>
-                    <td><span class="mono">@role.Id</span></td>
+                    <th>#</th>
+                    <th>Role Name</th>
+                    <th>Description</th>
+                    <th>ID</th>
                 </tr>
-                i++;
-            }
-            @if (!Model.Roles.Any())
-            {
-                <tr>
-                    <td colspan="4">
-                        <div class="empty-state">
-                            <div class="empty-icon">🔑</div>
-                            <div class="empty-title">No roles defined</div>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @{ int i = 1; }
+                @foreach (var role in Model.Roles)
+                {
+                    <tr>
+                        <td><span class="mono">@i</span></td>
+                        <td>
+                            @{
+                                var badgeCls = role.RoleName switch
+                                {
+                                    "Admin" => "badge-admin",
+                                    "Guard" => "badge-guard",
+                                    _ => "badge-client"
+                                };
+                            }
+                            <span class="badge @badgeCls">@role.RoleName</span>
+                        </td>
+                        <td style="color:var(--text-sub);">@(role.Description ?? "—")</td>
+                        <td><span class="mono">@role.Id</span></td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    }
 </div>
 
 @if (Model.Roles.Any())
