@@ -23,6 +23,33 @@
     /* ─── Sidebar open / close ──────────────────────────────── */
     function openSidebar() {
         if (!sidebar || !overlay) return;
+
+        // Surgical placement: align floating command center directly beneath the notification bell button
+        if (bell && window.innerWidth > 480) {
+            const rect = bell.getBoundingClientRect();
+            const sbWidth = Math.min(440, window.innerWidth - 32);
+            let leftPos = rect.left + (rect.width / 2) - (sbWidth / 2);
+            
+            // Ensure card does not breach right or left window edges
+            if (leftPos + sbWidth > window.innerWidth - 20) {
+                leftPos = window.innerWidth - sbWidth - 20;
+            }
+            leftPos = Math.max(20, leftPos);
+            
+            sidebar.style.top = (rect.bottom + 14) + 'px';
+            sidebar.style.left = leftPos + 'px';
+            sidebar.style.right = 'auto';
+            
+            // Lock transform origin directly under the horizontal center of the bell icon!
+            const originX = (rect.left + (rect.width / 2)) - leftPos;
+            sidebar.style.transformOrigin = `${originX}px top`;
+        } else {
+            sidebar.style.left = '';
+            sidebar.style.right = '';
+            sidebar.style.top = '';
+            sidebar.style.transformOrigin = 'top center';
+        }
+
         isOpen = true;
         overlay.classList.add('open');
         requestAnimationFrame(() => overlay.classList.add('visible'));
