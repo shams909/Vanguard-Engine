@@ -1357,7 +1357,11 @@
             cmdOverlay.setAttribute('aria-hidden', 'false');
             if (cmdInput) {
                 cmdInput.value = '';
-                cmdInput.focus();
+                // Delay focus invocation by 50ms so browser DOM layout reflows before claiming keyboard input focus for power users!
+                setTimeout(() => {
+                    cmdInput.focus();
+                    cmdInput.select();
+                }, 50);
             }
             renderResults('');
             if (megaPopover && megaPopover.classList.contains('show')) {
