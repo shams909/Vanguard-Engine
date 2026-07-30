@@ -8,7 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .vg-nav-inner { display:flex; align-items:center; max-width:1280px; margin:0 auto; padding:0 24px; height:64px; }
+        .vg-brand-wrap { flex:1; display:flex; align-items:center; }
+        .vg-links-wrap { display:flex; align-items:center; justify-content:center; gap:4px; }
+        .vg-right-wrap { flex:1; display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+        @@media (max-width: 768px) {
+            .vg-nav-inner { flex-direction:column; height:auto; padding:14px 16px; gap:10px; }
+            .vg-brand-wrap, .vg-links-wrap, .vg-right-wrap { flex:none; width:100%; justify-content:center; flex-wrap:wrap; }
+        }
+    </style>
+
 </head>
 <body>
 @{
@@ -21,11 +31,13 @@
     <nav class="vg-nav">
         <div class="vg-nav-inner">
 
-            <a href="/" class="vg-brand">
-                <i data-lucide="shield" style="width:24px; height:24px;"></i> Vanguard
-            </a>
+            <div class="vg-brand-wrap">
+                <a href="/" class="vg-brand">
+                    <i data-lucide="shield" style="width:24px; height:24px;"></i> Vanguard
+                </a>
+            </div>
 
-            <ul class="vg-nav-links">
+            <ul class="vg-links-wrap" style="list-style:none; margin:0; padding:0;">
                 <li><a href="/">Home</a></li>
                 <li><a asp-controller="Recruitment" asp-action="Index"><i data-lucide="megaphone" style="width:16px; height:16px; display:inline-block; vertical-align:-3px; margin-right:4px;"></i> Careers</a></li>
 
@@ -66,7 +78,7 @@
                 }
             </ul>
 
-            <ul class="vg-nav-right">
+            <ul class="vg-right-wrap" style="list-style:none; margin:0; padding:0;">
                 @if (isAuthenticated)
                 {
                     <li>

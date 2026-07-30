@@ -28,6 +28,7 @@ body {
 }
 
 .vg-nav-inner {
+  position: relative;
   max-width: 1280px;
   margin: 0 auto;
   display: flex;
@@ -46,6 +47,7 @@ body {
   align-items: center;
   gap: 8px;
   letter-spacing: -0.5px;
+  z-index: 10;
 }
 
 .vg-brand:hover { color: #4f46e5; }
@@ -53,11 +55,11 @@ body {
 .vg-nav-links {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
-  flex-wrap: wrap;
 }
 
 .vg-nav-links a {
@@ -80,10 +82,41 @@ body {
 .vg-nav-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   list-style: none;
   margin: 0;
   padding: 0;
+  z-index: 10;
+}
+
+@media (min-width: 769px) {
+  .vg-nav-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .vg-nav {
+    height: auto;
+  }
+  .vg-nav-inner {
+    flex-direction: column;
+    height: auto;
+    padding: 16px;
+    gap: 16px;
+  }
+  .vg-brand {
+    width: 100%;
+    justify-content: center;
+  }
+  .vg-nav-links, .vg-nav-right {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 
 .vg-user-chip {
