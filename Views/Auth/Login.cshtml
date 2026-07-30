@@ -69,8 +69,13 @@
                         <label asp-for="Password" class="dk-label" style="margin:0;">Password</label>
                         <a asp-action="ForgotPassword" style="font-size:0.8rem; color:var(--accent); text-decoration:none; font-weight:500; opacity:0.85; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">Forgot password?</a>
                     </div>
-                    <input asp-for="Password" class="dk-input" type="password"
-                           placeholder="••••••••" autocomplete="current-password" />
+                    <div style="position: relative;">
+                        <input asp-for="Password" class="dk-input" type="password"
+                               placeholder="••••••••" autocomplete="current-password" style="padding-right: 40px;" />
+                        <button type="button" id="togglePasswordBtn" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;" title="Toggle Password Visibility">
+                            <i data-lucide="eye" id="togglePasswordIcon" style="width: 18px; height: 18px;"></i>
+                        </button>
+                    </div>
                     <span asp-validation-for="Password" class="field-err"></span>
                 </div>
 
@@ -118,4 +123,20 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('togglePasswordBtn').addEventListener('click', function () {
+            const passwordInput = document.getElementById('Password');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.setAttribute('data-lucide', 'eye');
+            }
+            
+            lucide.createIcons();
+        });
+    </script>
 }
