@@ -8,14 +8,19 @@ namespace Vanguard_Engine.Controllers
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly Repositories.IUserRepository _userRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, Repositories.IUserRepository userRepository)
         {
             _logger = logger;
+            _userRepository = userRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var users = await _userRepository.GetPagedAsync(1, 5000);
+            var guardCount = users.Count(u => u.GuardStatus != null);
+            ViewBag.GuardCount = guardCount;
             return View();
         }
 
