@@ -100,17 +100,17 @@
         .dk-nav-inner {
             display: flex; 
             align-items: center; 
-            justify-content: space-between;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             padding: 8px 24px; 
             min-height: 64px; 
             height: auto; 
             gap: 12px;
         }
+        .dk-brand { flex: 1; }
         .dk-brand {
             font-size: 1.05rem; font-weight: 800; color: var(--text);
             text-decoration: none; display: flex; align-items: center; gap: 8px;
-            letter-spacing: -0.3px; flex-shrink: 0;
+            letter-spacing: -0.3px; flex-shrink: 0; flex: 1;
         }
         .dk-brand:hover { color: var(--accent); }
         .dk-nav-links {
@@ -456,7 +456,7 @@
         }
         .dk-nav-right {
             display: flex; align-items: center; gap: 8px;
-            list-style: none; flex-shrink: 0;
+            list-style: none; flex-shrink: 0; flex: 1; justify-content: flex-end;
         }
         .user-chip {
             display: flex; align-items: center; gap: 8px;
@@ -939,7 +939,8 @@
             
             /* Navbar adjustments */
             .dk-nav { border-radius: 16px; top: 8px; width: calc(100% - 16px); }
-            .dk-nav-inner { flex-direction: column; padding: 16px; gap: 16px; height: auto; }
+            .dk-nav-inner { flex-direction: column; padding: 16px; gap: 12px; height: auto; align-items: stretch; }
+            .dk-brand { flex: none; justify-content: center; }
             .dk-nav-links { width: 100%; justify-content: center; }
             .dk-nav-right { width: 100%; justify-content: center; flex-wrap: wrap; }
             
@@ -968,7 +969,7 @@
             .hero-title { font-size: 1.5rem; }
             
             /* Allow horizontal scroll for nav links on very small screens */
-            .dk-nav-links { justify-content: flex-start; overflow-x: auto; padding-bottom: 8px; flex-wrap: nowrap; }
+            .dk-nav-links { justify-content: center; overflow-x: auto; padding-bottom: 4px; flex-wrap: wrap; }
             .dk-nav-links::-webkit-scrollbar { display: none; }
             .dk-nav-links a { white-space: nowrap; }
         }
