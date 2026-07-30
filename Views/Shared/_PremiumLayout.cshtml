@@ -898,11 +898,44 @@
         .empty-sub { font-size: 0.85rem; color: var(--text-muted); }
 
         /* ─── FOOTER ─── */
-        .dk-footer {
-            border-top: 1px solid var(--border); padding: 20px 28px;
-            text-align: center; font-size: 0.78rem; color: var(--text-muted);
+        /* ─── FOOTER ─── */
+        .dk-footer-rich {
+            border-top: 1px solid var(--border); padding: 60px 24px 20px;
+            background: var(--surface); color: var(--text-muted);
         }
-        .dk-footer a { color: var(--accent); text-decoration: none; }
+        .footer-container {
+            max-width: 1280px; margin: 0 auto; display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px;
+        }
+        .footer-brand {
+            font-size: 1.2rem; font-weight: 800; color: var(--text);
+            display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+        }
+        .footer-desc {
+            font-size: 0.85rem; line-height: 1.6; opacity: 0.8;
+            max-width: 320px;
+        }
+        .footer-title {
+            font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 16px;
+        }
+        .footer-col ul {
+            list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;
+        }
+        .footer-col a {
+            color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--accent); }
+        .footer-bottom {
+            max-width: 1280px; margin: 0 auto; padding-top: 20px;
+            border-top: 1px solid var(--border); text-align: center;
+            font-size: 0.78rem; opacity: 0.7;
+        }
+        @@media (max-width: 768px) {
+            .footer-container { grid-template-columns: 1fr; gap: 30px; text-align: center; }
+            .footer-brand { justify-content: center; }
+            .footer-desc { margin: 0 auto; }
+        }
 
         /* ─── PAGINATION ─── */
         .pagination { display: flex; gap: 8px; justify-content: center; padding-top: 20px; list-style: none; }
@@ -1225,8 +1258,53 @@
     @RenderBody()
 </main>
 
-<footer class="dk-footer">
-    &copy; 2026 Vanguard Engine &mdash; <a href="/Home/Privacy">Privacy Policy</a>
+<footer class="dk-footer-rich">
+    <div class="footer-container">
+        <div class="footer-col">
+            <div class="footer-brand"><i data-lucide="shield-half"></i> Vanguard Engine</div>
+            <p class="footer-desc">The definitive enterprise security platform combining real-time tactical dispatch, verified guard recruitment, and high-clearance executive protection.</p>
+        </div>
+        <div class="footer-col">
+            <h4 class="footer-title">Platform</h4>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a asp-controller="Recruitment" asp-action="Index">Careers</a></li>
+                <li><a href="/Home/Privacy">Privacy Policy</a></li>
+            </ul>
+        </div>
+        @if (!isAuth)
+        {
+            <div class="footer-col">
+                <h4 class="footer-title">For Users</h4>
+                <ul>
+                    <li><a href="/Auth/Login">Sign In</a></li>
+                    <li><a href="/Auth/Register">Create Account</a></li>
+                    <li><a href="/Auth/Login">Client Portal</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">Get Started</h4>
+                <ul>
+                    <li><a href="/Auth/Register">Apply as Guard</a></li>
+                    <li><a href="/Auth/Register">Request Security</a></li>
+                    <li><a href="/Auth/Register">VIP Protection</a></li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="footer-col">
+                <h4 class="footer-title">Quick Links</h4>
+                <ul>
+                    <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                    <li><a href="/Home/Privacy">Privacy Policy</a></li>
+                </ul>
+            </div>
+        }
+    </div>
+    <div class="footer-bottom">
+        &copy; @DateTime.Now.Year Vanguard Engine. All rights reserved.
+    </div>
 </footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
