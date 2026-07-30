@@ -18,7 +18,7 @@ public class UsersController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 1000)
     {
         var model = new UsersIndexViewModel
         {

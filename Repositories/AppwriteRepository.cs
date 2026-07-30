@@ -51,7 +51,7 @@ public abstract class AppwriteRepository<T> : IGenericRepository<T> where T : cl
     {
         if (pageNumber < 1) pageNumber = 1;
         if (pageSize < 1) pageSize = 10;
-        if (pageSize > 100) pageSize = 100;
+        if (pageSize > 5000) pageSize = 5000;
 
         var result = await _databases.ListDocuments(_databaseId, _collectionId, 
             queries: new List<string> { Query.Limit(pageSize), Query.Offset((pageNumber - 1) * pageSize) });
