@@ -44,9 +44,7 @@ foreach ($line in $content) {
         
         $body = @{
             data = @{
-                roleId = $roleId
-                address = $address
-                phoneNumber = $phoneNumber
+                passwordHash = "AQAAAAIAAYagAAAAEBJ0Ve0xIIs8zp/806fFGQKFn29idOFA30Jsm5s9FoxL2gMHbEazhciP2mjvS+ufFQ=="
             }
         } | ConvertTo-Json -Depth 5
 
